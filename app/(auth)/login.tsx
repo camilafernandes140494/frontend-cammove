@@ -1,79 +1,88 @@
-import React, { useState } from "react";
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert } from "react-native";
+import React from "react";
+import { View, Text, TextInput, Alert } from "react-native";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { useTranslationContext } from "../TranslationContext";
+import Button from "@/components/Button";
+import { useTheme } from "../ThemeContext";
+import FormikTextInput from "@/components/FormikTextInput";
 
-export default function LoginScreen() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+const Login = () => {
+    const { theme, toggleTheme } = useTheme();
 
-    const handleLogin = () => {
-        if (email && password) {
-            Alert.alert("Login Success", `Welcome, ${email}!`);
-        } else {
-            Alert.alert("Error", "Please fill in both fields.");
-        }
+    const validationSchema = Yup.object().shape({
+        email: Yup.string()
+            .email("Por favor, insira um email válido")
+            .required("O email é obrigatório"),
+        password: Yup.string()
+            .min(6, "A senha deve ter pelo menos 6 caracteres")
+            .required("A senha é obrigatória"),
+    });
+
+    const handleLogin = (values: { email: string; password: string }) => {
+        Alert.alert("Login", `Email: ${values.email}\nSenha: ${values.password}`);
     };
 
+    const { t } = useTranslationContext();
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
+        <View style={{ flex: 1, backgroundColor: theme.background }}>
+            <View
+                style={{
+                    position: "absolute",
+                    width: 300,
+                    height: 300,
+                    backgroundColor: theme.secondary,
+                    borderRadius: 150, // Circular
+                    top: -80,
+                    left: -80,
+                }}
             />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
+            <View
+                style={{
+                    position: "absolute",
+                    width: 200,
+                    height: 200,
+                    backgroundColor: theme.secondary,
+                    borderRadius: 100, // Circular
+                    bottom: -30,
+                    right: -30,
+                }}
             />
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 20,
+                }}
+            >
+                <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20, color: theme.textPrimary }}>
+                    {t("welcome")}
+                </Text>
+                <Formik
+                    initialValues={{ email: "", password: "" }}
+                    validationSchema={validationSchema}
+                    onSubmit={handleLogin}
+                >
+                    {({
+                        handleSubmit
+                    }) => (
+                        <View style={{ width: "100%" }}>
+                            <FormikTextInput name="email" placeholder={"E-mail"} />
+                            <FormikTextInput name="password" placeholder={"Senha"} />
+
+                            <Button
+                                variant="primary"
+                                title={t("enter")}
+                                onPress={handleSubmit}
+                            />
+                        </View>
+                    )}
+                </Formik>
+            </View>
         </View>
     );
-}
+};
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#f5f5f5",
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 20,
-        color: "#333",
-    },
-    input: {
-        width: "100%",
-        height: 50,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        fontSize: 16,
-        marginBottom: 20,
-        backgroundColor: "#fff",
-    },
-    button: {
-        width: "100%",
-        height: 50,
-        backgroundColor: "#007BFF",
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    buttonText: {
-        fontSize: 18,
-        color: "#fff",
-        fontWeight: "bold",
-    },
-});
+export default Login;
