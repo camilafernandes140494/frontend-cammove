@@ -8,7 +8,7 @@ import { useTheme } from "../ThemeContext";
 import FormikTextInput from "@/components/FormikTextInput";
 import { postCreateUser } from "@/api/auth/auth.api";
 
-const Login = () => {
+const CreateUser = () => {
     const { theme, toggleTheme } = useTheme();
 
     const validationSchema = Yup.object().shape({
@@ -20,9 +20,9 @@ const Login = () => {
             .required("A senha é obrigatória"),
     });
 
-    const handleLogin = async (values: { email: string; password: string }) => {
-        // Alert.alert("Login", `Email: ${values.email}\nSenha: ${values.password}`);
+    const { t } = useTranslationContext();
 
+    const handleCreateUser = async (values: { email: string; password: string }) => {
         try {
             // Cria o usuário com email e senha
             const userCredential = await postCreateUser(values);
@@ -30,12 +30,9 @@ const Login = () => {
             Alert.alert("Login", `Email: ${values.email}\nSenha: ${values.password}`);
         } catch (error) {
             // Se houver um erro (ex: email já em uso ou senha fraca)
-            Alert.alert('error');
+            console.log(error);
         }
-
     };
-
-    const { t } = useTranslationContext();
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -75,7 +72,7 @@ const Login = () => {
                 <Formik
                     initialValues={{ email: "", password: "" }}
                     validationSchema={validationSchema}
-                    onSubmit={handleLogin}
+                    onSubmit={handleCreateUser}
                 >
                     {({
                         handleSubmit
@@ -85,9 +82,9 @@ const Login = () => {
                             <FormikTextInput name="password" placeholder={"Senha"} />
 
                             <Button
+                                onPress={handleCreateUser as any}
                                 variant="primary"
-                                title={t("enter")}
-                                onPress={handleSubmit as any}
+                                title={t("create")}
                             />
                         </View>
                     )}
@@ -97,4 +94,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default CreateUser;
