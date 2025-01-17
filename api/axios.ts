@@ -1,33 +1,40 @@
 import axios from "axios";
 
-// Configuração do Axios
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://backend-cammove.vercel.app",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Interceptores (Requisição)
 api.interceptors.request.use(
   (config) => {
-    // Adicionar token ou outras modificações antes da requisição
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error("Erro na requisição:", error);
+    return Promise.reject(error);
+  }
 );
 
-// Interceptores (Resposta)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Tratar erros globalmente
-    if (error.response && error.response.status === 401) {
-      // Lógica de logout ou redirecionamento
+    if (error.response) {
+      // Erro da resposta da API
+      console.error(`Erro na resposta: ${error.response.status}`);
+      if (error.response.status === 401) {
+        // Lógica de logout ou redirecionamento
+      }
+    } else if (error.request) {
+      // Erro na requisição, por exemplo, se não há resposta do servidor
+      console.error(
+        "Erro na requisição (sem resposta do servidor):",
+        error.request
+      );
+    } else {
+      // Erro ao configurar a requisição
+      console.error("Erro ao configurar a requisição:", error.message);
     }
     return Promise.reject(error);
   }
