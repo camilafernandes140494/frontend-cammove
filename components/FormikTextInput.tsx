@@ -16,6 +16,7 @@ const FormikTextInput = ({ name, ...props }: FormikTextInputProps) => {
         <View style={{ marginBottom: 10 }}>
             <TextInput
                 {...props}
+                id={name}
                 style={{
                     width: '100%',
                     height: 50,

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput, Alert } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useTranslationContext } from "../TranslationContext";
@@ -7,9 +7,12 @@ import Button from "@/components/Button";
 import { useTheme } from "../ThemeContext";
 import FormikTextInput from "@/components/FormikTextInput";
 import { postCreateUser } from "@/api/auth/auth.api";
+import { useRouter } from "expo-router";
 
 const Login = () => {
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
+    const { t } = useTranslationContext();
+    const router = useRouter();
 
     const validationSchema = Yup.object().shape({
         email: Yup.string()
@@ -21,21 +24,17 @@ const Login = () => {
     });
 
     const handleLogin = async (values: { email: string; password: string }) => {
-        // Alert.alert("Login", `Email: ${values.email}\nSenha: ${values.password}`);
-
         try {
-            // Cria o usuário com email e senha
             const userCredential = await postCreateUser(values);
-            console.log('Usuário criado:', userCredential.user);
-            Alert.alert("Login", `Email: ${values.email}\nSenha: ${values.password}`);
+            console.log("Usuário criado:", userCredential.user);
+            Alert.alert(
+                t("login_success") || "Login",
+                `${t("email") || "Email"}: ${values.email}\n${t("password") || "Senha"}: ${values.password}`
+            );
         } catch (error) {
-            // Se houver um erro (ex: email já em uso ou senha fraca)
-            Alert.alert('error');
+            console.error("Erro ao criar usuário:", error);
         }
-
     };
-
-    const { t } = useTranslationContext();
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -45,7 +44,7 @@ const Login = () => {
                     width: 300,
                     height: 300,
                     backgroundColor: theme.secondary,
-                    borderRadius: 150, // Circular
+                    borderRadius: 150,
                     top: -80,
                     left: -80,
                 }}
@@ -56,7 +55,7 @@ const Login = () => {
                     width: 200,
                     height: 200,
                     backgroundColor: theme.secondary,
-                    borderRadius: 100, // Circular
+                    borderRadius: 100,
                     bottom: -30,
                     right: -30,
                 }}
@@ -69,7 +68,14 @@ const Login = () => {
                     padding: 20,
                 }}
             >
-                <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20, color: theme.textPrimary }}>
+                <Text
+                    style={{
+                        fontSize: 24,
+                        fontWeight: "bold",
+                        marginBottom: 20,
+                        color: theme.textPrimary,
+                    }}
+                >
                     {t("welcome")}
                 </Text>
                 <Formik
@@ -77,21 +83,27 @@ const Login = () => {
                     validationSchema={validationSchema}
                     onSubmit={handleLogin}
                 >
-                    {({
-                        handleSubmit
-                    }) => (
+                    {({ handleSubmit }) => (
                         <View style={{ width: "100%" }}>
-                            <FormikTextInput name="email" placeholder={"E-mail"} />
-                            <FormikTextInput name="password" placeholder={"Senha"} />
 
+                            <FormikTextInput name="email" placeholder={"E-mail"} />
+                            <FormikTextInput
+                                name="password"
+                                placeholder={"Senha"}
+                                secureTextEntry
+                            />
                             <Button
                                 variant="primary"
                                 title={t("enter")}
-                                onPress={handleSubmit as any}
+                                onPress={handleSubmit as any} // Corrigido para expor handleSubmit
                             />
                         </View>
                     )}
                 </Formik>
+                <Button
+                    title="Não tem uma conta? Cadastre-se"
+                    onPress={() => router.push('/createUser')}
+                />
             </View>
         </View>
     );

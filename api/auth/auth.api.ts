@@ -1,11 +1,6 @@
 // File: api.js
-
-import { Platform } from "react-native";
-import axios from "axios";
 import { PostCreateUser } from "./auth.types";
 import api from "../axios";
-
-const API_BASE_URL = process.env.API_BASE_URL;
 
 export const postCreateUser = async (params: PostCreateUser) => {
   try {

@@ -9,7 +9,7 @@ interface ButtonProps extends TouchableOpacityProps {
     title: string;
 }
 
-const Button = ({ variant = 'primary', title, onPress, ...props }: ButtonProps) => {
+const Button = ({ variant = 'primary', title, ...props }: ButtonProps) => {
 
     const { theme } = useTheme();
 
