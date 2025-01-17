@@ -10,6 +10,7 @@ import i18n from '@/locales/i18n';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { TranslationProvider } from './TranslationContext';
 import { ThemeProvider } from './ThemeContext';
+import { UserProvider } from './UserContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -48,14 +49,19 @@ export default function RootLayout() {
   return (
     <I18nextProvider i18n={i18n}>
       <ThemeProvider>
-        <TranslationProvider>
-          <StatusBar style="auto" />
-          {/* Renderiza o StackNavigator */}
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-        </TranslationProvider>
+        <UserProvider>
+          <TranslationProvider>
+            <StatusBar style="auto" />
+            {/* Renderiza o StackNavigator */}
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+              <Stack.Screen name="createUser" options={{ title: 'Cadastro' }} />
+              <Stack.Screen name="home" options={{ title: 'Home' }} />
+
+            </Stack>
+          </TranslationProvider>
+        </UserProvider>
       </ThemeProvider>
     </I18nextProvider>
   );
