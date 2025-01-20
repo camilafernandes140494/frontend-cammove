@@ -1,14 +1,15 @@
 import React from "react";
-import { View, Text, Alert } from "react-native";
+import { View, Text } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useTranslationContext } from "../TranslationContext";
-import Button from "@/components/Button";
+// import Button from "@/components/Button";
 import { useTheme } from "../ThemeContext";
 import FormikTextInput from "@/components/FormikTextInput";
 import { postLogin } from "@/api/auth/auth.api";
 import { useRouter } from "expo-router";
 import { useUser } from "../UserContext";
+import { Button } from 'react-native-paper';
 
 const Login = () => {
     const { theme } = useTheme();
@@ -91,18 +92,18 @@ const Login = () => {
                                 placeholder={"Senha"}
                                 secureTextEntry
                             />
-                            <Button
-                                variant="primary"
-                                title={t("enter")}
-                                onPress={handleSubmit as any}
-                            />
+
+
+                            <Button mode="contained" onPress={handleSubmit as any}>
+                                {t("enter")}
+                            </Button>
                         </View>
                     )}
                 </Formik>
-                <Button
-                    title="Não tem uma conta? Cadastre-se"
-                    onPress={() => router.push('/createUser')}
-                />
+                <Button mode="contained" onPress={() => router.push('/createUser')}>
+                    Não tem uma conta? Cadastre-se
+                </Button>
+
             </View>
         </View>
     );
