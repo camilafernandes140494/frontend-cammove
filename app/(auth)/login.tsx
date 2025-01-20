@@ -6,13 +6,15 @@ import { useTranslationContext } from "../TranslationContext";
 import Button from "@/components/Button";
 import { useTheme } from "../ThemeContext";
 import FormikTextInput from "@/components/FormikTextInput";
-import { postCreateUser } from "@/api/auth/auth.api";
+import { postLogin } from "@/api/auth/auth.api";
 import { useRouter } from "expo-router";
+import { useUser } from "../UserContext";
 
 const Login = () => {
     const { theme } = useTheme();
     const { t } = useTranslationContext();
     const router = useRouter();
+    const { setUser } = useUser();
 
     const validationSchema = Yup.object().shape({
         email: Yup.string()
@@ -25,14 +27,11 @@ const Login = () => {
 
     const handleLogin = async (values: { email: string; password: string }) => {
         try {
-            const userCredential = await postCreateUser(values);
-            console.log("Usuário criado:", userCredential.user);
-            Alert.alert(
-                t("login_success") || "Login",
-                `${t("email") || "Email"}: ${values.email}\n${t("password") || "Senha"}: ${values.password}`
-            );
+            const userCredential = await postLogin(values);
+            setUser({ id: userCredential.user_id, email: '', name: "" })
+            router.push('/home')
         } catch (error) {
-            console.error("Erro ao criar usuário:", error);
+            console.error("Erro ao logar:", error);
         }
     };
 
@@ -95,7 +94,7 @@ const Login = () => {
                             <Button
                                 variant="primary"
                                 title={t("enter")}
-                                onPress={handleSubmit as any} // Corrigido para expor handleSubmit
+                                onPress={handleSubmit as any}
                             />
                         </View>
                     )}

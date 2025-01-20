@@ -27,7 +27,6 @@ const createUser = () => {
     const handleLogin = async (values: { email: string; password: string }) => {
         try {
             const userCredential = await postCreateUser(values);
-            console.log("Usuário criado:", userCredential);
             setUser({ id: userCredential.uid, email: '', name: "" })
             router.push('/home')
         } catch (error) {
