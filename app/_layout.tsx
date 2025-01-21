@@ -22,10 +22,6 @@ export default function RootLayout() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Simulando o estado de autenticação
 
-
-
-
-
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync(); // Esconde o splash screen após o carregamento das fontes

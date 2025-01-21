@@ -13,8 +13,8 @@ const Login = () => {
     const { setUser } = useUser();
     const { theme } = useTheme();
 
+    const [showPassword, setShowPassword] = useState(false);
     const [visible, setVisible] = useState(false);
-
 
     const validationSchema = Yup.object().shape({
         email: Yup.string()
@@ -35,21 +35,20 @@ const Login = () => {
         }
     };
 
-
-
-
     return (
-        <View style={{ flex: 1, backgroundColor: "#fff" }}>
+        <View style={{ flex: 1 }}>
             <View
                 style={{
                     flex: 1,
-                    backgroundColor: theme.primary,
+                    backgroundColor: theme.colors.primary,
                     justifyContent: "center",
                     alignItems: "center",
                     paddingBottom: 5,
                 }}
             >
-                <Text variant="displayMedium" style={{ color: theme.background }} >
+                <Text variant="displayMedium"
+                    style={{ color: theme.colors.background }}
+                >
                     CAMMOVE
                 </Text>
             </View>
@@ -58,7 +57,7 @@ const Login = () => {
                 style={{
                     flex: 2,
                     marginTop: -50,
-                    backgroundColor: theme.background,
+                    backgroundColor: theme.colors.background,
                     borderTopEndRadius: 40,
                     borderTopStartRadius: 40,
                     padding: 20,
@@ -113,8 +112,13 @@ const Login = () => {
                                 value={values.password}
                                 onChangeText={handleChange("password")}
                                 onBlur={handleBlur("password")}
-                                secureTextEntry
-                                right={<TextInput.Icon icon="eye" />}
+                                secureTextEntry={!showPassword}
+                                right={
+                                    <TextInput.Icon
+                                        icon={showPassword ? "eye-off" : "eye"}
+                                        onPress={() => setShowPassword(!showPassword)}
+                                    />
+                                }
                                 style={{
                                     backgroundColor: theme.background,
                                 }}
@@ -125,7 +129,6 @@ const Login = () => {
                                     {errors.password}
                                 </HelperText>
                             )}
-
 
                             <Button style={{
                                 alignSelf: "flex-end",
@@ -146,7 +149,7 @@ const Login = () => {
                             </Button>
 
 
-                            <Text style={{ textAlign: "center", color: "#6c757d" }}>
+                            <Text style={{ textAlign: "center", }}>
                                 Não tem uma conta?{" "}
                                 <Text
                                     style={{ fontWeight: "bold" }}

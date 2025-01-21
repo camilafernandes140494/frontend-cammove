@@ -1,20 +1,19 @@
-import React, { useEffect } from "react";
-import { View, Text, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useTranslationContext } from "../TranslationContext";
-import Button from "@/components/Button";
-import { useTheme } from "../ThemeContext";
-import FormikTextInput from "@/components/FormikTextInput";
-import { postCreateUser } from "@/api/auth/auth.api";
 import { useRouter } from "expo-router";
+import { TextInput, Button, HelperText, Text, Snackbar } from "react-native-paper";
+import { postCreateUser, postLogin } from "@/api/auth/auth.api";
 import { useUser } from "../UserContext";
+import { useTheme } from "../ThemeContext";
 
 const createUser = () => {
     const { theme } = useTheme();
-    const { t } = useTranslationContext();
     const router = useRouter();
     const { setUser } = useUser();
+    const [showPassword, setShowPassword] = useState(false);
+    const [visible, setVisible] = useState(false);
     const validationSchema = Yup.object().shape({
         email: Yup.string()
             .email("Por favor, insira um email válido")
@@ -35,72 +34,124 @@ const createUser = () => {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.background }}>
-            <View
-                style={{
-                    position: "absolute",
-                    width: 300,
-                    height: 300,
-                    backgroundColor: theme.secondary,
-                    borderRadius: 150,
-                    top: -80,
-                    left: -80,
-                }}
-            />
-            <View
-                style={{
-                    position: "absolute",
-                    width: 200,
-                    height: 200,
-                    backgroundColor: theme.secondary,
-                    borderRadius: 100,
-                    bottom: -30,
-                    right: -30,
-                }}
-            />
+
+        <View style={{ flex: 1 }}>
             <View
                 style={{
                     flex: 1,
+                    backgroundColor: theme.colors.primary,
                     justifyContent: "center",
                     alignItems: "center",
-                    padding: 20,
+                    paddingBottom: 20,
                 }}
             >
-                <Text
-                    style={{
-                        fontSize: 24,
-                        fontWeight: "bold",
-                        marginBottom: 20,
-                        color: theme.textPrimary,
-                    }}
+                <Text variant="displayMedium"
+                    style={{ color: theme.colors.background }}
                 >
-                    {t("welcome")}
+                    CAMMOVE
                 </Text>
+                <Text variant="titleMedium"
+                    style={{ color: theme.colors.background }}
+                >
+                    Cadastre-se
+                </Text>
+            </View>
+
+            <View
+                style={{
+                    flex: 2,
+                    marginTop: -50,
+                    backgroundColor: theme.colors.background,
+                    borderTopEndRadius: 40,
+                    borderTopStartRadius: 40,
+                    padding: 20,
+                    paddingTop: 50,
+                }}
+            >
+                <Snackbar
+                    visible={visible}
+                    onDismiss={() => setVisible(false)}
+                    action={{
+                        label: "",
+                        icon: 'close',
+                        onPress: () => setVisible(false),
+                    }}>
+                    Erro ao cadastrar
+                </Snackbar>
                 <Formik
                     initialValues={{ email: "", password: "" }}
                     validationSchema={validationSchema}
                     onSubmit={handleLogin}
                 >
-                    {({ handleSubmit }) => (
-                        <View style={{ width: "100%" }}>
+                    {({
+                        handleSubmit,
+                        handleChange,
+                        handleBlur,
+                        values,
+                        errors,
+                        touched,
+                    }) => (
+                        <View style={{
+                            display: 'flex', flexDirection: 'column', gap: 5
+                        }}>
+                            < TextInput
+                                mode="flat"
+                                label="E-mail"
+                                value={values.email}
+                                onChangeText={handleChange("email")}
+                                onBlur={handleBlur("email")}
+                                style={{
+                                    backgroundColor: theme.background,
+                                }}
+                                error={touched.email && Boolean(errors.email)}
+                            />
+                            {touched.email && errors.email && (
+                                <HelperText type="error" >
+                                    {errors.email}
+                                </HelperText>
+                            )}
+                            <TextInput
+                                mode="flat"
+                                label="Senha"
+                                value={values.password}
+                                onChangeText={handleChange("password")}
+                                onBlur={handleBlur("password")}
+                                secureTextEntry={!showPassword}
+                                right={
+                                    <TextInput.Icon
+                                        icon={showPassword ? "eye-off" : "eye"}
+                                        onPress={() => setShowPassword(!showPassword)}
+                                    />
+                                }
+                                style={{
+                                    backgroundColor: theme.background,
+                                }}
+                                error={touched.password && Boolean(errors.password)}
+                            />
+                            {touched.password && errors.password && (
+                                <HelperText type="error" >
+                                    {errors.password}
+                                </HelperText>
+                            )}
 
-                            <FormikTextInput name="email" placeholder={"E-mail"} />
-                            <FormikTextInput
-                                name="password"
-                                placeholder={"Senha"}
-                                secureTextEntry
-                            />
+
                             <Button
-                                variant="primary"
-                                title={t("create")}
+                                mode="contained"
                                 onPress={handleSubmit as any}
-                            />
+                                style={{
+                                    borderRadius: 10,
+                                    marginVertical: 20,
+                                }}
+                                contentStyle={{ height: 50 }}
+                            >
+                                Cadastre-se
+                            </Button>
                         </View>
                     )}
                 </Formik>
 
-            </View>
-        </View>
+            </View >
+        </View >
     );
 };
 
