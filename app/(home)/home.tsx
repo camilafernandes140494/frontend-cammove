@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { SafeAreaView, View, } from "react-native";
+import React, { useRef, useState } from "react";
+import { FlatList, SafeAreaView, TouchableOpacity, View, } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "expo-router";
-import { TextInput, Button, HelperText, Text, Snackbar, SegmentedButtons } from "react-native-paper";
+import { TextInput, Button, HelperText, Text, Snackbar, SegmentedButtons, Card } from "react-native-paper";
 import { postLogin } from "@/api/auth/auth.api";
 import { useUser } from "../UserContext";
 import { useTheme } from "../ThemeContext";
+import CarouselWithDots from "@/components/CarouselWithDots";
+import CardProfile from "@/components/CardProfile";
 
 const Home = () => {
     const router = useRouter();
@@ -35,98 +37,31 @@ const Home = () => {
         }
     };
 
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const carouselItems = [
+        {
+            title: "Sou um Personal Trainer",
+            description: "Se você é um personal trainer, esta é a opção certa para você! Aqui, você pode criar treinos personalizados, gerenciar seus alunos e acompanhar o progresso deles com facilidade."
+        },
+        {
+            title: "Sou um Aluno",
+            description: "Como aluno, você pode acessar seus treinos personalizados, acompanhar seu progresso e comunicar-se diretamente com seu personal trainer para garantir que você esteja no caminho certo para alcançar seus objetivos!"
+            ,
+        },
+
+    ];
+
     return (
-        <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', }}>
-            <SegmentedButtons
-                value={value}
-                onValueChange={setValue}
-                buttons={[
-                    {
-                        value: 'walk',
-                        label: 'Walking',
-                    },
-                    {
-                        value: 'permission',
-                        label: 'Permissão',
-                    },
-                ]}
-            />
+        <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 20, gap: 20 }}>
+            <Text variant="headlineLarge" style={{ textAlign: 'center' }}>Escolha seu perfil para começar</Text>
 
-            <View>
-                <Snackbar
-                    visible={visible}
-                    onDismiss={() => setVisible(false)}
-                    action={{
-                        label: "",
-                        icon: 'close',
-                        onPress: () => setVisible(false),
-                    }}>
-                    Erro ao logar
-                </Snackbar>
-                <Formik
-                    initialValues={{ email: "", password: "" }}
-                    validationSchema={validationSchema}
-                    onSubmit={handleLogin}
-                >
-                    {({
-                        handleSubmit,
-                        handleChange,
-                        handleBlur,
-                        values,
-                        errors,
-                        touched,
-                    }) => (
-                        <View style={{
-                            display: 'flex', flexDirection: 'column', gap: 5
-                        }}>
-                            < TextInput
-                                mode="flat"
-                                label="E-mail"
-                                value={values.email}
-                                onChangeText={handleChange("email")}
-                                onBlur={handleBlur("email")}
-                                style={{
-                                    backgroundColor: theme.background,
-                                }}
-                                error={touched.email && Boolean(errors.email)}
-                            />
-                            {touched.email && errors.email && (
-                                <HelperText type="error" >
-                                    {errors.email}
-                                </HelperText>
-                            )}
-                            < TextInput
-                                mode="flat"
-                                label="E-mail"
-                                value={values.email}
-                                onChangeText={handleChange("email")}
-                                onBlur={handleBlur("email")}
-                                style={{
-                                    backgroundColor: theme.background,
-                                }}
-                                error={touched.email && Boolean(errors.email)}
-                            />
-                            {touched.password && errors.password && (
-                                <HelperText type="error" >
-                                    {errors.password}
-                                </HelperText>
-                            )}
-
-
-                            <Button
-                                mode="contained"
-                                onPress={handleSubmit as any}
-                            >
-                                Salvar
-                            </Button>
-
-
-
-                        </View>
-                    )}
-                </Formik>
-
-            </View >
+            <Card mode="outlined">
+                <View style={{ padding: 20 }}>
+                    <CardProfile title="Sou um Personal Trainer" description="Se você é um personal trainer, esta é a opção certa para você! Aqui, você pode criar treinos personalizados, gerenciar seus alunos e acompanhar o progresso deles com facilidade." />
+                </View>
+            </Card>
         </View >
     );
 };
