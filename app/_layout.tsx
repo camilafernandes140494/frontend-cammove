@@ -9,7 +9,8 @@ import i18n from '@/locales/i18n';
 
 import { TranslationProvider } from './TranslationContext';
 import { ThemeProvider } from './ThemeContext';
-import { UserProvider, useUser } from './UserContext';
+import { UserProvider, } from './UserContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -21,6 +22,8 @@ export default function RootLayout() {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Simulando o estado de autenticação
+
+  const queryClient = new QueryClient();
 
   useEffect(() => {
     if (loaded) {
@@ -46,19 +49,21 @@ export default function RootLayout() {
 
   return (
     <I18nextProvider i18n={i18n}>
-      <UserProvider>
-        <ThemeProvider>
-          <TranslationProvider>
-            <StatusBar style="auto" />
-            {/* Renderiza o StackNavigator */}
-            <Stack>
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen name="createUser" options={{ title: 'Cadastro' }} />
-              <Stack.Screen name="home" options={{ title: 'Home' }} />
-            </Stack>
-          </TranslationProvider>
-        </ThemeProvider>
-      </UserProvider>
+      <QueryClientProvider client={queryClient}>
+        <UserProvider>
+          <ThemeProvider>
+            <TranslationProvider>
+              <StatusBar style="auto" />
+              {/* Renderiza o StackNavigator */}
+              <Stack>
+                <Stack.Screen name="+not-found" />
+                <Stack.Screen name="createUser" options={{ title: 'Cadastro' }} />
+                <Stack.Screen name="home" options={{ title: 'Home' }} />
+              </Stack>
+            </TranslationProvider>
+          </ThemeProvider>
+        </UserProvider>
+      </QueryClientProvider>
     </I18nextProvider>
   );
 }

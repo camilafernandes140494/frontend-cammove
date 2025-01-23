@@ -1,36 +1,43 @@
 
 import React from 'react';
-import { Button, Card, Text } from 'react-native-paper';
-import { Image } from 'react-native';
+import { Avatar, Button, Card, Text } from 'react-native-paper';
 import { useTheme } from '@/app/ThemeContext';
+import { AvatarImageSource } from 'react-native-paper/lib/typescript/components/Avatar/AvatarImage';
 
 
 interface CardProfileProps {
     color?: string;
     title: string;
-    description: string
+    description: string;
+    image: AvatarImageSource;
+    status: 'ADMIN' | 'STUDENT' | 'TEACHER'
+    onStatus: (status: 'ADMIN' | 'STUDENT' | 'TEACHER') => void
 }
 
-const CardProfile = ({ color, description, title, }: CardProfileProps) => {
+const CardProfile = ({ color = 'purple', description, title, image, status, onStatus }: CardProfileProps) => {
     const { theme } = useTheme();
 
     return (
-        <Card mode="contained" >
+        <Card mode="contained" contentStyle={{ backgroundColor: theme.colors.card[color].background.default }} >
             <Card.Content
-                style={{ display: "flex", flexDirection: 'column', gap: 10, alignItems: 'center' }}>
-                <Text variant="headlineSmall" style={{ textAlign: 'center' }}>{title}</Text>
-                <Image
-                    source={{
-                        uri: 'https://avatars3.githubusercontent.com/u/17571969?s=400&v=4',
-                    }}
+                style={{ display: "flex", flexDirection: 'column', gap: 20, alignItems: 'center' }}>
+                <Text variant="headlineSmall" style={{ textAlign: 'center', color: theme.colors.card[color].text.primary }}>{title}</Text>
+                <Avatar.Image size={250} source={image} />
+                <Text variant="labelMedium"
                     style={{
-                        width: 200,
-                        height: 200,
-                    }}
-                />
-                <Text variant="labelMedium" style={{ textAlign: 'center', flexWrap: 'wrap', color: theme.colors.onPrimaryContainer }}>{description}
+                        textAlign: 'center',
+                        flexWrap: 'wrap',
+                        color: theme.colors.card[color].text.secondary,
+                    }}>{description}
                 </Text>
-                <Button mode="contained">Começar Agora</Button>
+                <Button
+                    mode="contained"
+                    onPress={() => onStatus(status)}
+                    style={{
+                        backgroundColor: theme.colors.card[color].button.background,
+                    }}>
+                    Começar Agora
+                </Button>
             </Card.Content>
         </Card>
     );

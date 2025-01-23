@@ -14,6 +14,7 @@ const createUser = () => {
     const { setUser } = useUser();
     const [showPassword, setShowPassword] = useState(false);
     const [visible, setVisible] = useState(false);
+
     const validationSchema = Yup.object().shape({
         email: Yup.string()
             .email("Por favor, insira um email válido")

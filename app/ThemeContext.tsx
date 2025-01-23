@@ -30,11 +30,65 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
         loadTheme();
     }, []);
 
+    const backgroundCard = {
+        card: {
+            blue: {
+                background: {
+                    default: "#ADD8E6", // Azul Claro Suave
+                },
+                text: {
+                    primary: "#003366", // Azul Escuro para títulos ou textos principais
+                    secondary: "#6B7280", // Cinza Médio para descrições ou textos menos destacados
+                },
+                button: {
+                    background: "#00509E", // Azul Mais Intenso para o fundo do botão
+                    text: "#FFFFFF", // Branco para o texto do botão
+                },
+                border: {
+                    default: "#B0C4DE", // Azul claro neutro para bordas, se necessário
+                },
+            },
+            beige: {
+                background: {
+                    default: "#F2E7D5", // Bege Suave
+                },
+                text: {
+                    primary: "#5C4033", // Marrom Escuro para títulos ou textos principais
+                    secondary: "#7A5C45", // Marrom Médio para descrições ou textos menos destacados
+                },
+                button: {
+                    background: "#8B5E3C", // Marrom mais vibrante para o fundo do botão
+                    text: "#FFFFFF", // Branco para o texto do botão
+                },
+                border: {
+                    default: "#B8A58C", // Bege mais neutro para bordas, se necessário
+                },
+            },
+            purple: {
+                background: {
+                    default: "#D9B6F2", // Roxo Pastel Suave (novo tom de fundo)
+                },
+                text: {
+                    primary: "#4A0D67", // Roxo Escuro para textos principais
+                    secondary: "#6E287C", // Roxo Médio para descrições ou textos menos destacados
+                },
+                button: {
+                    background: "#A350DC", // Roxo Vibrante para o botão
+                    text: "#FFFFFF", // Branco para o texto do botão
+                },
+                border: {
+                    default: "#B68EEA", // Roxo Claro Suave para bordas
+                },
+            },
+        }
+    }
+
     // Definir temas customizados (opcional)
     const LightTheme = {
         ...DefaultTheme,
         colors: {
             ...DefaultTheme.colors,
+            ...backgroundCard,
             primary: "rgb(120, 69, 172)",
             onPrimary: "rgb(255, 255, 255)",
             primaryContainer: "rgb(240, 219, 255)",
@@ -82,6 +136,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
         ...DarkTheme,
         colors: {
             ...DarkTheme.colors,
+            ...backgroundCard,
             primary: "rgb(220, 184, 255)",
             onPrimary: "rgb(71, 12, 122)",
             primaryContainer: "rgb(95, 43, 146)",
