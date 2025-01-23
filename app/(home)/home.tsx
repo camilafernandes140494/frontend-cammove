@@ -1,22 +1,66 @@
-import React, { useRef, useState } from "react";
-import { FlatList, SafeAreaView, TouchableOpacity, View, } from "react-native";
+import React, { useState } from "react";
+import { ScrollView, View } from "react-native";
+import { Text, Card, IconButton } from "react-native-paper";
+import { useTheme } from "../ThemeContext";
+import CardProfile from "@/components/CardProfile";
+import { AvatarImageSource } from "react-native-paper/lib/typescript/components/Avatar/AvatarImage";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "expo-router";
-import { TextInput, Button, HelperText, Text, Snackbar, SegmentedButtons, Card } from "react-native-paper";
-import { postLogin } from "@/api/auth/auth.api";
+import { postCreateUser } from "@/api/auth/auth.api";
+import { getUserById, patchUser, postUser } from "@/api/users/users.api";
 import { useUser } from "../UserContext";
-import { useTheme } from "../ThemeContext";
-import CarouselWithDots from "@/components/CarouselWithDots";
-import CardProfile from "@/components/CardProfile";
+import { useQuery } from "@tanstack/react-query";
 
 const Home = () => {
-    const router = useRouter();
-    const { setUser } = useUser();
     const { theme } = useTheme();
-    const [value, setValue] = React.useState('');
+    const [profile, setProfile] = useState(0);
+    const { user } = useUser();
 
-    const [visible, setVisible] = useState(false);
+    const {
+        data: userById,
+        refetch,
+        isError,
+        isLoading,
+    } = useQuery({
+        queryKey: ['getUserById', user?.id],
+        queryFn: () => getUserById(user?.id as string),
+        enabled: !!user?.id,
+    });
+
+    console.log(userById, user.id)
+
+
+    type CarouselItem = {
+        title: string;
+        description: string;
+        image: AvatarImageSource;
+        color: string;
+        status: 'ADMIN' | 'STUDENT' | 'TEACHER'
+    };
+
+    const carouselItems: CarouselItem[] = [
+        {
+            title: "Sou um Aluno",
+            description: "Como aluno, você pode acessar seus treinos personalizados, acompanhar seu progresso e comunicar-se diretamente com seu personal trainer para garantir que você esteja no caminho certo para alcançar seus objetivos!",
+            image: require('@/assets/images/student.png'),
+            color: 'blue',
+            status: 'STUDENT'
+        },
+        {
+            title: "Sou um Personal Trainer",
+            description: "Se você é um personal trainer, esta é a opção certa para você! Aqui, você pode criar treinos personalizados, gerenciar seus alunos e acompanhar o progresso deles com facilidade.",
+            image: require('@/assets/images/personal-trainer.png'),
+            color: 'beige',
+            status: 'TEACHER'
+        },
+        {
+            title: "Sou um Administrador",
+            description: "Área restrita",
+            image: require('@/assets/images/admin.png'),
+            color: 'purple',
+            status: 'ADMIN'
+        },
+    ];
 
     const validationSchema = Yup.object().shape({
         email: Yup.string()
@@ -27,45 +71,81 @@ const Home = () => {
             .required("A senha é obrigatória"),
     });
 
-    const handleLogin = async (values: { email: string; password: string }) => {
+    const handleLogin = async (values: { name: string; gender: string, birthDate: string; permission: string }) => {
         try {
-            const userCredential = await postLogin(values);
-            setUser({ id: userCredential.user_id, email: '', name: "" })
-            router.push('/home')
+            if (!userById) {
+                await postUser(user.id!, values);
+                console.log('cadastrou')
+                refetch()
+            }
+            else {
+                await patchUser(user.id!, values);
+                console.log('atualizou')
+                refetch()
+            }
         } catch (error) {
-            setVisible(true);
+            console.error("Erro ao editar usuario", error);
         }
     };
 
-
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    const carouselItems = [
-        {
-            title: "Sou um Personal Trainer",
-            description: "Se você é um personal trainer, esta é a opção certa para você! Aqui, você pode criar treinos personalizados, gerenciar seus alunos e acompanhar o progresso deles com facilidade."
-        },
-        {
-            title: "Sou um Aluno",
-            description: "Como aluno, você pode acessar seus treinos personalizados, acompanhar seu progresso e comunicar-se diretamente com seu personal trainer para garantir que você esteja no caminho certo para alcançar seus objetivos!"
-            ,
-        },
-
-    ];
-
     return (
-        <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 20, gap: 20 }}>
-            <Text variant="headlineLarge" style={{ textAlign: 'center' }}>Escolha seu perfil para começar</Text>
+        <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: 20,
+                gap: 20,
+            }}
+        >
+            <Text variant="headlineLarge" style={{ textAlign: 'center' }}>
+                Escolha seu perfil para começar
+            </Text>
 
-            <Card mode="outlined">
-                <View style={{ padding: 20 }}>
-                    <CardProfile title="Sou um Personal Trainer" description="Se você é um personal trainer, esta é a opção certa para você! Aqui, você pode criar treinos personalizados, gerenciar seus alunos e acompanhar o progresso deles com facilidade." />
-                </View>
-            </Card>
-        </View >
+            {!userById?.permission && <Card
+                mode="contained"
+                contentStyle={{
+                    borderRadius: 20,
+                    backgroundColor: theme.colors.card[carouselItems[profile].color].background.default,
+                }}
+            >
+                <Card.Content
+                    style={{
+                        padding: 20,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}
+                >
+                    <CardProfile
+                        title={carouselItems[profile].title}
+                        description={carouselItems[profile].description}
+                        image={carouselItems[profile].image}
+                        color={carouselItems[profile].color}
+                        status={carouselItems[profile].status}
+                        onStatus={(status) => handleLogin({ name: '', gender: '', birthDate: '', permission: status })}
+                    />
+                </Card.Content>
+                <Card.Actions>
+                    <IconButton
+                        icon="chevron-left"
+                        size={20}
+                        onPress={() => setProfile(profile - 1)}
+                        disabled={profile === 0}
+                    />
+                    <IconButton
+                        icon="chevron-right"
+                        size={20}
+                        mode="outlined"
+                        onPress={() => setProfile(profile + 1)}
+                        disabled={profile === carouselItems.length - 1}
+                    />
+                </Card.Actions>
+            </Card>}
+
+        </ScrollView>
     );
 };
-
-
 
 export default Home;
