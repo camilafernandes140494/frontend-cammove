@@ -22,7 +22,7 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
         birthDate: Yup.string().required("Obrigatório"),
     });
 
-    const handleLogin = async (values: { name: string; birthDate: string }) => {
+    const handleLogin = async (values: { name: string; birthDate: string, gender: string }) => {
         try {
             console.log('Dados do formulário', values);
         } catch (error) {
@@ -43,7 +43,7 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
                 Não foi possivel cadastrar
             </Snackbar>
             <Formik
-                initialValues={{ name: "", birthDate: "" }}
+                initialValues={{ name: "", birthDate: "", gender: "" }}
                 validationSchema={validationSchema}
                 onSubmit={handleLogin}
             >
