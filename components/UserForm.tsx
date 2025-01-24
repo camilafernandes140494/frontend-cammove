@@ -40,7 +40,7 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
                     icon: 'close',
                     onPress: () => setVisible(false),
                 }}>
-                Erro ao logar
+                Não foi possivel cadastrar
             </Snackbar>
             <Formik
                 initialValues={{ name: "", birthDate: "" }}
