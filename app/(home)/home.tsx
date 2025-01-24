@@ -10,6 +10,7 @@ import { postCreateUser } from "@/api/auth/auth.api";
 import { getUserById, patchUser, postUser } from "@/api/users/users.api";
 import { useUser } from "../UserContext";
 import { useQuery } from "@tanstack/react-query";
+import UserForm from "@/components/UserForm";
 
 const Home = () => {
     const { theme } = useTheme();
@@ -103,7 +104,7 @@ const Home = () => {
                 Escolha seu perfil para começar
             </Text>
 
-            {!userById?.permission && <Card
+            {!userById?.permission ? <Card
                 mode="contained"
                 contentStyle={{
                     borderRadius: 20,
@@ -142,7 +143,11 @@ const Home = () => {
                         disabled={profile === carouselItems.length - 1}
                     />
                 </Card.Actions>
-            </Card>}
+            </Card> :
+                <Card
+                    mode="contained" style={{ width: "100%" }}>
+                    <UserForm />
+                </Card>}
 
         </ScrollView>
     );
