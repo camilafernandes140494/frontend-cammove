@@ -88,7 +88,7 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
                         <Button onPress={() => setOpen(true)}>Selecionar Data de Nascimento</Button>
 
                         {/* Abertura do DatePicker com a nova API */}
-                        <DatePicker
+                        {/* <DatePicker
                             modal
                             open={open}
                             date={date}
@@ -98,7 +98,7 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
                                 setFieldValue("birthDate", selectedDate.toLocaleDateString());
                             }}
                             onCancel={() => setOpen(false)}
-                        />
+                        /> */}
 
                         <Button
                             mode="contained"
