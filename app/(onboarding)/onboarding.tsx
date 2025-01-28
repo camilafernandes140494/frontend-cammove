@@ -4,12 +4,11 @@ import { Text, Card, IconButton } from "react-native-paper";
 import { useTheme } from "../ThemeContext";
 import CardProfile from "@/components/CardProfile";
 import { AvatarImageSource } from "react-native-paper/lib/typescript/components/Avatar/AvatarImage";
-import * as Yup from "yup";
-import { postCreateUser } from "@/api/auth/auth.api";
 import { getUserById, patchUser, postUser } from "@/api/users/users.api";
 import { useUser } from "../UserContext";
 import { useQuery } from "@tanstack/react-query";
 import UserForm from "@/components/UserForm";
+import { GENDER, PERMISSION } from "@/api/users/users.types";
 
 const Onboarding = () => {
     const { theme } = useTheme();
@@ -27,15 +26,12 @@ const Onboarding = () => {
         enabled: !!user?.id,
     });
 
-    console.log(userById, user.id)
-
-
     type CarouselItem = {
         title: string;
         description: string;
         image: AvatarImageSource;
         color: string;
-        status: 'ADMIN' | 'STUDENT' | 'TEACHER'
+        status: PERMISSION
     };
 
     const carouselItems: CarouselItem[] = [
@@ -53,25 +49,17 @@ const Onboarding = () => {
             color: 'beige',
             status: 'TEACHER'
         },
-        {
-            title: "Sou um Administrador",
-            description: "Área restrita",
-            image: require('@/assets/images/admin.png'),
-            color: 'purple',
-            status: 'ADMIN'
-        },
+        // {
+        //     title: "Sou um Administrador",
+        //     description: "Área restrita",
+        //     image: require('@/assets/images/admin.png'),
+        //     color: 'purple',
+        //     status: 'ADMIN'
+        // },
     ];
 
-    const validationSchema = Yup.object().shape({
-        email: Yup.string()
-            .email("Por favor, insira um email válido")
-            .required("O email é obrigatório"),
-        password: Yup.string()
-            .min(6, "A senha deve ter pelo menos 6 caracteres")
-            .required("A senha é obrigatória"),
-    });
 
-    const handleLogin = async (values: { name: string; gender: string, birthDate: string; permission: string }) => {
+    const handleLogin = async (values: { name: string; gender: GENDER, birthDate: string; permission: PERMISSION }) => {
         try {
             if (!userById) {
                 await postUser(user.id!, values);
@@ -99,54 +87,59 @@ const Onboarding = () => {
                 gap: 20,
             }}
         >
-            <Text variant="headlineLarge" style={{ textAlign: 'center' }}>
-                Escolha seu perfil para começar
-            </Text>
-
-            {!userById?.permission ? <Card
-                mode="contained"
-                contentStyle={{
-                    borderRadius: 20,
-                    backgroundColor: theme.colors.card[carouselItems[profile].color].background.default,
-                }}
-            >
-                <Card.Content
-                    style={{
-                        padding: 20,
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
+            {!userById?.permission ? <>
+                <Text variant="headlineLarge" style={{ textAlign: 'center' }}>
+                    Escolha seu perfil para começar
+                </Text>
+                <Card
+                    mode="contained"
+                    contentStyle={{
+                        borderRadius: 20,
+                        backgroundColor: theme.colors.card[carouselItems[profile].color].background.default,
                     }}
                 >
-                    <CardProfile
-                        title={carouselItems[profile].title}
-                        description={carouselItems[profile].description}
-                        image={carouselItems[profile].image}
-                        color={carouselItems[profile].color}
-                        status={carouselItems[profile].status}
-                        onStatus={(status) => handleLogin({ name: '', gender: '', birthDate: '', permission: status })}
-                    />
-                </Card.Content>
-                <Card.Actions>
-                    <IconButton
-                        icon="chevron-left"
-                        size={20}
-                        onPress={() => setProfile(profile - 1)}
-                        disabled={profile === 0}
-                    />
-                    <IconButton
-                        icon="chevron-right"
-                        size={20}
-                        mode="outlined"
-                        onPress={() => setProfile(profile + 1)}
-                        disabled={profile === carouselItems.length - 1}
-                    />
-                </Card.Actions>
-            </Card> :
-                <Card
-                    mode="contained" style={{ width: "100%" }}>
-                    <UserForm />
-                </Card>}
+                    <Card.Content
+                        style={{
+                            padding: 20,
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <CardProfile
+                            title={carouselItems[profile].title}
+                            description={carouselItems[profile].description}
+                            image={carouselItems[profile].image}
+                            color={carouselItems[profile].color}
+                            status={carouselItems[profile].status}
+                            onStatus={(status) => handleLogin({ name: '', gender: null, birthDate: '', permission: status as PERMISSION })}
+                        />
+                    </Card.Content>
+                    <Card.Actions>
+                        <IconButton
+                            icon="chevron-left"
+                            size={20}
+                            onPress={() => setProfile(profile - 1)}
+                            disabled={profile === 0}
+                        />
+                        <IconButton
+                            icon="chevron-right"
+                            size={20}
+                            mode="outlined"
+                            onPress={() => setProfile(profile + 1)}
+                            disabled={profile === carouselItems.length - 1}
+                        />
+                    </Card.Actions>
+                </Card> </> :
+                <>
+                    <Text variant="headlineMedium" style={{ textAlign: 'center' }}>
+                        Me conte um pouco sobre você
+                    </Text>
+                    <Card
+                        mode="contained" style={{ width: "100%" }}>
+                        <UserForm onSubmit={handleLogin} />
+                    </Card></>
+            }
 
         </ScrollView>
     );

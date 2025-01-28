@@ -1,52 +1,61 @@
 import React, { useRef, useState } from 'react';
-import { Button, HelperText, List, PaperProvider, RadioButton, SegmentedButtons, Snackbar, Text, TextInput } from 'react-native-paper';
-import { Formik } from 'formik';
+import { Button, Card, Chip, HelperText, List, PaperProvider, RadioButton, SegmentedButtons, Snackbar, Text, TextInput } from 'react-native-paper';
+import { Formik, FormikProvider, useFormik } from 'formik';
 import * as Yup from "yup";
 import { Modal, View } from 'react-native';
 import { useTheme } from '@/app/ThemeContext';
-import DateTimePicker from '@react-native-community/datetimepicker'; // Importe o DateTimePicker
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useUser } from '@/app/UserContext';
+import { PERMISSION } from '@/api/users/users.types';
 
 interface UserFormProps {
     color?: string;
+    onSubmit: (values: { name: string; gender: null; birthDate: string; permission: PERMISSION }) => void;
+
 }
 
-const UserForm = ({ color = 'purple' }: UserFormProps) => {
+const UserForm = ({ onSubmit }: UserFormProps) => {
     const { theme } = useTheme();
     const [visible, setVisible] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [expanded, setExpanded] = useState(false);
+
+    const { user } = useUser();
 
     const validationSchema = Yup.object().shape({
         name: Yup.string().required("Obrigatório"),
         birthDate: Yup.string().required("Obrigatório"),
+        gender: Yup.string().required("Obrigatório"),
     });
 
-    const handleLogin = async (values: { name: string; birthDate: string, gender: string }) => {
-        try {
-            console.log('Dados do formulário', values);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-    const [expanded, setExpanded] = useState(false);
-    const [selectedGender, setSelectedGender] = useState('');
+    const formik = useFormik({
+        initialValues: {
+            name: "", birthDate: "", gender: null, permission: user.permission
+        },
+        validationSchema: validationSchema,
+        enableReinitialize: true,
+        onSubmit: onSubmit,
+        validateOnChange: false,
+    });
+
+    const { handleSubmit, setFieldValue, isSubmitting, touched, values, errors, handleChange, handleBlur } = formik;
 
     const handlePress = () => setExpanded(!expanded);
 
     const handleGenderSelect = (gender: any) => {
-        setSelectedGender(gender);
+        setFieldValue('gender', gender)
         setExpanded(false);
     };
 
-    const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-
     const handleDateChange = (event: any, selectedDate: Date | undefined) => {
-        const currentDate = selectedDate || dateOfBirth;
         setShowDatePicker(false);
-        setDateOfBirth(currentDate);
+        setFieldValue('birthDate', selectedDate)
     };
+    console.log(values)
+
     return (
 
-        <View>
+        <View style={{ padding: 20 }}>
             <Snackbar
                 visible={visible}
                 onDismiss={() => setVisible(false)}
@@ -57,75 +66,85 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
                 }}>
                 Não foi possivel cadastrar
             </Snackbar>
-            <Formik
-                initialValues={{ name: "", birthDate: "", gender: "" }}
-                validationSchema={validationSchema}
-                onSubmit={handleLogin}
-            >
-                {({
-                    handleSubmit,
-                    handleChange,
-                    handleBlur,
-                    values,
-                    errors,
-                    touched,
-                    setFieldValue,
-                }) => (
-                    <View style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                        <TextInput
-                            mode="flat"
-                            label="Nome"
-                            value={values.name}
-                            onChangeText={handleChange("name")}
-                            onBlur={handleBlur("name")}
-                            style={{ backgroundColor: theme.background }}
-                            error={touched.name && Boolean(errors.name)}
+            <FormikProvider value={formik}>
+                <Card style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: 20 }}>
+                    <TextInput
+                        mode="flat"
+                        label="Qual é o seu nome?"
+                        value={values.name}
+                        onChangeText={handleChange("name")}
+                        onBlur={handleBlur("name")}
+                        // style={{ backgroundColor: theme.background, }}
+                        error={touched.name && Boolean(errors.name)}
+                    />
+                    {touched.name && errors.name && (
+                        <HelperText type="error">
+                            {errors.name}
+                        </HelperText>
+                    )}
+
+                    <Text variant='titleMedium' style={{ marginTop: 20 }}>Selecione sua data de nascimento</Text>
+
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={values.birthDate ? new Date(values.birthDate) : new Date()}
+                            mode="date"
+                            display="default"
+                            onChange={handleDateChange}
                         />
-                        {touched.name && errors.name && (
-                            <HelperText type="error">
-                                {errors.name}
-                            </HelperText>
-                        )}
-                        {showDatePicker && (
-                            <DateTimePicker
-                                value={dateOfBirth || new Date()}
-                                mode="date"
-                                display="default"
-                                onChange={handleDateChange}
-                            />
-                        )}
-                        <List.Accordion
-                            title={selectedGender || "Escolha um gênero"}
-                            expanded={expanded}
-                            onPress={handlePress}
+                    )}
 
-                        >
-                            <List.Item title="Masculino" onPress={() => handleGenderSelect('Masculino')} />
-                            <List.Item title="Feminino" onPress={() => handleGenderSelect('Feminino')} />
-                            <List.Item title="Outro" onPress={() => handleGenderSelect('Outro')} />
-                            <List.Item title="Prefiro não me identificar" onPress={() => handleGenderSelect('Prefiro não me identificar')} />
-                        </List.Accordion>
+                    <Button mode='outlined' onPress={() => setShowDatePicker(true)} style={{ marginTop: 20 }}
+                    >
+                        {values.birthDate ? new Date(values.birthDate).toLocaleDateString("pt-BR") : "Selecionar Data de Nascimento"}
+                    </Button>
 
-                        <Button onPress={() => setShowDatePicker(true)}>
-                            {dateOfBirth ? dateOfBirth.toLocaleDateString() : "Selecionar Data de Nascimento"}
-                        </Button>
+                    {touched.birthDate && errors.birthDate && (
+                        <HelperText type="error">
+                            {errors.birthDate}
+                        </HelperText>
+                    )}
+                    <Text variant='titleMedium' style={{ marginTop: 20 }}>Escolha o gênero com o qual se identifica</Text>
 
-                        <Button
-                            mode="contained"
-                            onPress={handleSubmit as any}
-                            style={{
-                                borderRadius: 10,
-                                marginVertical: 20,
-                            }}
-                            contentStyle={{ height: 50 }}
-                        >
-                            Salvar
-                        </Button>
 
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 20 }}>
+                        {
+                            [{ label: 'Masculino', value: 'MALE' },
+                            { label: 'Feminino', value: 'FEMALE' },
+                            { label: 'Outro', value: 'OTHER' },
+                            { label: 'Prefiro não me identificar', value: 'PREFER_NOT_TO_SAY' }].map((option, index) => (
+                                <Chip
+                                    key={index}
+                                    selected={values.gender === option.value}
+                                    onPress={() => setFieldValue('gender', option.value)}
+                                >
+                                    {option.label}
+                                </Chip>
+                            ))}
                     </View>
-                )}
-            </Formik>
-        </View>
+                    {touched.gender && errors.gender && (
+                        <HelperText type="error">
+                            {errors.gender}
+                        </HelperText>
+                    )}
+
+
+                    <Button
+                        mode="contained"
+                        onPress={handleSubmit as any}
+                        style={{
+                            borderRadius: 10,
+                            marginVertical: 20,
+                            marginTop: 20
+                        }}
+                        contentStyle={{ height: 50 }}
+                    >
+                        Salvar
+                    </Button>
+
+                </Card>
+            </FormikProvider>
+        </View >
     );
 };
 
