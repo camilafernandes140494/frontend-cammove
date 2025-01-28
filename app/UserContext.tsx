@@ -1,9 +1,11 @@
+import { PERMISSION } from '@/api/users/users.types';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export type UserType = {
     id: string | null;
     name: string | null;
     email: string | null;
+    permission: PERMISSION | null;
 }
 type UserContextType = {
     user: UserType;
@@ -16,7 +18,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserType>({
         id: null,
         name: null,
-        email: null
+        email: null,
+        permission: null
     });
 
     return (

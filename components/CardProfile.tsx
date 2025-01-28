@@ -3,6 +3,7 @@ import React from 'react';
 import { Avatar, Button, Card, Text } from 'react-native-paper';
 import { useTheme } from '@/app/ThemeContext';
 import { AvatarImageSource } from 'react-native-paper/lib/typescript/components/Avatar/AvatarImage';
+import { PERMISSION } from '@/api/users/users.types';
 
 
 interface CardProfileProps {
@@ -10,8 +11,8 @@ interface CardProfileProps {
     title: string;
     description: string;
     image: AvatarImageSource;
-    status: 'ADMIN' | 'STUDENT' | 'TEACHER'
-    onStatus: (status: 'ADMIN' | 'STUDENT' | 'TEACHER') => void
+    status: PERMISSION;
+    onStatus: (status: PERMISSION) => void
 }
 
 const CardProfile = ({ color = 'purple', description, title, image, status, onStatus }: CardProfileProps) => {
