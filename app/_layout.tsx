@@ -35,9 +35,9 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       if (isAuthenticated) {
-        router.replace('/home'); // Se autenticado, redireciona para o explore
+        router.replace('/onboarding'); // Se autenticado, redireciona para o explore
       } else {
-        router.replace('/login'); // Se não autenticado, redireciona para a tela de login
+        router.replace('/onboarding'); // Se não autenticado, redireciona para a tela de login
       }
     }
   }, [loaded, isAuthenticated, router]);
@@ -58,7 +58,7 @@ export default function RootLayout() {
               <Stack>
                 <Stack.Screen name="+not-found" />
                 <Stack.Screen name="createUser" options={{ title: 'Cadastro' }} />
-                <Stack.Screen name="home" options={{ title: 'Home' }} />
+                <Stack.Screen name="onboarding" options={{ title: 'Onboarding' }} />
               </Stack>
             </TranslationProvider>
           </ThemeProvider>

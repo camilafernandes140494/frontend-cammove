@@ -29,7 +29,7 @@ const Login = () => {
         try {
             const userCredential = await postLogin(values);
             setUser({ id: userCredential.user_id, email: '', name: "" })
-            router.push('/home')
+            router.push('/onboarding')
         } catch (error) {
             setVisible(true);
         }

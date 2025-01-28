@@ -4,7 +4,6 @@ import { Text, Card, IconButton } from "react-native-paper";
 import { useTheme } from "../ThemeContext";
 import CardProfile from "@/components/CardProfile";
 import { AvatarImageSource } from "react-native-paper/lib/typescript/components/Avatar/AvatarImage";
-import { Formik } from "formik";
 import * as Yup from "yup";
 import { postCreateUser } from "@/api/auth/auth.api";
 import { getUserById, patchUser, postUser } from "@/api/users/users.api";
@@ -12,7 +11,7 @@ import { useUser } from "../UserContext";
 import { useQuery } from "@tanstack/react-query";
 import UserForm from "@/components/UserForm";
 
-const Home = () => {
+const Onboarding = () => {
     const { theme } = useTheme();
     const [profile, setProfile] = useState(0);
     const { user } = useUser();
@@ -153,4 +152,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default Onboarding;

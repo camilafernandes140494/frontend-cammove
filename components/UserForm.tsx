@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Button, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
+import React, { useRef, useState } from 'react';
+import { Button, HelperText, List, PaperProvider, RadioButton, SegmentedButtons, Snackbar, Text, TextInput } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from "yup";
-import DatePicker from 'react-native-date-picker';
-import { View } from 'react-native';
+import { Modal, View } from 'react-native';
 import { useTheme } from '@/app/ThemeContext';
+import DateTimePicker from '@react-native-community/datetimepicker'; // Importe o DateTimePicker
 
 interface UserFormProps {
     color?: string;
@@ -13,9 +13,6 @@ interface UserFormProps {
 const UserForm = ({ color = 'purple' }: UserFormProps) => {
     const { theme } = useTheme();
     const [visible, setVisible] = useState(false);
-    const [gender, setGender] = useState("");
-    const [date, setDate] = useState(new Date());
-    const [open, setOpen] = useState(false);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string().required("Obrigatório"),
@@ -29,8 +26,26 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
             console.log(error);
         }
     };
+    const [expanded, setExpanded] = useState(false);
+    const [selectedGender, setSelectedGender] = useState('');
 
+    const handlePress = () => setExpanded(!expanded);
+
+    const handleGenderSelect = (gender: any) => {
+        setSelectedGender(gender);
+        setExpanded(false);
+    };
+
+    const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const handleDateChange = (event: any, selectedDate: Date | undefined) => {
+        const currentDate = selectedDate || dateOfBirth;
+        setShowDatePicker(false);
+        setDateOfBirth(currentDate);
+    };
     return (
+
         <View>
             <Snackbar
                 visible={visible}
@@ -71,34 +86,29 @@ const UserForm = ({ color = 'purple' }: UserFormProps) => {
                                 {errors.name}
                             </HelperText>
                         )}
-                        <TextInput
-                            mode="flat"
-                            label="Data de nascimento"
-                            value={values.birthDate}
-                            onChangeText={handleChange("birthDate")}
-                            onBlur={handleBlur("birthDate")}
-                            style={{ backgroundColor: theme.background }}
-                            error={touched.birthDate && Boolean(errors.birthDate)}
-                        />
-                        {touched.birthDate && errors.birthDate && (
-                            <HelperText type="error">
-                                {errors.birthDate}
-                            </HelperText>
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={dateOfBirth || new Date()}
+                                mode="date"
+                                display="default"
+                                onChange={handleDateChange}
+                            />
                         )}
-                        <Button onPress={() => setOpen(true)}>Selecionar Data de Nascimento</Button>
+                        <List.Accordion
+                            title={selectedGender || "Escolha um gênero"}
+                            expanded={expanded}
+                            onPress={handlePress}
 
-                        {/* Abertura do DatePicker com a nova API */}
-                        {/* <DatePicker
-                            modal
-                            open={open}
-                            date={date}
-                            onConfirm={(selectedDate) => {
-                                setOpen(false);
-                                setDate(selectedDate);
-                                setFieldValue("birthDate", selectedDate.toLocaleDateString());
-                            }}
-                            onCancel={() => setOpen(false)}
-                        /> */}
+                        >
+                            <List.Item title="Masculino" onPress={() => handleGenderSelect('Masculino')} />
+                            <List.Item title="Feminino" onPress={() => handleGenderSelect('Feminino')} />
+                            <List.Item title="Outro" onPress={() => handleGenderSelect('Outro')} />
+                            <List.Item title="Prefiro não me identificar" onPress={() => handleGenderSelect('Prefiro não me identificar')} />
+                        </List.Accordion>
+
+                        <Button onPress={() => setShowDatePicker(true)}>
+                            {dateOfBirth ? dateOfBirth.toLocaleDateString() : "Selecionar Data de Nascimento"}
+                        </Button>
 
                         <Button
                             mode="contained"
