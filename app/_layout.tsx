@@ -1,5 +1,5 @@
 import { useFonts } from 'expo-font';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
@@ -9,11 +9,18 @@ import i18n from '@/locales/i18n';
 
 import { TranslationProvider } from './TranslationContext';
 import { ThemeProvider } from './ThemeContext';
-import { UserProvider, } from './UserContext';
+import { UserProvider } from './UserContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createStackNavigator } from '@react-navigation/stack';
+import Login from './(auth)/login';
+import Home from './(home)/home';
+import createUser from './(auth)/createUser';
+import Onboarding from './(onboarding)/onboarding';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const Stack = createStackNavigator();
 
 export default function RootLayout() {
   const router = useRouter();
@@ -31,17 +38,6 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // Lógica para navegação baseada na autenticação
-  useEffect(() => {
-    if (loaded) {
-      if (isAuthenticated) {
-        router.replace('/onboarding'); // Se autenticado, redireciona para o explore
-      } else {
-        router.replace('/onboarding'); // Se não autenticado, redireciona para a tela de login
-      }
-    }
-  }, [loaded, isAuthenticated, router]);
-
   // A tela não pode ser renderizada até que as fontes estejam carregadas
   if (!loaded) {
     return null;
@@ -54,12 +50,14 @@ export default function RootLayout() {
           <ThemeProvider>
             <TranslationProvider>
               <StatusBar style="auto" />
-              {/* Renderiza o StackNavigator */}
-              <Stack>
-                <Stack.Screen name="+not-found" />
-                <Stack.Screen name="createUser" options={{ title: 'Cadastro' }} />
-                <Stack.Screen name="onboarding" options={{ title: 'Onboarding' }} />
-              </Stack>
+              {/* Navegação condicional com base na autenticação */}
+              <Stack.Navigator>
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="Register" component={createUser} />
+                <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="Onboarding" component={Onboarding} />
+
+              </Stack.Navigator>
             </TranslationProvider>
           </ThemeProvider>
         </UserProvider>

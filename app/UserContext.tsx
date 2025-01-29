@@ -4,12 +4,12 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export type UserType = {
     id: string | null;
     name: string | null;
-    email: string | null;
     permission: PERMISSION | null;
+    gender: string | null;
 }
 type UserContextType = {
     user: UserType;
-    setUser: (user: UserType) => void;
+    setUser: (user: Partial<UserType>) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -18,12 +18,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserType>({
         id: null,
         name: null,
-        email: null,
+        gender: null,
         permission: null
     });
 
+    const updateUser = (newUser: Partial<UserType>) => {
+        setUser(prevUser => ({
+            ...prevUser,
+            ...newUser,
+        }));
+    };
+
+
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser: updateUser }}>
             {children}
         </UserContext.Provider>
     );

@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
-import { Button, Card, Chip, HelperText, List, PaperProvider, RadioButton, SegmentedButtons, Snackbar, Text, TextInput } from 'react-native-paper';
-import { Formik, FormikProvider, useFormik } from 'formik';
+import React, { useState } from 'react';
+import { Button, Card, Chip, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
+import { FormikProvider, useFormik } from 'formik';
 import * as Yup from "yup";
-import { Modal, View } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '@/app/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useUser } from '@/app/UserContext';
@@ -15,12 +15,10 @@ interface UserFormProps {
 }
 
 const UserForm = ({ onSubmit }: UserFormProps) => {
-    const { theme } = useTheme();
     const [visible, setVisible] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [expanded, setExpanded] = useState(false);
 
-    const { user } = useUser();
+    const { user, setUser } = useUser();
 
     const validationSchema = Yup.object().shape({
         name: Yup.string().required("Obrigatório"),
@@ -34,24 +32,17 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         },
         validationSchema: validationSchema,
         enableReinitialize: true,
-        onSubmit: onSubmit,
+        onSubmit: (value) => { onSubmit(value), setUser(value) },
         validateOnChange: false,
     });
 
-    const { handleSubmit, setFieldValue, isSubmitting, touched, values, errors, handleChange, handleBlur } = formik;
+    const { handleSubmit, setFieldValue, touched, values, errors, handleChange, handleBlur } = formik;
 
-    const handlePress = () => setExpanded(!expanded);
-
-    const handleGenderSelect = (gender: any) => {
-        setFieldValue('gender', gender)
-        setExpanded(false);
-    };
 
     const handleDateChange = (event: any, selectedDate: Date | undefined) => {
         setShowDatePicker(false);
         setFieldValue('birthDate', selectedDate)
     };
-    console.log(values)
 
     return (
 
@@ -64,7 +55,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                     icon: 'close',
                     onPress: () => setVisible(false),
                 }}>
-                Não foi possivel cadastrar
+                <Text>Não foi possível cadastrar</Text>
             </Snackbar>
             <FormikProvider value={formik}>
                 <Card style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: 20 }}>
@@ -74,7 +65,6 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                         value={values.name}
                         onChangeText={handleChange("name")}
                         onBlur={handleBlur("name")}
-                        // style={{ backgroundColor: theme.background, }}
                         error={touched.name && Boolean(errors.name)}
                     />
                     {touched.name && errors.name && (
@@ -128,14 +118,13 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                         </HelperText>
                     )}
 
-
                     <Button
                         mode="contained"
                         onPress={handleSubmit as any}
                         style={{
                             borderRadius: 10,
                             marginVertical: 20,
-                            marginTop: 20
+                            marginTop: 30
                         }}
                         contentStyle={{ height: 50 }}
                     >

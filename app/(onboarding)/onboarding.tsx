@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ScrollView, } from "react-native";
 import { Text, Card, IconButton } from "react-native-paper";
 import { useTheme } from "../ThemeContext";
 import CardProfile from "@/components/CardProfile";
@@ -9,11 +9,13 @@ import { useUser } from "../UserContext";
 import { useQuery } from "@tanstack/react-query";
 import UserForm from "@/components/UserForm";
 import { GENDER, PERMISSION } from "@/api/users/users.types";
+import { useNavigation } from "@react-navigation/native";
 
 const Onboarding = () => {
     const { theme } = useTheme();
     const [profile, setProfile] = useState(0);
-    const { user } = useUser();
+    const { user, setUser } = useUser();
+    const navigation = useNavigation();
 
     const {
         data: userById,
@@ -25,6 +27,16 @@ const Onboarding = () => {
         queryFn: () => getUserById(user?.id as string),
         enabled: !!user?.id,
     });
+
+    console.log(userById)
+
+    useEffect(() => {
+        setUser({ name: userById?.name, permission: userById?.permission, gender: userById?.gender })
+
+        if (userById?.name && userById?.birthDate && userById?.gender) {
+            navigation.navigate('Home')
+        }
+    }, [userById])
 
     type CarouselItem = {
         title: string;

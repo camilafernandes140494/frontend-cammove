@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { View, } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "expo-router";
 import { TextInput, Button, HelperText, Text, Snackbar } from "react-native-paper";
 import { postLogin } from "@/api/auth/auth.api";
 import { useUser } from "../UserContext";
 import { useTheme } from "../ThemeContext";
+import { useNavigation } from "@react-navigation/native";
 
 const Login = () => {
-    const router = useRouter();
+    const navigation = useNavigation();
     const { setUser } = useUser();
     const { theme } = useTheme();
 
@@ -28,8 +28,8 @@ const Login = () => {
     const handleLogin = async (values: { email: string; password: string }) => {
         try {
             const userCredential = await postLogin(values);
-            setUser({ id: userCredential.user_id, email: '', name: "" })
-            router.push('/onboarding')
+            setUser({ id: userCredential.user_id, })
+            navigation.navigate('Onboarding')
         } catch (error) {
             setVisible(true);
         }
@@ -153,7 +153,7 @@ const Login = () => {
                                 Não tem uma conta?{" "}
                                 <Text
                                     style={{ fontWeight: "bold" }}
-                                    onPress={() => router.push("/createUser")}
+                                    onPress={() => navigation.navigate("Register")}
                                 >
                                     Cadastre-se
                                 </Text>
