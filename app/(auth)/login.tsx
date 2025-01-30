@@ -1,12 +1,18 @@
-import React, { useState } from "react";
-import { View, } from "react-native";
-import { Formik } from "formik";
-import * as Yup from "yup";
-import { TextInput, Button, HelperText, Text, Snackbar } from "react-native-paper";
-import { postLogin } from "@/api/auth/auth.api";
-import { useUser } from "../UserContext";
-import { useTheme } from "../ThemeContext";
-import { useNavigation } from "@react-navigation/native";
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import {
+    TextInput,
+    Button,
+    HelperText,
+    Text,
+    Snackbar,
+} from 'react-native-paper';
+import { postLogin } from '@/api/auth/auth.api';
+import { useUser } from '../UserContext';
+import { useTheme } from '../ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
 const Login = () => {
     const navigation = useNavigation();
@@ -18,18 +24,18 @@ const Login = () => {
 
     const validationSchema = Yup.object().shape({
         email: Yup.string()
-            .email("Por favor, insira um email válido")
-            .required("O email é obrigatório"),
+            .email('Por favor, insira um email válido')
+            .required('O email é obrigatório'),
         password: Yup.string()
-            .min(6, "A senha deve ter pelo menos 6 caracteres")
-            .required("A senha é obrigatória"),
+            .min(6, 'A senha deve ter pelo menos 6 caracteres')
+            .required('A senha é obrigatória'),
     });
 
     const handleLogin = async (values: { email: string; password: string }) => {
         try {
             const userCredential = await postLogin(values);
-            setUser({ id: userCredential.user_id, })
-            navigation.navigate('Onboarding')
+            setUser({ id: userCredential.user_id });
+            navigation.navigate('Home' as never);
         } catch (error) {
             setVisible(true);
         }
@@ -41,12 +47,13 @@ const Login = () => {
                 style={{
                     flex: 1,
                     backgroundColor: theme.colors.primary,
-                    justifyContent: "center",
-                    alignItems: "center",
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     paddingBottom: 5,
                 }}
             >
-                <Text variant="displayMedium"
+                <Text
+                    variant="displayMedium"
                     style={{ color: theme.colors.background }}
                 >
                     CAMMOVE
@@ -68,14 +75,15 @@ const Login = () => {
                     visible={visible}
                     onDismiss={() => setVisible(false)}
                     action={{
-                        label: "",
+                        label: '',
                         icon: 'close',
                         onPress: () => setVisible(false),
-                    }}>
+                    }}
+                >
                     Erro ao logar
                 </Snackbar>
                 <Formik
-                    initialValues={{ email: "", password: "" }}
+                    initialValues={{ email: '', password: '' }}
                     validationSchema={validationSchema}
                     onSubmit={handleLogin}
                 >
@@ -87,35 +95,37 @@ const Login = () => {
                         errors,
                         touched,
                     }) => (
-                        <View style={{
-                            display: 'flex', flexDirection: 'column', gap: 5
-                        }}>
-                            < TextInput
+                        <View
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 5,
+                            }}
+                        >
+                            <TextInput
                                 mode="flat"
                                 label="E-mail"
                                 value={values.email}
-                                onChangeText={handleChange("email")}
-                                onBlur={handleBlur("email")}
+                                onChangeText={handleChange('email')}
+                                onBlur={handleBlur('email')}
                                 style={{
                                     backgroundColor: theme.background,
                                 }}
                                 error={touched.email && Boolean(errors.email)}
                             />
                             {touched.email && errors.email && (
-                                <HelperText type="error" >
-                                    {errors.email}
-                                </HelperText>
+                                <HelperText type="error">{errors.email}</HelperText>
                             )}
                             <TextInput
                                 mode="flat"
                                 label="Senha"
                                 value={values.password}
-                                onChangeText={handleChange("password")}
-                                onBlur={handleBlur("password")}
+                                onChangeText={handleChange('password')}
+                                onBlur={handleBlur('password')}
                                 secureTextEntry={!showPassword}
                                 right={
                                     <TextInput.Icon
-                                        icon={showPassword ? "eye-off" : "eye"}
+                                        icon={showPassword ? 'eye-off' : 'eye'}
                                         onPress={() => setShowPassword(!showPassword)}
                                     />
                                 }
@@ -125,19 +135,22 @@ const Login = () => {
                                 error={touched.password && Boolean(errors.password)}
                             />
                             {touched.password && errors.password && (
-                                <HelperText type="error" >
-                                    {errors.password}
-                                </HelperText>
+                                <HelperText type="error">{errors.password}</HelperText>
                             )}
 
-                            <Button style={{
-                                alignSelf: "flex-end",
-                                marginBottom: 20,
-                            }} mode="text" onPress={() => console.log('Pressed')}>
+                            <Button
+                                style={{
+                                    alignSelf: 'flex-end',
+                                    marginBottom: 20,
+                                }}
+                                mode="text"
+                                onPress={() => console.log('Pressed')}
+                            >
                                 Esqueceu a senha?
                             </Button>
                             <Button
                                 mode="contained"
+                                loading={true}
                                 onPress={handleSubmit as any}
                                 style={{
                                     borderRadius: 10,
@@ -148,12 +161,11 @@ const Login = () => {
                                 ENTRAR
                             </Button>
 
-
-                            <Text style={{ textAlign: "center", }}>
-                                Não tem uma conta?{" "}
+                            <Text style={{ textAlign: 'center' }}>
+                                Não tem uma conta?{' '}
                                 <Text
-                                    style={{ fontWeight: "bold" }}
-                                    onPress={() => navigation.navigate("Register")}
+                                    style={{ fontWeight: 'bold' }}
+                                    onPress={() => navigation.navigate('Register' as never)}
                                 >
                                     Cadastre-se
                                 </Text>
@@ -161,9 +173,8 @@ const Login = () => {
                         </View>
                     )}
                 </Formik>
-
-            </View >
-        </View >
+            </View>
+        </View>
     );
 };
 

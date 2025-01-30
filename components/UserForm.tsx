@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Card, Chip, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
+import { Button, Card, Chip, HelperText, List, Snackbar, Text, TextInput } from 'react-native-paper';
 import { FormikProvider, useFormik } from 'formik';
 import * as Yup from "yup";
 import { View } from 'react-native';
@@ -7,6 +7,7 @@ import { useTheme } from '@/app/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useUser } from '@/app/UserContext';
 import { PERMISSION } from '@/api/users/users.types';
+import UserList from './UserList';
 
 interface UserFormProps {
     color?: string;
@@ -17,6 +18,7 @@ interface UserFormProps {
 const UserForm = ({ onSubmit }: UserFormProps) => {
     const [visible, setVisible] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showListTeacher, setShowListTeacher] = useState(false);
 
     const { user, setUser } = useUser();
 
@@ -32,7 +34,9 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         },
         validationSchema: validationSchema,
         enableReinitialize: true,
-        onSubmit: (value) => { onSubmit(value), setUser(value) },
+        onSubmit: (value) => {
+            onSubmit(value), setUser(value), setShowListTeacher(true)
+        },
         validateOnChange: false,
     });
 
@@ -44,8 +48,8 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         setFieldValue('birthDate', selectedDate)
     };
 
-    return (
 
+    return (
         <View style={{ padding: 20 }}>
             <Snackbar
                 visible={visible}
@@ -57,7 +61,8 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                 }}>
                 <Text>Não foi possível cadastrar</Text>
             </Snackbar>
-            <FormikProvider value={formik}>
+
+            {!showListTeacher && <FormikProvider value={formik}>
                 <Card style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: 20 }}>
                     <TextInput
                         mode="flat"
@@ -95,8 +100,6 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                         </HelperText>
                     )}
                     <Text variant='titleMedium' style={{ marginTop: 20 }}>Escolha o gênero com o qual se identifica</Text>
-
-
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 20 }}>
                         {
                             [{ label: 'Masculino', value: 'MALE' },
@@ -132,7 +135,10 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                     </Button>
 
                 </Card>
-            </FormikProvider>
+            </FormikProvider>}
+
+            {showListTeacher && user.permission === 'STUDENT' &&
+                <UserList params={{ permission: 'TEACHER' }} />}
         </View >
     );
 };

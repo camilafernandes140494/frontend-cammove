@@ -7,3 +7,14 @@ export type PostUser = {
   birthDate: string;
   permission: PERMISSION;
 };
+
+export type Users = {
+  id?: string;
+  name: string;
+  gender: string;
+  birthDate: string;
+  permission: PERMISSION;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+};

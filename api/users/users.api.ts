@@ -1,6 +1,6 @@
 // File: api.js
 import api from "../axios";
-import { PostUser } from "./users.types";
+import { PostUser, Users } from "./users.types";
 
 export const postUser = async (IdUser: string, params: PostUser) => {
   try {
@@ -25,6 +25,17 @@ export const patchUser = async (IdUser: string, params: PostUser) => {
 export const getUserById = async (IdUser: string) => {
   try {
     const response = await api.get<PostUser>(`/users/${IdUser}`);
+    return response.data; // Retorna os dados da resposta
+  } catch (error) {
+    console.error("Erro no login:", error);
+    throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
+export const getUsers = async (params?: Record<string, string>) => {
+  try {
+    const response = await api.get<Users[]>(`/users`, { params });
+    console.log(response, "response");
     return response.data; // Retorna os dados da resposta
   } catch (error) {
     console.error("Erro no login:", error);
