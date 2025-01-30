@@ -18,6 +18,7 @@ const Login = () => {
     const navigation = useNavigation();
     const { setUser } = useUser();
     const { theme } = useTheme();
+    const [isLoadingButton, setIsLoadingButton] = useState(false);
 
     const [showPassword, setShowPassword] = useState(false);
     const [visible, setVisible] = useState(false);
@@ -32,12 +33,15 @@ const Login = () => {
     });
 
     const handleLogin = async (values: { email: string; password: string }) => {
+        setIsLoadingButton(true)
         try {
             const userCredential = await postLogin(values);
             setUser({ id: userCredential.user_id });
             navigation.navigate('Home' as never);
         } catch (error) {
             setVisible(true);
+        } finally {
+            setIsLoadingButton(false)
         }
     };
 
@@ -150,7 +154,8 @@ const Login = () => {
                             </Button>
                             <Button
                                 mode="contained"
-                                loading={true}
+                                loading={isLoadingButton}
+                                disabled={isLoadingButton}
                                 onPress={handleSubmit as any}
                                 style={{
                                     borderRadius: 10,
