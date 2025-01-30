@@ -84,7 +84,7 @@ const Login = () => {
                         onPress: () => setVisible(false),
                     }}
                 >
-                    Erro ao logar
+                    <Text>Erro ao logar</Text>
                 </Snackbar>
                 <Formik
                     initialValues={{ email: '', password: '' }}

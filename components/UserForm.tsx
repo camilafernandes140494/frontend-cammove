@@ -8,6 +8,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useUser } from '@/app/UserContext';
 import { PERMISSION } from '@/api/users/users.types';
 import UserList from './UserList';
+import { useNavigation } from '@react-navigation/native';
 
 interface UserFormProps {
     color?: string;
@@ -19,6 +20,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
     const [visible, setVisible] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showListTeacher, setShowListTeacher] = useState(false);
+    const navigation = useNavigation();
 
     const { user, setUser } = useUser();
 
@@ -35,7 +37,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         validationSchema: validationSchema,
         enableReinitialize: true,
         onSubmit: (value) => {
-            onSubmit(value), setUser(value), setShowListTeacher(true)
+            onSubmit(value), setUser(value), setShowListTeacher(true), navigation.navigate('Onboarding' as never);
         },
         validateOnChange: false,
     });

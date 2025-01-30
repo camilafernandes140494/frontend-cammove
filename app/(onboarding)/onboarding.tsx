@@ -102,11 +102,11 @@ const Onboarding = () => {
                 gap: 20,
             }}
         >
-            {isLoading ? (
+            {!user.id && isLoading ? (
                 <Skeleton style={{ width: '90%', height: 500, borderRadius: 20 }} />
             ) : (
                 <>
-                    {!userById?.permission ? (
+                    {!user?.permission ? (
                         <>
                             <Text variant="headlineLarge" style={{ textAlign: 'center' }}>
                                 Escolha seu perfil para começar
@@ -159,7 +159,7 @@ const Onboarding = () => {
                                         disabled={profile === carouselItems.length - 1}
                                     />
                                 </Card.Actions>
-                            </Card>{' '}
+                            </Card>
                         </>
                     ) : (
                         <>

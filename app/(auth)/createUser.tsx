@@ -86,7 +86,7 @@ const CreateUser = () => {
             onPress: () => setVisible(false),
           }}
         >
-          Erro ao cadastrar
+          <Text>Erro ao cadastrar</Text>
         </Snackbar>
         <Formik
           initialValues={{ email: '', password: '' }}

@@ -60,7 +60,7 @@ const UserList = ({ params }: UserListProps) => {
                 onDismiss={() => setErrorVisible(false)}
                 action={{ label: '', icon: 'close', onPress: () => setErrorVisible(false) }}
             >
-                Ocorreu um erro ao selecionar o professor. Tente novamente.
+                <Text>Ocorreu um erro ao selecionar o professor. Tente novamente.</Text>
             </Snackbar>
 
             <Text variant='titleMedium' style={{ marginBottom: 20 }}>
