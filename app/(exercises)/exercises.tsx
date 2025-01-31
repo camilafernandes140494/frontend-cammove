@@ -26,7 +26,7 @@ const Exercises = () => {
             >
 
                 <Text variant="headlineMedium" style={{ textAlign: 'center' }}>
-                    Olá {user.name}
+                    Tela de exercicios
                 </Text>
 
                 {/* <Skeleton style={{ width: '90%', height: 500, borderRadius: 10 }} /> */}
