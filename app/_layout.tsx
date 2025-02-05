@@ -19,6 +19,8 @@ import Onboarding from './(onboarding)/onboarding';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Workouts from './(workouts)/workouts';
 import CreateUser from './(auth)/createUser';
+import Exercises from './(exercises)/exercises';
+import CreateExercise from './(exercises)/createExercise';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -65,6 +67,8 @@ export default function RootLayout() {
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Workouts" component={Workouts} />
+        <Tab.Screen name="Exercícios" component={Exercises} />
+
       </Tab.Navigator>
     );
   }
@@ -86,6 +90,8 @@ export default function RootLayout() {
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="Register" component={CreateUser} />
                 <Stack.Screen name="Onboarding" component={Onboarding} />
+                <Stack.Screen name="CreateExercise" component={CreateExercise} />
+
                 <Stack.Screen
                   name="Home"
                   component={HomeTabs}
