@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -91,7 +91,10 @@ const CreateExercise = () => {
     ];
 
     return (
-        <View style={{ flex: 1 }}
+        <ScrollView
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
         >
             <Snackbar
                 visible={visible}
@@ -104,6 +107,7 @@ const CreateExercise = () => {
             >
                 <Text>Erro ao cadastrar</Text>
             </Snackbar>
+
             <Formik
                 initialValues={{
                     name: '',
@@ -115,94 +119,94 @@ const CreateExercise = () => {
                 validationSchema={validationSchema}
                 onSubmit={handleLogin}
             >
-                {({
-                    handleSubmit,
-                    handleChange,
-                    handleBlur,
-                    values,
-                    errors,
-                    touched,
-                    setFieldValue,
-                }) => (
-                    <View
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 5,
-                        }}
-                    >
+                {({ handleSubmit, handleChange, handleBlur, values, errors, touched, setFieldValue }) => (
+                    <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
                         <TextInput
                             mode="flat"
                             label="Nome"
                             value={values.name}
                             onChangeText={handleChange('name')}
                             onBlur={handleBlur('name')}
-                            style={{
-                                backgroundColor: theme.background,
-                            }}
+                            style={{ backgroundColor: theme.background }}
                             error={touched.name && Boolean(errors.name)}
                         />
                         {touched.name && errors.name && (
                             <HelperText type="error">{errors.name}</HelperText>
                         )}
+
                         <TextInput
                             mode="flat"
                             label="Descrição"
                             value={values.description}
                             onChangeText={handleChange('description')}
                             onBlur={handleBlur('description')}
-                            style={{
-                                backgroundColor: theme.background,
-                            }}
+                            style={{ backgroundColor: theme.background }}
                             error={touched.description && Boolean(errors.description)}
                         />
                         {touched.description && errors.description && (
                             <HelperText type="error">{errors.description}</HelperText>
                         )}
 
-                        <TextInput
-                            mode="flat"
-                            label="Categoria"
-                            value={values.category}
-                            onChangeText={handleChange('category')}
-                            onBlur={handleBlur('category')}
-                            style={{
-                                backgroundColor: theme.background,
-                            }}
-                            error={touched.category && Boolean(errors.category)}
-                        />
-                        {touched.category && errors.category && (
-                            <HelperText type="error">{errors.category}</HelperText>
-                        )}
-                        <Text variant="titleMedium">Grupos musculares</Text>
+                        <Text variant="titleMedium" style={{ marginTop: 10 }}>Categoria</Text>
 
-                        <View style={{
-                            flexDirection: 'row',
-                            flexWrap: 'wrap',
-                            gap: 10,
-                        }}>
-                            {muscleGroup.map((muscle) => (
+                        <FlatList
+                            data={workoutCategories}
+                            keyExtractor={(item) => item}
+                            numColumns={3}
+                            contentContainerStyle={{ padding: 16 }}
+                            columnWrapperStyle={{ justifyContent: "space-between" }}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: "#4CAF50",
+                                        margin: 8,
+                                        padding: 16,
+                                        borderRadius: 10,
+                                        alignItems: "center",
+                                        shadowColor: "#000",
+                                        shadowOpacity: 0.2,
+                                        shadowOffset: { width: 2, height: 2 },
+                                        elevation: 4,
+                                    }}
+                                    activeOpacity={0.7}
+                                    onPress={() => console.log(item)}
+                                >
+                                    <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>{item}</Text>
+                                </TouchableOpacity>
+                            )}
+                        />
+
+                        <Text variant="titleMedium" style={{ marginTop: 10 }}>Grupos musculares</Text>
+
+                        <FlatList
+                            data={muscleGroup}
+                            keyExtractor={(item) => item}
+                            numColumns={3}
+                            contentContainerStyle={{ padding: 16 }}
+                            columnWrapperStyle={{ justifyContent: "space-between" }}
+                            renderItem={({ item }) => (
                                 <Chip
-                                    key={muscle}
-                                    icon={values.muscleGroup.includes(muscle) ? 'check' : undefined}
+                                    icon={values.muscleGroup.includes(item) ? 'check' : undefined}
                                     mode='outlined'
                                     onPress={() => {
                                         const newMuscleGroup = [...values.muscleGroup];
-                                        if (newMuscleGroup.includes(muscle)) {
-                                            const index = newMuscleGroup.indexOf(muscle);
-                                            newMuscleGroup.splice(index, 1); // Remove if already selected
+                                        if (newMuscleGroup.includes(item)) {
+                                            const index = newMuscleGroup.indexOf(item);
+                                            newMuscleGroup.splice(index, 1);
                                         } else {
-                                            newMuscleGroup.push(muscle); // Add if not selected
+                                            newMuscleGroup.push(item);
                                         }
                                         setFieldValue('muscleGroup', newMuscleGroup);
                                     }}
-                                    selected={values.muscleGroup.includes(muscle)}
+                                    selected={values.muscleGroup.includes(item)}
                                     style={{ marginVertical: 5 }}
                                 >
-                                    {muscle}
+                                    {item}
                                 </Chip>
-                            ))}
-                        </View>
+                            )}
+                        />
+
                         <Button
                             mode="contained"
                             onPress={handleSubmit as any}
@@ -219,7 +223,7 @@ const CreateExercise = () => {
                     </View>
                 )}
             </Formik>
-        </View>
+        </ScrollView>
     );
 };
 
