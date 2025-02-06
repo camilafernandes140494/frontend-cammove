@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
-import { Formik } from 'formik';
+import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import {
     TextInput,
@@ -9,19 +9,29 @@ import {
     Text,
     Snackbar,
     Chip,
+    List,
 } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
-import { useNavigation } from '@react-navigation/native';
-import { postExercise } from '@/api/exercise/exercise.api';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { getExerciseById, postExercise } from '@/api/exercise/exercise.api';
 import { Exercise } from '@/api/exercise/exercise.types';
+import { useQuery } from '@tanstack/react-query';
 
 const CreateExercise = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
-    const { setUser } = useUser();
     const [visible, setVisible] = useState(false);
     const [isLoadingButton, setIsLoadingButton] = useState(false);
+    const [expanded, setExpanded] = useState(false);
+    const route = useRoute();
+    const { exerciseId } = route.params as { exerciseId: string | undefined };
+
+    const { data: exerciseById } = useQuery({
+        queryKey: ['getExerciseById', exerciseId],
+        queryFn: () => getExerciseById(exerciseId || ''),
+        enabled: !!exerciseId
+    });
 
     const validationSchema = Yup.object().shape({
         name: Yup.string().required('O nome é obrigatório'),
@@ -30,7 +40,6 @@ const CreateExercise = () => {
     });
 
     const handleLogin = async (values: Exercise) => {
-        console.log(values)
         setIsLoadingButton(true);
         try {
             await postExercise(values);
@@ -54,7 +63,8 @@ const CreateExercise = () => {
         "Isquiotibiais",
         "Panturrilhas",
         "Adutores",
-        "Flexores de quadril"
+        "Flexores de quadril",
+        "Pernas"
     ];
 
     const workoutCategories = [
@@ -110,10 +120,10 @@ const CreateExercise = () => {
 
             <Formik
                 initialValues={{
-                    name: '',
-                    description: '',
-                    muscleGroup: [] as string[],
-                    category: '',
+                    name: exerciseById?.name || '',
+                    description: exerciseById?.description || '',
+                    muscleGroup: exerciseById?.muscleGroup || [] as string[],
+                    category: exerciseById?.category || '',
                     images: []
                 }}
                 validationSchema={validationSchema}
@@ -140,6 +150,9 @@ const CreateExercise = () => {
                             value={values.description}
                             onChangeText={handleChange('description')}
                             onBlur={handleBlur('description')}
+                            multiline
+                            numberOfLines={10}
+                            textAlignVertical="top"
                             style={{ backgroundColor: theme.background }}
                             error={touched.description && Boolean(errors.description)}
                         />
@@ -147,35 +160,25 @@ const CreateExercise = () => {
                             <HelperText type="error">{errors.description}</HelperText>
                         )}
 
-                        <Text variant="titleMedium" style={{ marginTop: 10 }}>Categoria</Text>
+                        {values.category && <Text variant="titleMedium" style={{ marginTop: 10, marginBottom: 10 }}>Categoria</Text>
+                        }
 
-                        <FlatList
-                            data={workoutCategories}
-                            keyExtractor={(item) => item}
-                            numColumns={3}
-                            contentContainerStyle={{ padding: 16 }}
-                            columnWrapperStyle={{ justifyContent: "space-between" }}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    style={{
-                                        flex: 1,
-                                        backgroundColor: "#4CAF50",
-                                        margin: 8,
-                                        padding: 16,
-                                        borderRadius: 10,
-                                        alignItems: "center",
-                                        shadowColor: "#000",
-                                        shadowOpacity: 0.2,
-                                        shadowOffset: { width: 2, height: 2 },
-                                        elevation: 4,
-                                    }}
-                                    activeOpacity={0.7}
-                                    onPress={() => console.log(item)}
-                                >
-                                    <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>{item}</Text>
-                                </TouchableOpacity>
-                            )}
-                        />
+                        <List.Accordion
+                            title={values?.category || "Escolha uma categoria"}
+                            expanded={expanded}
+                            onPress={() => setExpanded(!expanded)}
+                        >
+                            {workoutCategories?.map((workout, index) => (
+                                <List.Item
+                                    key={index}
+                                    style={{ backgroundColor: theme.colors.onPrimary }}
+                                    title={workout}
+                                    onPress={() => {
+                                        setExpanded(false);
+                                        setFieldValue('category', workout);
+                                    }} />
+                            ))}
+                        </List.Accordion>
 
                         <Text variant="titleMedium" style={{ marginTop: 10 }}>Grupos musculares</Text>
 

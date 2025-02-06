@@ -11,57 +11,64 @@ import {
     Appbar,
     Searchbar,
     List,
-    Card
+    Card,
+    IconButton,
+    Avatar
 } from 'react-native-paper';
-import { postCreateUser } from '@/api/auth/auth.api';
-import { useUser } from '../UserContext';
+
 import { useTheme } from '../ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import { getExercises } from '@/api/exercise/exercise.api';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../_layout';
 
 const Exercises = () => {
     const { theme } = useTheme();
-    const navigation = useNavigation();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [params, setParams] = useState();
+
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'CreateExercise'>>();
+    const [params, setParams] = useState<{ name: string }>();
 
     const { data: exercises } = useQuery({
-        queryKey: ['getExercises'],
+        queryKey: ['getExercises', params],
         queryFn: () => getExercises(params),
         enabled: true
     });
-    const [expanded, setExpanded] = useState(false);
 
-    const toggleAccordion = () => setExpanded(!expanded);
 
-    const handleTeacherSelect = () => {
-        setExpanded(false);
-    };
     return (
         <View style={{ flex: 1 }}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => { }} />
                 <Appbar.Content title="Exercícios" />
-                <Appbar.Action icon="magnify" onPress={() => { }} />
             </Appbar.Header>
-            <Button icon="plus" mode="contained" onPress={() => navigation.navigate('CreateExercise' as never)}>
-                Cadastrar exercício
-            </Button>
+
             <Searchbar
                 placeholder="Pesquisar exercício"
-                onChangeText={setSearchQuery}
-                value={searchQuery}
+                onChangeText={(a) => setParams({ name: a })}
+                value={params?.name || ''}
+                style={{ marginTop: 20, }}
+                onIconPress={() => setParams(undefined)}
             />
+            <Button
+                icon="plus"
+                mode="contained"
+                style={{ marginTop: 20, }}
+                onPress={() => navigation.navigate('CreateExercise', { exerciseId: undefined })}>
+                Cadastrar exercício
+            </Button>
             <FlatList
                 data={exercises}
                 renderItem={({ item }) => <Card style={{ marginTop: 20, }} >
-                    <Card.Title title={item.name} subtitle={item.description} />
-                    <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
-                    <Card.Actions>
-                        <Button>Cancel</Button>
-                        <Button>Ok</Button>
-                    </Card.Actions>
+                    <Card.Title
+                        title={item.name}
+                        subtitle={item.muscleGroup?.join(", ")}
+                        left={(props) => <Avatar.Icon {...props} icon="dumbbell" />}
+                        right={(props) => <IconButton {...props} icon="arrow-right"
+                            onPress={() => navigation.navigate('CreateExercise', { exerciseId: item.id })
+                            } />
+                        }
+                    />
                 </Card>}
                 keyExtractor={item => item.name}
             />

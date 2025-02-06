@@ -25,7 +25,16 @@ import CreateExercise from './(exercises)/createExercise';
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-const Stack = createStackNavigator();
+
+export type RootStackParamList = {
+  Login: undefined; // Não passa parâmetros
+  Register: undefined; // Não passa parâmetros
+  Onboarding: undefined; // Não passa parâmetros
+  CreateExercise: { exerciseId: string | undefined }; // Passa o parâmetro 'id'
+  Home: undefined; // Não passa parâmetros
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 export default function RootLayout() {
