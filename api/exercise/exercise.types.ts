@@ -7,4 +7,5 @@ export type Exercise = {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string;
+  id?: string;
 };

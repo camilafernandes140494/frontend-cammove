@@ -14,7 +14,16 @@ export const postExercise = async (params: Exercise) => {
 export const getExercises = async (params?: Record<string, string>) => {
   try {
     const response = await api.get<Exercise[]>(`/exercises`, { params });
-    console.log(response, 'response');
+    return response.data; // Retorna os dados da resposta
+  } catch (error) {
+    console.error('Erro ao carregar exercícios:', error);
+    throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
+export const getExerciseById = async (exerciseId: string) => {
+  try {
+    const response = await api.get<Exercise>(`/exercises/${exerciseId}`);
     return response.data; // Retorna os dados da resposta
   } catch (error) {
     console.error('Erro ao carregar exercícios:', error);
