@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.camilafernandessilva.frontendcammove",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Precisamos de acesso à sua galeria para selecionar imagens.",
+        "NSCameraUsageDescription": "Precisamos de acesso à sua câmera para tirar fotos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,6 +41,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "ce64223f-77d5-480a-abd6-aafe0cc90a5f"
+      }
     }
   }
 }

@@ -1,5 +1,5 @@
 import api from '../axios';
-import { Exercise } from './exercise.types';
+import { Exercise, Upload } from './exercise.types';
 
 export const postExercise = async (params: Exercise) => {
   try {
@@ -28,5 +28,19 @@ export const getExerciseById = async (exerciseId: string) => {
   } catch (error) {
     console.error('Erro ao carregar exercícios:', error);
     throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
+export const postUpload = async (formData: FormData) => {
+  try {
+    const response = await api.post<{ url: string }>('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Garantir que o Content-Type esteja como multipart/form-data
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao carregar fotos:', error);
+    throw error;
   }
 };
