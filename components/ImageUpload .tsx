@@ -9,7 +9,7 @@ export default function ImageUpload() {
     const [image, setImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-
+    console.log(image)
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images', 'videos'],
