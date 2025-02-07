@@ -17,6 +17,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { getExerciseById, postExercise } from '@/api/exercise/exercise.api';
 import { Exercise } from '@/api/exercise/exercise.types';
 import { useQuery } from '@tanstack/react-query';
+import ImageUpload from '@/components/ImageUpload ';
 
 const CreateExercise = () => {
     const { theme } = useTheme();
@@ -131,6 +132,7 @@ const CreateExercise = () => {
             >
                 {({ handleSubmit, handleChange, handleBlur, values, errors, touched, setFieldValue }) => (
                     <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                        <ImageUpload />
                         <TextInput
                             mode="flat"
                             label="Nome"
