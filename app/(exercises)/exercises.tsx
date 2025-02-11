@@ -1,32 +1,20 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, SafeAreaView, ScrollView, View, } from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import { ActivityIndicator, FlatList, View, } from 'react-native';
 import {
-    TextInput,
     Button,
-    HelperText,
     Text,
-    Snackbar,
     Appbar,
     Searchbar,
-    List,
     Card,
     IconButton,
     Avatar
 } from 'react-native-paper';
 
-import { useTheme } from '../ThemeContext';
-import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import { getExercises } from '@/api/exercise/exercise.api';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../_layout';
 
-const Exercises = () => {
-    const { theme } = useTheme();
+const Exercises = ({ navigation }: any) => {
 
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'CreateExercise'>>();
     const [params, setParams] = useState<{ name: string }>();
 
     const { data: exercises, isLoading } = useQuery({
@@ -60,6 +48,7 @@ const Exercises = () => {
                 {isLoading && <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" />}
                 {exercises?.length === 0 && <Text variant="titleSmall" style={{ marginTop: 16, textAlign: 'center' }}>Nenhum dado encontrado</Text>
                 }
+
                 <FlatList
                     data={exercises}
                     renderItem={({ item }) => <Card style={{ marginTop: 20, }} >
