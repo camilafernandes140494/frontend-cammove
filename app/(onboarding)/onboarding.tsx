@@ -9,7 +9,6 @@ import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
 import UserForm from '@/components/UserForm';
 import { GENDER, PERMISSION } from '@/api/users/users.types';
-import { useNavigation } from '@react-navigation/native';
 import Skeleton from '@/components/Skeleton';
 
 const Onboarding = () => {

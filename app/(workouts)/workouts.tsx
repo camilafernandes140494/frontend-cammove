@@ -1,84 +1,77 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView } from 'react-native';
-import { Text, Card, IconButton } from 'react-native-paper';
-import { useTheme } from '../ThemeContext';
-import CardProfile from '@/components/CardProfile';
-import { AvatarImageSource } from 'react-native-paper/lib/typescript/components/Avatar/AvatarImage';
-import { getUserById, patchUser, postUser } from '@/api/users/users.api';
-import { useUser } from '../UserContext';
+import React, { useState } from 'react';
+import { ActivityIndicator, FlatList, View, } from 'react-native';
+import {
+  Button,
+  Text,
+  Appbar,
+  Searchbar,
+  Card,
+  IconButton,
+  Avatar
+} from 'react-native-paper';
+
 import { useQuery } from '@tanstack/react-query';
-import UserForm from '@/components/UserForm';
-import { GENDER, PERMISSION } from '@/api/users/users.types';
-import { useNavigation } from '@react-navigation/native';
-import Skeleton from '@/components/Skeleton';
+import { getExercises } from '@/api/exercise/exercise.api';
+import UserList from '@/components/UserList';
+import { getRelationship } from '@/api/relationships/relationships.api';
+import { useUser } from '../UserContext';
 
-const Workouts = () => {
-  const { theme } = useTheme();
-  const [profile, setProfile] = useState(0);
-  const { user, setUser } = useUser();
-  const navigation = useNavigation();
 
-  type CarouselItem = {
-    title: string;
-    description: string;
-    image: AvatarImageSource;
-    color: string;
-    status: PERMISSION;
-  };
+const Workouts = ({ navigation }: any) => {
+  const { user } = useUser();
 
-  const carouselItems: CarouselItem[] = [
-    {
-      title: 'Sou um Aluno',
-      description:
-        'Como aluno, você pode acessar seus treinos personalizados, acompanhar seu progresso e comunicar-se diretamente com seu personal trainer para garantir que você esteja no caminho certo para alcançar seus objetivos!',
-      image: require('@/assets/images/student.png'),
-      color: 'blue',
-      status: 'STUDENT',
-    },
-    {
-      title: 'Sou um Personal Trainer',
-      description:
-        'Se você é um personal trainer, esta é a opção certa para você! Aqui, você pode criar treinos personalizados, gerenciar seus alunos e acompanhar o progresso deles com facilidade.',
-      image: require('@/assets/images/personal-trainer.png'),
-      color: 'beige',
-      status: 'TEACHER',
-    },
-    // {
-    //     title: "Sou um Administrador",
-    //     description: "Área restrita",
-    //     image: require('@/assets/images/admin.png'),
-    //     color: 'purple',
-    //     status: 'ADMIN'
-    // },
-  ];
+  const [params, setParams] = useState<{ name: string }>();
+
+  const { data: students, isLoading } = useQuery({
+    queryKey: ['getRelationship', params],
+    queryFn: () => getRelationship(user.id!, params),
+    enabled: true
+  });
+
 
   return (
-    <ScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: 20,
-        gap: 20,
-      }}
-    >
-      <CardProfile
-        title={carouselItems[profile].title}
-        description={carouselItems[profile].description}
-        image={carouselItems[profile].image}
-        color={carouselItems[profile].color}
-        status={carouselItems[profile].status}
-        onStatus={(status) =>
-          console.log({
-            name: '',
-            gender: null,
-            birthDate: '',
-            permission: status as PERMISSION,
-          })
+    <View style={{ flex: 1, }}>
+      <Appbar.Header>
+        <Appbar.Content title="Treinos" />
+      </Appbar.Header>
+      <View style={{ padding: 16 }}>
+
+        <Searchbar
+          placeholder="Pesquisar aluno(a)"
+          onChangeText={(a) => setParams({ name: a })}
+          value={params?.name || ''}
+          style={{ marginTop: 20, }}
+          onIconPress={() => setParams(undefined)}
+        />
+        <UserList params={{ permission: 'TEACHER' }} />
+        <Button
+          icon="plus"
+          mode="contained"
+          style={{ marginTop: 20, }}
+          onPress={() => navigation.navigate('CreateExercise', { exerciseId: undefined })}>
+          Cadastrar exercício
+        </Button>
+        {isLoading && <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" />}
+        {students?.students?.length === 0 && <Text variant="titleSmall" style={{ marginTop: 16, textAlign: 'center' }}>Nenhum dado encontrado</Text>
         }
-      />
-    </ScrollView>
+        <FlatList
+          data={students?.students}
+          renderItem={({ item }) => <Card style={{ marginTop: 20, }} >
+            <Card.Title
+              title={item.studentName}
+              subtitle={item.studentId}
+              left={(props) => <Avatar.Icon {...props} icon="dumbbell" />}
+              right={(props) => <IconButton {...props} icon="arrow-right"
+                onPress={() => navigation.navigate('CreateExercise', { exerciseId: item.studentId })
+                } />
+              }
+            />
+          </Card>}
+          keyExtractor={item => `${item.studentName}-${item.studentId}`}
+        />
+      </View>
+    </View >
+
   );
 };
 
