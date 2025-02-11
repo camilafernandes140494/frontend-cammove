@@ -76,7 +76,7 @@ export default function RootLayout() {
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Workouts" component={Workouts} />
-        <Tab.Screen name="Exercícios" component={Exercises} />
+        <Tab.Screen name="Exercises" component={Exercises} />
 
       </Tab.Navigator>
     );
@@ -99,7 +99,7 @@ export default function RootLayout() {
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="Register" component={CreateUser} />
                 <Stack.Screen name="Onboarding" component={Onboarding} />
-                <Stack.Screen name="CreateExercise" component={CreateExercise} />
+                <Stack.Screen name="CreateExercise" component={CreateExercise} options={{ headerShown: false }} />
 
                 <Stack.Screen
                   name="Home"
