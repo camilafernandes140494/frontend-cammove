@@ -7,27 +7,50 @@ import {
   Searchbar,
   Card,
   IconButton,
-  Avatar
+  Avatar,
+  Chip
 } from 'react-native-paper';
 
 import { useQuery } from '@tanstack/react-query';
-import { getExercises } from '@/api/exercise/exercise.api';
-import UserList from '@/components/UserList';
-import { getRelationship } from '@/api/relationships/relationships.api';
 import { useUser } from '../UserContext';
+import { getWorkoutsSummary } from '@/api/workout/workout.api';
+import { format } from 'date-fns';
 
 
 const Workouts = ({ navigation }: any) => {
   const { user } = useUser();
+  const today = format(new Date(), 'dd/MM/yyyy'); 
 
   const [params, setParams] = useState<{ name: string }>();
 
-  const { data: students, isLoading } = useQuery({
+  const { data: workoutsSummary, isLoading, refetch } = useQuery({
     queryKey: ['getRelationship', params],
-    queryFn: () => getRelationship(user.id!, params),
+    queryFn: () => getWorkoutsSummary("TgTfDirVTOQR5ZOxgFgr", params),
     enabled: true
   });
 
+
+  console.log(workoutsSummary, user.id)
+  function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  }
+
+  function getNextMonth(dateString: string): string {
+    const date = new Date(dateString);
+      date.setMonth(date.getMonth() + 1);
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  }
 
   return (
     <View style={{ flex: 1, }}>
@@ -40,10 +63,15 @@ const Workouts = ({ navigation }: any) => {
           placeholder="Pesquisar aluno(a)"
           onChangeText={(a) => setParams({ name: a })}
           value={params?.name || ''}
-          style={{ marginTop: 20, }}
           onIconPress={() => setParams(undefined)}
         />
-        <UserList params={{ permission: 'TEACHER' }} />
+        <Button
+          icon="plus"
+          mode="contained"
+          style={{ marginTop: 20, }}
+          onPress={() => refetch()}>
+          Atualizar
+        </Button>
         <Button
           icon="plus"
           mode="contained"
@@ -52,23 +80,59 @@ const Workouts = ({ navigation }: any) => {
           Cadastrar exercício
         </Button>
         {isLoading && <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" />}
-        {students?.students?.length === 0 && <Text variant="titleSmall" style={{ marginTop: 16, textAlign: 'center' }}>Nenhum dado encontrado</Text>
+        {workoutsSummary?.length === 0 && <Text variant="titleSmall" style={{ marginTop: 16, textAlign: 'center' }}>Nenhum dado encontrado</Text>
         }
-        <FlatList
-          data={students?.students}
-          renderItem={({ item }) => <Card style={{ marginTop: 20, }} >
-            <Card.Title
-              title={item.studentName}
-              subtitle={item.studentId}
-              left={(props) => <Avatar.Icon {...props} icon="dumbbell" />}
-              right={(props) => <IconButton {...props} icon="arrow-right"
-                onPress={() => navigation.navigate('CreateExercise', { exerciseId: item.studentId })
-                } />
-              }
-            />
-          </Card>}
-          keyExtractor={item => `${item.studentName}-${item.studentId}`}
-        />
+
+<FlatList
+  data={workoutsSummary}
+  renderItem={({ item }) => (
+    <Card
+      style={{
+        marginTop: 20,
+        marginHorizontal: 10,
+        borderRadius: 12,
+        elevation: 5, // Adds shadow
+      }}
+    >
+      <Card.Title
+        title={item.studentName}
+        subtitle={`Criado em: ${formatDate(item.createdAt)}`}
+        right={(props) => (
+          <IconButton
+            {...props}
+            icon="chevron-right"
+            size={24}
+            onPress={() =>
+              navigation.navigate('CreateExercise', { exerciseId: item.workoutId })
+            }
+          />
+        )}
+        titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+        subtitleStyle={{ fontSize: 12, color: 'gray' }}
+      />
+      <Card.Content style={{ paddingVertical: 16 }}>
+        <Text variant="bodyMedium" style={{ fontSize: 14, marginBottom: 8 }}>
+          Próxima atualização prevista
+        </Text>
+        <Text
+          variant="bodySmall"
+          style={{
+            fontSize: 16,
+            color:'blue',
+            fontWeight: '500',
+            marginBottom: 20,
+          }}
+        >
+          {getNextMonth(item.createdAt)}
+        </Text>
+        <Chip>
+          {item.workoutType} 
+        </Chip>
+      </Card.Content>
+    </Card>
+  )}
+  keyExtractor={(item) => `${item.studentName}-${item.id}`}
+/>
       </View>
     </View >
 

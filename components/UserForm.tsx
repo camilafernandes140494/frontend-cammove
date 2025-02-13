@@ -3,8 +3,7 @@ import { Button, Card, Chip, HelperText, List, Snackbar, Text, TextInput } from 
 import { FormikProvider, useFormik } from 'formik';
 import * as Yup from "yup";
 import { View } from 'react-native';
-import { useTheme } from '@/app/ThemeContext';
-import DateTimePicker from '@react-native-community/datetimepicker';
+// import DateTimePicker from '@react-native-community/datetimepicker';
 import { useUser } from '@/app/UserContext';
 import { PERMISSION } from '@/api/users/users.types';
 import UserList from './UserList';
@@ -82,14 +81,14 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
 
                     <Text variant='titleMedium' style={{ marginTop: 20 }}>Selecione sua data de nascimento</Text>
 
-                    {showDatePicker && (
+                    {/* {showDatePicker && (
                         <DateTimePicker
                             value={values.birthDate ? new Date(values.birthDate) : new Date()}
                             mode="date"
                             display="default"
                             onChange={handleDateChange}
                         />
-                    )}
+                    )} */}
 
                     <Button mode='outlined' onPress={() => setShowDatePicker(true)} style={{ marginTop: 20 }}
                     >
