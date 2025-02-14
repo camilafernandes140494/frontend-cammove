@@ -21,7 +21,7 @@ import { Exercise } from '@/api/exercise/exercise.types';
 import { useQuery } from '@tanstack/react-query';
 import ImageUpload from '@/components/ImageUpload ';
 
-const CreateExercise = () => {
+const CreateWorkout = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
     const [visible, setVisible] = useState(false);
@@ -121,7 +121,7 @@ const CreateExercise = () => {
                 <>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={() => navigation.goBack()} />
-                        <Appbar.Content title="Cadastrar exercício" />
+                        <Appbar.Content title="Cadastrar treino" />
                     </Appbar.Header>
                     <Snackbar
                         visible={visible}
@@ -257,4 +257,4 @@ const CreateExercise = () => {
     );
 };
 
-export default CreateExercise;
+export default CreateWorkout;
