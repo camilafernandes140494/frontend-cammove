@@ -7,7 +7,9 @@ export const postRelationship = async (
   studentId: string,
 ) => {
   try {
-    const response = await api.post(`/relationships/${teacherId}/${studentId}`);
+    const response = await api.post(
+      `/relationships/teachers/${teacherId}/students/${studentId}`,
+    );
     return response.data; // Retorna os dados da resposta
   } catch (error) {
     console.error('Erro ao criar vinculo:', error);
@@ -21,7 +23,7 @@ export const getRelationship = async (
 ) => {
   try {
     const response = await api.get<GetStudentsResponse>(
-      `/relationships/${teacherId}/students`,
+      `/relationships/teachers/${teacherId}/students`,
       { params },
     );
     return response.data; // Retorna os dados da resposta
