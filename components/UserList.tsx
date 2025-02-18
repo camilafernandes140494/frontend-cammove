@@ -7,16 +7,15 @@ import { Users } from '@/api/users/users.types';
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '@/api/users/users.api';
 import { postRelationship } from '@/api/relationships/relationships.api';
-import { useNavigation } from '@react-navigation/native';
 
 interface UserListProps {
-    params?: Record<string, string>
+    params?: Record<string, string>,
+    navigation: any
 }
 
-const UserList = ({ params }: UserListProps) => {
+const UserList = ({ params, navigation }: UserListProps) => {
     const { theme } = useTheme();
     const { user } = useUser();
-    const navigation = useNavigation();
     const [isLoadingButton, setIsLoadingButton] = useState(false);
 
     const [expanded, setExpanded] = useState(false);

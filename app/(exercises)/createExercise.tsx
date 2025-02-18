@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, FlatList, TouchableOpacity } from 'react-native';
-import { Formik, FormikHelpers } from 'formik';
+import { View, FlatList } from 'react-native';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import {
     TextInput,
@@ -13,7 +13,6 @@ import {
     Appbar,
     ActivityIndicator,
 } from 'react-native-paper';
-import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getExerciseById, patchExercise, postExercise } from '@/api/exercise/exercise.api';
@@ -48,6 +47,7 @@ const CreateExercise = () => {
             if (!exerciseId) {
                 await postExercise(values);
             } else {
+                console.log(values, 'values')
                 await patchExercise(exerciseId, values);
             }
         } catch (error) {
@@ -203,36 +203,28 @@ const CreateExercise = () => {
 
                             <Text variant="titleMedium" style={{ marginTop: 10 }}>Grupos musculares</Text>
 
-                            <FlatList
-                                data={muscleGroup}
-                                keyExtractor={(item) => item}
-                                numColumns={2}
-                                contentContainerStyle={{ padding: 16 }}
-                                columnWrapperStyle={{
-                                    justifyContent: "space-between",
-                                    flexWrap: "wrap",
-                                }}
-                                renderItem={({ item }) => (
-                                    <Chip
-                                        icon={values.muscleGroup.includes(item) ? 'check' : undefined}
-                                        mode='outlined'
-                                        onPress={() => {
-                                            const newMuscleGroup = [...values.muscleGroup];
-                                            if (newMuscleGroup.includes(item)) {
-                                                const index = newMuscleGroup.indexOf(item);
-                                                newMuscleGroup.splice(index, 1);
-                                            } else {
-                                                newMuscleGroup.push(item);
-                                            }
-                                            setFieldValue('muscleGroup', newMuscleGroup);
-                                        }}
-                                        selected={values.muscleGroup.includes(item)}
-                                        style={{ marginVertical: 5 }}
-                                    >
-                                        {item}
-                                    </Chip>
-                                )}
-                            />
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', padding: 10, gap: 10 }}>
+                                {muscleGroup.map((item, index) => <Chip
+                                    key={index}
+                                    icon={values.muscleGroup.includes(item) ? 'check' : undefined}
+                                    mode='outlined'
+                                    onPress={() => {
+                                        const newMuscleGroup = [...values.muscleGroup];
+                                        if (newMuscleGroup.includes(item)) {
+                                            const index = newMuscleGroup.indexOf(item);
+                                            newMuscleGroup.splice(index, 1);
+                                        } else {
+                                            newMuscleGroup.push(item);
+                                        }
+                                        setFieldValue('muscleGroup', newMuscleGroup);
+                                    }}
+                                    selected={values.muscleGroup.includes(item)}
+                                    style={{ marginVertical: 5 }}
+                                >
+                                    {item}
+                                </Chip>)}
+
+                            </View>
 
                             <Button
                                 mode="contained"

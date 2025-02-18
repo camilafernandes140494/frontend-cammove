@@ -1,55 +1,46 @@
 import React, { useState } from 'react';
-import { Button, List, Snackbar, Text } from 'react-native-paper';
-import { View } from 'react-native';
+import { Avatar, Button, Card, Snackbar, Text } from 'react-native-paper';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/app/ThemeContext';
 import { useUser } from '@/app/UserContext';
-import { Users } from '@/api/users/users.types';
 import { useQuery } from '@tanstack/react-query';
-import { getUsers } from '@/api/users/users.api';
-import { postRelationship } from '@/api/relationships/relationships.api';
-import { useNavigation } from '@react-navigation/native';
+import { getRelationship, postRelationship } from '@/api/relationships/relationships.api';
+import { getInitials } from '@/common/common';
+import { Student } from '@/api/relationships/relationships.types';
 
 interface UserListProps {
-    params?: Record<string, string>
+    teacherId: string
+    navigation: any
+    onSelect: (student: Student) => void
 }
 
-const SelectStudent = ({ params }: UserListProps) => {
+const SelectStudent = ({ teacherId, navigation, onSelect }: UserListProps) => {
     const { theme } = useTheme();
     const { user } = useUser();
-    const navigation = useNavigation();
     const [isLoadingButton, setIsLoadingButton] = useState(false);
-
-    const [expanded, setExpanded] = useState(false);
-    const [selectedTeacher, setSelectedTeacher] = useState<Users | null>(null);
+    const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
     const [errorVisible, setErrorVisible] = useState(false);
 
-    const { data: users } = useQuery({
-        queryKey: ['getUsers'],
-        queryFn: () => getUsers(params),
-        enabled: true
+    const { data: students } = useQuery({
+        queryKey: ['getRelationship', teacherId],
+        queryFn: () => getRelationship(teacherId),
+        enabled: !!teacherId
     });
 
-    const toggleAccordion = () => setExpanded(!expanded);
-
-    const handleTeacherSelect = (teacher: Users) => {
-        setExpanded(false);
-        setSelectedTeacher(teacher);
-    };
-
     const handleSave = async () => {
-        setIsLoadingButton(true)
-        if (!selectedTeacher) {
+        if (!selectedStudent) {
             setErrorVisible(true);
             return;
         }
+        setIsLoadingButton(true);
         try {
-            await postRelationship(selectedTeacher?.id!, user?.id!);
+            await postRelationship(selectedStudent, user?.id!);
             navigation.navigate('Home' as never);
         } catch (error) {
-            console.error("Erro ao escolher professor", error);
+            console.error("Erro ao selecionar estudante", error);
             setErrorVisible(true);
         } finally {
-            setIsLoadingButton(false)
+            setIsLoadingButton(false);
         }
     };
 
@@ -60,38 +51,42 @@ const SelectStudent = ({ params }: UserListProps) => {
                 onDismiss={() => setErrorVisible(false)}
                 action={{ label: '', icon: 'close', onPress: () => setErrorVisible(false) }}
             >
-                <Text>Ocorreu um erro ao selecionar o professor. Tente novamente.</Text>
+                <Text>Ocorreu um erro ao selecionar o estudante. Tente novamente.</Text>
             </Snackbar>
 
             <Text variant='titleMedium' style={{ marginBottom: 20 }}>
-                Selecione o professor responsável
+                Selecione um estudante
             </Text>
 
-            <List.Accordion
-                title={selectedTeacher?.name || "Escolha um professor"}
-                expanded={expanded}
-                onPress={toggleAccordion}
-            >
-                {users?.map((user) => (
-                    <List.Item
-                        key={user.id}
-                        style={{ backgroundColor: theme.colors.onPrimary }}
-                        title={user.name}
-                        onPress={() => handleTeacherSelect(user)}
-                    />
-                ))}
-            </List.Accordion>
+            <FlatList
+                data={students?.students}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => {
+                        onSelect(item);
+                        setSelectedStudent(item.studentId);
+                    }}>
+                        <Card
+                            mode='outlined'
+                            style={{
+                                marginTop: 15,
+                                margin: 10,
+                                backgroundColor: selectedStudent === item.studentId ? theme.colors.primaryContainer : 'white',
+                                borderRadius: 16,
+                                borderColor: selectedStudent === item.studentId ? theme.colors.primary : undefined,
+                            }}
+                        >
+                            <Card.Title
+                                title={item.studentName}
+                                left={(props) => <Avatar.Text {...props} label={getInitials(item.studentName)} />}
 
-            <Button
-                mode="contained"
-                onPress={handleSave}
-                loading={isLoadingButton}
-                disabled={isLoadingButton}
-                style={{ borderRadius: 10, marginVertical: 20 }}
-                contentStyle={{ height: 50 }}
-            >
-                Salvar
-            </Button>
+                            />
+                        </Card>
+                    </TouchableOpacity>
+                )}
+                keyExtractor={item => `${item.studentId}`}
+            />
+
+           
         </View>
     );
 };
