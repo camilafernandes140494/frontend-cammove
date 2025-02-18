@@ -88,7 +88,7 @@ const Workouts = ({ navigation }: any) => {
                   <Card.Title
                     title={item.studentName}
                     subtitle={`Criado em: ${formatDate(item.createdAt)}`}
-                    right={(props) => <IconButton {...props} icon="chevron-right" size={24} onPress={() => navigation.navigate('CreateExercise', { exerciseId: item.workoutId })} />}
+                    right={(props) => <IconButton {...props} icon="chevron-right" size={24} onPress={() => navigation.navigate('CreateWorkout', { workoutId: item.workoutId })} />}
                     titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
                     subtitleStyle={{ fontSize: 12, color: 'gray' }}
                   />
