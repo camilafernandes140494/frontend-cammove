@@ -58,3 +58,16 @@ export const getInitials = (name: string): string => {
 
     return (firstLetter + lastLetter).toUpperCase();
 };
+
+export const getGender = (gender: string) => {
+    switch (gender) {
+        case 'MALE':
+            return "Masculino"
+        case 'FEMALE':
+            return "Feminino"
+        case 'OTHER':
+            return "Outro"
+        case 'PREFER_NOT_TO_SAY':
+            return "Prefiro não me identificar"
+    }
+};
