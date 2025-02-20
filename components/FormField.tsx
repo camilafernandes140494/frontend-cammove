@@ -1,18 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
-import { TextInput, Switch, HelperText, Button, Menu, Text, RadioButton, Checkbox } from "react-native-paper";
+import { TextInput, Switch, HelperText, Button, Menu, Text, RadioButton, Checkbox, TextInputProps } from "react-native-paper";
 import { Controller } from "react-hook-form";
 
-interface FormFieldProps {
+interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
   control: any;
   name: string;
   label: string;
   type?: "text" | "switch" | "select" | "radio" | "checkbox";
-  options?: { label: string; value: any }[];
+  options?: any[];
+  getLabel?: (option: any) => string;
 }
 
-export function FormField({ control, name, label, type = "text", options }: FormFieldProps) {
-  const [menuVisible, setMenuVisible] = React.useState(false);
+export function FormField({ control, name, label, type = "text", options, getLabel, ...textInputProps }: FormFieldProps) {
+  const [menuVisible, setMenuVisible] = useState(false);
 
   return (
     <Controller
@@ -27,6 +28,7 @@ export function FormField({ control, name, label, type = "text", options }: Form
               onChangeText={onChange}
               mode="outlined"
               error={!!error}
+              {...textInputProps}
             />
           )}
 
@@ -43,15 +45,18 @@ export function FormField({ control, name, label, type = "text", options }: Form
               onDismiss={() => setMenuVisible(false)}
               anchor={
                 <Button mode="outlined" onPress={() => setMenuVisible(true)}>
-                  {options.find((opt) => opt.value === value)?.label || label}
+                  {value ? getLabel?.(value) || label : label}
                 </Button>
               }
             >
               {options.map((opt) => (
                 <Menu.Item
-                  key={opt.value}
-                  title={opt.label}
-                  onPress={() => { onChange(opt.value); setMenuVisible(false); }}
+                  key={JSON.stringify(opt)}
+                  title={getLabel ? getLabel(opt) : JSON.stringify(opt)}
+                  onPress={() => {
+                    onChange(opt);
+                    setMenuVisible(false);
+                  }}
                 />
               ))}
             </Menu>
@@ -63,9 +68,9 @@ export function FormField({ control, name, label, type = "text", options }: Form
               <RadioButton.Group onValueChange={onChange} value={value}>
                 {options.map((opt) => (
                   <RadioButton.Item
-                    key={opt.value}
-                    label={opt.label}
-                    value={opt.value}
+                    key={JSON.stringify(opt)}
+                    label={getLabel ? getLabel(opt) : JSON.stringify(opt)}
+                    value={opt}
                   />
                 ))}
               </RadioButton.Group>

@@ -1,93 +1,70 @@
-import React, { useState } from 'react';
-import { Avatar, Button, Card, Snackbar, Text } from 'react-native-paper';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Avatar, Card } from 'react-native-paper';
+import { FlatList, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/app/ThemeContext';
-import { useUser } from '@/app/UserContext';
 import { useQuery } from '@tanstack/react-query';
-import { getRelationship, postRelationship } from '@/api/relationships/relationships.api';
+import { getRelationship } from '@/api/relationships/relationships.api';
 import { getInitials } from '@/common/common';
 import { Student } from '@/api/relationships/relationships.types';
 
 interface UserListProps {
     teacherId: string
-    navigation: any
     onSelect: (student: Student) => void
+    filterName?: string
 }
 
-const SelectStudent = ({ teacherId, navigation, onSelect }: UserListProps) => {
+const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
     const { theme } = useTheme();
-    const { user } = useUser();
-    const [isLoadingButton, setIsLoadingButton] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
-    const [errorVisible, setErrorVisible] = useState(false);
+    const [studentsFilter, setStudentsFilter] = useState<Student[]>();
 
-    const { data: students } = useQuery({
+    const { data: students, isLoading } = useQuery({
         queryKey: ['getRelationship', teacherId],
         queryFn: () => getRelationship(teacherId),
         enabled: !!teacherId
     });
 
-    const handleSave = async () => {
-        if (!selectedStudent) {
-            setErrorVisible(true);
-            return;
+    useEffect(() => {
+        if (!students) return;
+        let filteredData = students.students;
+
+        if (filterName) {
+            filteredData = filteredData.filter((student) =>
+                student.studentName.toLowerCase().includes(filterName.toLowerCase())
+            );
         }
-        setIsLoadingButton(true);
-        try {
-            await postRelationship(selectedStudent, user?.id!);
-            navigation.navigate('Home' as never);
-        } catch (error) {
-            console.error("Erro ao selecionar estudante", error);
-            setErrorVisible(true);
-        } finally {
-            setIsLoadingButton(false);
-        }
-    };
+
+        setStudentsFilter(filteredData);
+    }, [filterName, students]);
 
     return (
-        <View style={{ padding: 20 }}>
-            <Snackbar
-                visible={errorVisible}
-                onDismiss={() => setErrorVisible(false)}
-                action={{ label: '', icon: 'close', onPress: () => setErrorVisible(false) }}
-            >
-                <Text>Ocorreu um erro ao selecionar o estudante. Tente novamente.</Text>
-            </Snackbar>
+        <FlatList
+            data={studentsFilter}
+            ListFooterComponent={isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" /> : null}
+            renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => {
+                    onSelect(item);
+                    setSelectedStudent(item.studentId);
+                }}>
+                    <Card
+                        mode='outlined'
+                        style={{
+                            marginVertical: 10,
+                            backgroundColor: selectedStudent === item.studentId ? theme.colors.primaryContainer : 'white',
+                            borderRadius: 16,
+                            borderColor: selectedStudent === item.studentId ? theme.colors.primary : undefined,
+                        }}
+                    >
+                        <Card.Title
+                            title={item.studentName}
+                            left={(props) => <Avatar.Text {...props} label={getInitials(item.studentName)} />}
 
-            <Text variant='titleMedium' style={{ marginBottom: 20 }}>
-                Selecione um estudante
-            </Text>
-
-            <FlatList
-                data={students?.students}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => {
-                        onSelect(item);
-                        setSelectedStudent(item.studentId);
-                    }}>
-                        <Card
-                            mode='outlined'
-                            style={{
-                                marginTop: 15,
-                                margin: 10,
-                                backgroundColor: selectedStudent === item.studentId ? theme.colors.primaryContainer : 'white',
-                                borderRadius: 16,
-                                borderColor: selectedStudent === item.studentId ? theme.colors.primary : undefined,
-                            }}
-                        >
-                            <Card.Title
-                                title={item.studentName}
-                                left={(props) => <Avatar.Text {...props} label={getInitials(item.studentName)} />}
-
-                            />
-                        </Card>
-                    </TouchableOpacity>
-                )}
-                keyExtractor={item => `${item.studentId}`}
-            />
-
-           
-        </View>
+                        />
+                    </Card>
+                </TouchableOpacity>
+            )}
+            keyExtractor={item => `${item.studentId}`}
+        />
     );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Searchbar } from 'react-native-paper';
 import { debounce } from 'lodash';
 
@@ -27,6 +27,7 @@ const FilterInput: React.FC<FilterInputProps> = ({ onChange, placeholder }) => {
             onChangeText={handleInputChange}
             onIconPress={() => setInputValue('')}
             onClearIconPress={() => handleInputChange('')}
+            style={{ marginVertical: 10 }}
         />
     );
 };
