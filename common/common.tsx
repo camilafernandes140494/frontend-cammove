@@ -71,3 +71,19 @@ export const getGender = (gender: string) => {
             return "Prefiro não me identificar"
     }
 };
+
+export const calculateAge = (birthdate: string | Date): number => {
+    const birth = new Date(birthdate);
+    const today = new Date();
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    const dayDiff = today.getDate() - birth.getDate();
+
+    // Ajusta a idade se ainda não fez aniversário no ano atual
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+    }
+
+    return age;
+};
