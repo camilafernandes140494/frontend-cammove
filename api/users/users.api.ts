@@ -24,7 +24,7 @@ export const patchUser = async (IdUser: string, params: PostUser) => {
 
 export const getUserById = async (IdUser: string) => {
   try {
-    const response = await api.get<PostUser>(`/users/${IdUser}`);
+    const response = await api.get<Users>(`/users/${IdUser}`);
     return response.data; // Retorna os dados da resposta
   } catch (error) {
     console.error('Erro no login:', error);
