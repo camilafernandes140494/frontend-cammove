@@ -1,18 +1,20 @@
 // File: api.js
 import api from '../axios';
-import { getWorkoutsSummaryResponse } from './workout.types';
+import { getWorkoutsSummaryResponse, WorkoutData } from './workout.types';
 
-export const postRelationship = async (
+export const postWorkout = async (
   teacherId: string,
-  relationshipId: string,
+  studentId: string,
+  params: WorkoutData,
 ) => {
   try {
     const response = await api.post(
-      `/workouts/teachers/${teacherId}/relationships/${relationshipId}`,
+      `/workouts/teachers/${teacherId}/students/${studentId}`,
+      params,
     );
     return response.data; // Retorna os dados da resposta
   } catch (error) {
-    console.error('Erro ao criar vinculo:', error);
+    console.error('Erro ao criar treino:', error);
     throw error; // Propaga o erro para quem chamar a função
   }
 };

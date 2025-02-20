@@ -12,15 +12,15 @@ export type getWorkoutsSummaryResponse = {
 
 export type ExerciseWorkout = {
   exerciseId: Exercise;
-  repetitions: number;
-  sets: number;
+  repetitions: string;
+  sets: string;
   restTime: string;
   observations: string;
 };
 export type WorkoutData = {
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
   exercises: ExerciseWorkout[];
   type: string;
   studentName: string;
