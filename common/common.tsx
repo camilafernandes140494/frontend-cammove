@@ -69,6 +69,8 @@ export const getGender = (gender: string) => {
             return "Outro"
         case 'PREFER_NOT_TO_SAY':
             return "Prefiro não me identificar"
+        default:
+            return "Não especificado";
     }
 };
 

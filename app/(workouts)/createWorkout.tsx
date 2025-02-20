@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import {
-    Text, Appbar, Button,
-    Card,
-    Avatar
+    Text, Appbar, Button
 } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import SelectStudent from '@/components/SelectStudent';
 import { useStudent } from '../context/StudentContext';
 import FilterInput from '@/components/FilterInput';
 import { useUser } from '../UserContext';
-import { calculateAge, getGender, getInitials } from '@/common/common';
 import { useTheme } from '../ThemeContext';
 import FormWorkout from '@/components/FormWorkout';
+import StudentCard from '@/components/StudentCard';
 
 const CreateWorkout = () => {
     const navigation = useNavigation();
@@ -34,13 +32,7 @@ const CreateWorkout = () => {
                         <Appbar.BackAction onPress={() => navigation.navigate('Workouts' as never)} />
                         <Appbar.Content title="Cadastrar treino" />
                     </Appbar.Header>
-                    {!newStudent && <View style={{ backgroundColor: theme.colors.secondaryContainer, paddingVertical: 16 }}>
-                        <Card.Title
-                            title={`${student?.name} ${calculateAge(student?.birthDate || '')} anos`}
-                            subtitle={`Gênero: ${getGender(student?.gender || '')}`}
-                            left={(props) => <Avatar.Text {...props} label={getInitials(student?.name || '')} />}
-                        />
-                    </View>}
+                    {!newStudent && <StudentCard />}
                 </>
             }
             data={[{}]}

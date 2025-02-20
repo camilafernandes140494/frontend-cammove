@@ -6,6 +6,7 @@ export type UserType = {
   name: string | null;
   permission: PERMISSION | null;
   gender: string | null;
+  image: string | null
 };
 type UserContextType = {
   user: UserType;
@@ -20,6 +21,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     name: null,
     gender: null,
     permission: null,
+    image: null
   });
 
   const updateUser = (newUser: Partial<UserType>) => {

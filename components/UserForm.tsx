@@ -7,18 +7,20 @@ import { View } from 'react-native';
 import { useUser } from '@/app/UserContext';
 import { PERMISSION } from '@/api/users/users.types';
 import UserList from './UserList';
+import { useNavigation } from '@react-navigation/native';
 
 interface UserFormProps {
     color?: string;
-    onSubmit: (values: { name: string; gender: null; birthDate: string; permission: PERMISSION }) => void;
-    navigation: any
+    onSubmit: (values: { name: string; gender: null; birthDate: string; image: string, permission: PERMISSION }) => void;
 
 }
 
-const UserForm = ({ onSubmit, navigation }: UserFormProps) => {
+const UserForm = ({ onSubmit }: UserFormProps) => {
     const [visible, setVisible] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showListTeacher, setShowListTeacher] = useState(false);
+    const navigation = useNavigation();
+
 
     const { user, setUser } = useUser();
 
@@ -30,7 +32,7 @@ const UserForm = ({ onSubmit, navigation }: UserFormProps) => {
 
     const formik = useFormik({
         initialValues: {
-            name: "", birthDate: "", gender: null, permission: user.permission
+            name: "", birthDate: "", gender: null, permission: user.permission, image: ""
         },
         validationSchema: validationSchema,
         enableReinitialize: true,

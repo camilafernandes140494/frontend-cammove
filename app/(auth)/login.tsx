@@ -170,7 +170,7 @@ const Login = () => {
                                 Não tem uma conta?{' '}
                                 <Text
                                     style={{ fontWeight: 'bold' }}
-                                    onPress={() => navigation.navigate('Register' as never)}
+                                    onPress={() => navigation.navigate('CreateUser' as never)}
                                 >
                                     Cadastre-se
                                 </Text>

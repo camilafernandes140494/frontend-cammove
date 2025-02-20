@@ -1,11 +1,11 @@
 import React from 'react';
 import { ScrollView, View, } from 'react-native';
-import { Appbar, Text, } from 'react-native-paper';
+import { Appbar, Button, Text, } from 'react-native-paper';
 import { useUser } from '../UserContext';
 
 
 const Home = () => {
-    const { user } = useUser();
+    const { user, setUser } = useUser();
 
     return (
         <View style={{ flex: 1 }}>
@@ -24,6 +24,12 @@ const Home = () => {
                     padding: 50,
                 }}
             >
+                <Button onPress={() => setUser({
+                    id: null,
+                    name: null,
+                    gender: null,
+                    permission: null,
+                })}>deslogar</Button>
 
                 <Text variant="headlineMedium" style={{ textAlign: 'center' }}>
                     Olá {user.name}

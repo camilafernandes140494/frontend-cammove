@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Text, Card, IconButton } from 'react-native-paper';
 import { useTheme } from '../ThemeContext';
 import CardProfile from '@/components/CardProfile';
@@ -74,6 +74,7 @@ const Onboarding = () => {
         gender: GENDER;
         birthDate: string;
         permission: PERMISSION;
+        image: string
     }) => {
         try {
             if (!userById) {
@@ -99,12 +100,13 @@ const Onboarding = () => {
                 alignItems: 'center',
                 padding: 20,
                 gap: 20,
+
             }}
         >
             {!user.id && isLoading ? (
                 <Skeleton style={{ width: '90%', height: 500, borderRadius: 20 }} />
             ) : (
-                <>
+                <View style={{ marginTop: 50, }}>
                     {!user?.permission ? (
                         <>
                             <Text variant="headlineLarge" style={{ textAlign: 'center' }}>
@@ -113,7 +115,7 @@ const Onboarding = () => {
                             <Card
                                 mode="contained"
                                 contentStyle={{
-                                    borderRadius: 20,
+                                    borderRadius: 10,
                                     backgroundColor:
                                         theme.colors.card[carouselItems[profile].color].background
                                             .default,
@@ -138,6 +140,7 @@ const Onboarding = () => {
                                                 name: '',
                                                 gender: null,
                                                 birthDate: '',
+                                                image:'',
                                                 permission: status as PERMISSION,
                                             })
                                         }
@@ -170,7 +173,7 @@ const Onboarding = () => {
                             </Card>
                         </>
                     )}
-                </>
+                </View>
             )}
         </ScrollView>
     );

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View } from "react-native";
 import { TextInput, Switch, HelperText, Button, Menu, Text, RadioButton, Checkbox, TextInputProps } from "react-native-paper";
 import { Controller } from "react-hook-form";
+import { useTheme } from "@/app/ThemeContext";
 
 interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
   control: any;
@@ -14,6 +15,7 @@ interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
 
 export function FormField({ control, name, label, type = "text", options, getLabel, ...textInputProps }: FormFieldProps) {
   const [menuVisible, setMenuVisible] = useState(false);
+  const { theme } = useTheme();
 
   return (
     <Controller
@@ -43,8 +45,13 @@ export function FormField({ control, name, label, type = "text", options, getLab
             <Menu
               visible={menuVisible}
               onDismiss={() => setMenuVisible(false)}
+              style={{ width: '90%' }}
               anchor={
-                <Button mode="outlined" onPress={() => setMenuVisible(true)}>
+                <Button
+                  mode="outlined"
+                  style={{ borderWidth: error ? 2 : 1, borderColor: error ? theme.colors.error : undefined }}
+                  textColor={error ? theme.colors.error : undefined}
+                  onPress={() => setMenuVisible(true)}>
                   {value ? getLabel?.(value) || label : label}
                 </Button>
               }
