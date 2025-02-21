@@ -39,15 +39,12 @@ const CreateWorkout = () => {
                 <>
                     {newStudent ? <View style={{ margin: 20 }}>
                         <Text variant="titleMedium">Escolha um aluno(a)</Text>
-
                         <FilterInput placeholder="Pesquisar aluno(a)" onChange={setParams} />
-
                         <SelectStudent
                             teacherId={user?.id || ''}
                             onSelect={(student) => refetchStudent(student.studentId)}
                             filterName={params}
                         />
-
                         <Button
                             mode="contained"
                             onPress={() => setNewStudent(false)}

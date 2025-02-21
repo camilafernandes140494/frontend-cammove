@@ -72,6 +72,10 @@ const DetailsWorkout = () => {
           subtitle={`ID ${item}`}
           right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item }) }} />}
         />
+        <Card.Actions>
+          <Button compact={true}>Excluir</Button>
+          <Button compact>Duplicar</Button>
+        </Card.Actions>
       </Card>
       }
       </>
