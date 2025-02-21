@@ -8,7 +8,6 @@ import SelectStudent from '@/components/SelectStudent';
 import { useStudent } from '../context/StudentContext';
 import FilterInput from '@/components/FilterInput';
 import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
 import FormWorkout from '@/components/FormWorkout';
 import StudentCard from '@/components/StudentCard';
 
@@ -16,11 +15,10 @@ const CreateWorkout = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const { user } = useUser();
-    const { student, refetchStudent } = useStudent();
+    const { refetchStudent } = useStudent();
     const [params, setParams] = useState('');
     const { workoutId } = route.params as { workoutId: string | undefined };
     const [newStudent, setNewStudent] = useState(!workoutId);
-    const { theme } = useTheme();
 
     return (
         <FlatList
@@ -45,7 +43,7 @@ const CreateWorkout = () => {
                         <FilterInput placeholder="Pesquisar aluno(a)" onChange={setParams} />
 
                         <SelectStudent
-                            teacherId={'TgTfDirVTOQR5ZOxgFgr'}
+                            teacherId={user?.id || ''}
                             onSelect={(student) => refetchStudent(student.studentId)}
                             filterName={params}
                         />
@@ -59,7 +57,7 @@ const CreateWorkout = () => {
                     </View>
                         :
                         <>
-                            <FormWorkout />
+                            <FormWorkout workoutId={workoutId} />
                         </>
                     }
                 </>

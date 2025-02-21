@@ -17,6 +17,7 @@ import FilterInput from '@/components/FilterInput';
 import { getWorkoutsSummaryResponse } from '@/api/workout/workout.types';
 import { useStudent } from '../context/StudentContext';
 import SelectStudent from '@/components/SelectStudent';
+import { useUser } from '../UserContext';
 
 const Workouts = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
@@ -24,11 +25,13 @@ const Workouts = ({ navigation }: any) => {
   const [dateStatus, setDateStatus] = useState<DateStatus>('INVALID_DATE');
   const { refetchStudent } = useStudent();
   const [value, setValue] = useState('workouts');
+  const { user } = useUser();
+
 
   const { data: workoutsSummary, isLoading } = useQuery({
     queryKey: ['getRelationship', params],
-    queryFn: () => getWorkoutsSummary('TgTfDirVTOQR5ZOxgFgr', params),
-    enabled: true,
+    queryFn: () => getWorkoutsSummary(user.id!, params),
+    enabled: !!user.id,
   });
 
   useEffect(() => {
@@ -98,8 +101,8 @@ const Workouts = ({ navigation }: any) => {
 
             {value === 'students' && (
               <SelectStudent
-                teacherId={'TgTfDirVTOQR5ZOxgFgr'}
-                onSelect={(student) => refetchStudent(student.studentId)}
+                teacherId={user.id!}
+                onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('DetailsWorkout' as never) }}
                 filterName={params?.name}
               />
             )}

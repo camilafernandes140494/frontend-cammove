@@ -1,50 +1,33 @@
 import React, { useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList } from 'react-native';
 import {
   Text,
-  Snackbar, Appbar, Card,
-  Avatar,
-  SegmentedButtons
+  Snackbar, Appbar,
+  Card, IconButton,
+  Button
 } from 'react-native-paper';
-import { useRoute } from '@react-navigation/native';
-import * as z from "zod";
-import { useForm } from 'react-hook-form';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { calculateAge, getGender, getInitials } from '@/common/common';
-import { useTheme } from '../ThemeContext';
 import { useStudent } from '../context/StudentContext';
+import { getWorkoutsByStudentId } from '@/api/workout/workout.api';
+import { useQuery } from '@tanstack/react-query';
+import StudentCard from '@/components/StudentCard';
+import Skeleton from '@/components/Skeleton';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
-const DetailsWorkout = (navigation: any) => {
+export type RootStackParamList = {
+  Workouts: undefined;
+  CreateWorkout: { workoutId?: string };
+};
+
+const DetailsWorkout = () => {
   const [visible, setVisible] = useState(false);
-  const route = useRoute();
-  const { workoutId } = route.params as { workoutId: string | undefined };
-  const { theme } = useTheme();
   const { student } = useStudent();
-  const [value, setValue] = useState('');
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // const { data: exerciseById, isLoading } = useQuery({
-  //     queryKey: ['getExerciseById', exerciseId],
-  //     queryFn: () => getExerciseById(exerciseId || ''),
-  //     enabled: !!exerciseId
-  // });
-
-  const schema = z.object({
-    type: z.string(),
-    role: z.enum(["admin", "user"], { required_error: "Selecione um papel" }),
+  const { data: workoutsStudent, isLoading } = useQuery({
+    queryKey: ['getWorkoutsByStudentId', student?.id],
+    queryFn: () => getWorkoutsByStudentId(student?.id || ''),
+    enabled: !!student?.id
   });
-
-  const { control, handleSubmit, watch } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      type: "",
-      role: "user" as "admin" | "user",
-    },
-  });
-
-  const selectedType = watch("type");
-
-
-  const onSubmit = (data: any) => console.log("Formulário enviado", data);
 
   return (
     <FlatList
@@ -54,30 +37,19 @@ const DetailsWorkout = (navigation: any) => {
         <>
           <Appbar.Header>
             <Appbar.BackAction onPress={() => navigation.navigate('Workouts')} />
-            <Appbar.Content title="Detakhe do treino" />
+            <Appbar.Content title="Treinos" />
           </Appbar.Header>
-          <View style={{ backgroundColor: theme.colors.secondaryContainer }}>
-            <Card.Title
-              title={`${student?.name} ${calculateAge(student?.birthDate || '')} anos`}
-              subtitle={`Gênero: ${getGender(student?.gender || '')}`}
-              left={(props) => <Avatar.Text {...props} label={getInitials(student?.name || '')} />}
-            />
-          </View>
-          <SegmentedButtons
-            value={value}
-            onValueChange={setValue}
-            buttons={[
-              {
-                value: 'workouts',
-                label: 'Treinos',
-              },
-              {
-                value: 'train',
-                label: 'Detalhe do treino',
-              },
-              { value: 'drive', label: 'Driving' },
-            ]}
+          <StudentCard
+            children={
+              <Button
+                icon="plus"
+                mode='text'
+                onPress={() => navigation.navigate('CreateWorkout', { workoutId: student?.id })}
+              >Novo treino
+              </Button>
+            }
           />
+
           <Snackbar
             visible={visible}
             onDismiss={() => setVisible(false)}
@@ -91,11 +63,17 @@ const DetailsWorkout = (navigation: any) => {
           </Snackbar>
         </>
       }
-      data={[{}]}
-      keyExtractor={() => 'header'}
-      renderItem={() => <>
-
-
+      data={workoutsStudent}
+      keyExtractor={(item) => String(item)}
+      renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
+      >
+        <Card.Title
+          title="Treino"
+          subtitle={`ID ${item}`}
+          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item }) }} />}
+        />
+      </Card>
+      }
       </>
       }
     />

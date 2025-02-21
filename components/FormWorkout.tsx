@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, View, } from 'react-native';
 import * as z from "zod";
 import { useForm } from 'react-hook-form';
@@ -15,23 +15,34 @@ import {
 } from 'react-native-paper';
 import ExerciseModal from './ExerciseModal';
 import { ExerciseWorkout } from '@/api/workout/workout.types';
-import { postWorkout } from '@/api/workout/workout.api';
+import { getWorkoutByStudentIdAndWorkoutId, postWorkout } from '@/api/workout/workout.api';
 import { useUser } from '@/app/UserContext';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 
-const FormWorkout = () => {
+interface FormWorkoutProps {
+  workoutId?: string;
+};
+const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const [visible, setVisible] = useState(false);
   const { student } = useStudent();
   const { user } = useUser();
   const navigation = useNavigation();
 
+  const { data: workoutByStudent } = useQuery({
+    queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
+    queryFn: () => getWorkoutByStudentIdAndWorkoutId(workoutId || '', student?.id || ''),
+    enabled: !!workoutId
+  });
+
+  console.log(workoutByStudent)
   const [exercisesList, setExercisesList] = useState<ExerciseWorkout[]>([]);
 
-  // const { data: exerciseById, isLoading } = useQuery({
-  //     queryKey: ['getExerciseById', exerciseId],
-  //     queryFn: () => getExerciseById(exerciseId || ''),
-  //     enabled: !!exerciseId
-  // });
+  useEffect(() => {
+    if (workoutByStudent?.exercises) {
+      setExercisesList(workoutByStudent?.exercises)
+    }
+  }, [workoutByStudent])
 
   const schema = z.object({
     type: z.object({
@@ -44,8 +55,8 @@ const FormWorkout = () => {
   const { control, handleSubmit, watch, } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      type: {},
-      customType: ""
+      type: workoutByStudent?.type ? { label: workoutByStudent?.type, value: workoutByStudent?.type } : {},
+      customType: workoutByStudent?.type || ""
     },
   });
 
