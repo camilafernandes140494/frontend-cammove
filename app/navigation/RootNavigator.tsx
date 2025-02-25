@@ -7,7 +7,7 @@ function RootNavigator() {
 
     return (
         <>
-            {user.id ? <TabsTeacher /> : <AuthNavigator />}
+            {user.token ? <TabsTeacher /> : <AuthNavigator />}
         </>
     );
 }

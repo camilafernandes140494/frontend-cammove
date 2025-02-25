@@ -7,11 +7,12 @@ import {
   Button
 } from 'react-native-paper';
 import { useStudent } from '../context/StudentContext';
-import { getWorkoutsByStudentId } from '@/api/workout/workout.api';
+import { deleteWorkoutsByStudentId, duplicateWorkout, getWorkoutsByStudentId } from '@/api/workout/workout.api';
 import { useQuery } from '@tanstack/react-query';
 import StudentCard from '@/components/StudentCard';
 import Skeleton from '@/components/Skeleton';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { useUser } from '../UserContext';
 
 export type RootStackParamList = {
   Workouts: undefined;
@@ -22,13 +23,41 @@ const DetailsWorkout = () => {
   const [visible, setVisible] = useState(false);
   const { student } = useStudent();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [isLoadingButton, setIsLoadingButton] = useState(false);
 
-  const { data: workoutsStudent, isLoading } = useQuery({
+  const [isLoadingButtonDelete, setIsLoadingButtonDelete] = useState(false);
+  const { user } = useUser();
+
+  const { data: workoutsStudent, isLoading, refetch } = useQuery({
     queryKey: ['getWorkoutsByStudentId', student?.id],
     queryFn: () => getWorkoutsByStudentId(student?.id || ''),
     enabled: !!student?.id
   });
 
+
+  const handleDelete = async (workoutId: string) => {
+    setIsLoadingButtonDelete(true);
+    try {
+      await deleteWorkoutsByStudentId(workoutId, student?.id || '', user?.id || '');
+      refetch()
+    } catch (error) {
+      console.error('Erro ao criar exercício:', error);
+    } finally {
+      setIsLoadingButtonDelete(false);
+    }
+  };
+
+  const handleDuplicate = async (workoutId: string) => {
+    setIsLoadingButton(true);
+    try {
+      await duplicateWorkout(workoutId, student?.id || '', user?.id || '');
+      refetch()
+    } catch (error) {
+      console.error('Erro ao criar exercício:', error);
+    } finally {
+      setIsLoadingButton(false);
+    }
+  };
   return (
     <FlatList
       style={{ flex: 1, }}
@@ -73,8 +102,16 @@ const DetailsWorkout = () => {
           right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item }) }} />}
         />
         <Card.Actions>
-          <Button compact={true}>Excluir</Button>
-          <Button compact>Duplicar</Button>
+          <Button
+            disabled={isLoadingButtonDelete}
+            loading={isLoadingButtonDelete}
+            onPress={() => handleDelete(item)}>
+            Excluir
+          </Button>
+          <Button
+            disabled={isLoadingButton}
+            loading={isLoadingButton}
+            onPress={() => handleDuplicate(item)}>Duplicar</Button>
         </Card.Actions>
       </Card>
       }

@@ -15,7 +15,7 @@ import {
 } from 'react-native-paper';
 import ExerciseModal from './ExerciseModal';
 import { ExerciseWorkout } from '@/api/workout/workout.types';
-import { getWorkoutByStudentIdAndWorkoutId, postWorkout } from '@/api/workout/workout.api';
+import { getWorkoutByStudentIdAndWorkoutId, patchWorkout, postWorkout } from '@/api/workout/workout.api';
 import { useUser } from '@/app/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
@@ -29,13 +29,12 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const { user } = useUser();
   const navigation = useNavigation();
 
-  const { data: workoutByStudent } = useQuery({
+  const { data: workoutByStudent, refetch } = useQuery({
     queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
     queryFn: () => getWorkoutByStudentIdAndWorkoutId(workoutId || '', student?.id || ''),
     enabled: !!workoutId
   });
 
-  console.log(workoutByStudent)
   const [exercisesList, setExercisesList] = useState<ExerciseWorkout[]>([]);
 
   useEffect(() => {
@@ -71,8 +70,13 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       studentName: student?.name || ''
     }
     try {
-      await postWorkout(user.id || '', student?.id || '', workoutData);
-      navigation.navigate('Workouts' as never);
+      if (workoutId) {
+        await patchWorkout(workoutId, user.id || '', student?.id || '', workoutData);
+        refetch()
+      } else {
+        await postWorkout(user.id || '', student?.id || '', workoutData);
+        navigation.navigate('Workouts' as never);
+      }
 
     } catch (error) {
       <Snackbar
