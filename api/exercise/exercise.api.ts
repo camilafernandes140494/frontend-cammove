@@ -1,5 +1,5 @@
 import api from '../axios';
-import { Exercise, Upload } from './exercise.types';
+import { Exercise } from './exercise.types';
 
 export const postExercise = async (params: Exercise) => {
   try {
@@ -51,6 +51,16 @@ export const postUpload = async (formData: FormData) => {
     return response.data;
   } catch (error) {
     console.error('Erro ao carregar fotos:', error);
+    throw error;
+  }
+};
+
+export const deleteExercise = async (exerciseId: string) => {
+  try {
+    const response = await api.delete(`/exercises/${exerciseId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro no login:', error);
     throw error;
   }
 };
