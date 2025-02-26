@@ -69,7 +69,6 @@ const Workouts = ({ navigation }: any) => {
         </Button>
       </Appbar.Header>
 
-
       <FlatList
         data={value === 'students' ? [] : workoutsSummaryFilter}
         keyExtractor={(item) => `${item.studentName}-${item.id}`}

@@ -29,6 +29,7 @@ const Home = () => {
                     name: null,
                     gender: null,
                     permission: null,
+                    token: null
                 })}>deslogar</Button>
 
                 <Text variant="headlineMedium" style={{ textAlign: 'center' }}>

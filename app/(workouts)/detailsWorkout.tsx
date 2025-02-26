@@ -13,6 +13,7 @@ import StudentCard from '@/components/StudentCard';
 import Skeleton from '@/components/Skeleton';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
+import CustomModal from '@/components/CustomModal';
 
 export type RootStackParamList = {
   Workouts: undefined;
@@ -102,16 +103,21 @@ const DetailsWorkout = () => {
           right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item }) }} />}
         />
         <Card.Actions>
-          <Button
-            disabled={isLoadingButtonDelete}
-            loading={isLoadingButtonDelete}
-            onPress={() => handleDelete(item)}>
-            Excluir
-          </Button>
-          <Button
-            disabled={isLoadingButton}
-            loading={isLoadingButton}
-            onPress={() => handleDuplicate(item)}>Duplicar</Button>
+          
+          <CustomModal
+            onPress={() => handleDelete(item)}
+            title='Tem certeza que deseja deletar o treino?'
+            primaryButtonLabel='Deletar' />
+          <CustomModal
+            onPress={() => handleDuplicate(item)}
+            title='Tem certeza que deseja duplicar o treino?'
+            primaryButtonLabel="Duplicar"
+            trigger={<Button
+              disabled={isLoadingButton}
+              loading={isLoadingButton}
+              mode='contained'
+            >Duplicar</Button>} />
+
         </Card.Actions>
       </Card>
       }

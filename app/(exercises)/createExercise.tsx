@@ -41,17 +41,17 @@ const CreateExercise = () => {
         category: Yup.string().required('A categoria é obrigatória'),
     });
 
-    const handleLogin = async (values: Exercise) => {
+    const createExercise = async (values: Exercise) => {
         setIsLoadingButton(true);
         try {
             if (!exerciseId) {
                 await postExercise(values);
             } else {
-                console.log(values, 'values')
                 await patchExercise(exerciseId, values);
             }
+            navigation.navigate('Exercises' as never)
         } catch (error) {
-            console.error('Erro ao criar exercício:', error);
+            setVisible(true);
         } finally {
             setIsLoadingButton(false);
         }
@@ -148,10 +148,10 @@ const CreateExercise = () => {
                         images: exerciseById?.images || []
                     }}
                     validationSchema={validationSchema}
-                    onSubmit={handleLogin}
+                    onSubmit={createExercise}
                 >
                     {({ handleSubmit, handleChange, handleBlur, values, errors, touched, setFieldValue }) => (
-                        <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                        <View style={{ paddingHorizontal: 16, paddingTop: 10, gap: 16 }}>
                             <ImageUpload onSelect={(url) => setFieldValue('images', [url])} />
                             <TextInput
                                 mode="flat"
@@ -167,7 +167,7 @@ const CreateExercise = () => {
                             )}
 
                             <TextInput
-                                mode="flat"
+                                mode="outlined"
                                 label="Descrição"
                                 value={values.description}
                                 onChangeText={handleChange('description')}
@@ -175,14 +175,13 @@ const CreateExercise = () => {
                                 multiline
                                 numberOfLines={10}
                                 textAlignVertical="top"
-                                style={{ backgroundColor: theme.background }}
                                 error={touched.description && Boolean(errors.description)}
                             />
                             {touched.description && errors.description && (
                                 <HelperText type="error">{errors.description}</HelperText>
                             )}
 
-                            {values.category && <Text variant="titleMedium" style={{ marginTop: 10, marginBottom: 16 }}>Categoria</Text>}
+                            {values.category && <Text variant="titleMedium" >Categoria</Text>}
 
                             <List.Accordion
                                 title={values?.category || "Escolha uma categoria"}
@@ -201,7 +200,7 @@ const CreateExercise = () => {
                                 ))}
                             </List.Accordion>
 
-                            <Text variant="titleMedium" style={{ marginTop: 10 }}>Grupos musculares</Text>
+                            <Text variant="titleMedium" >Grupos musculares</Text>
 
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap', padding: 10, gap: 10 }}>
                                 {muscleGroup.map((item, index) => <Chip

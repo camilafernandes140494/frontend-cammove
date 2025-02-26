@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ExercisesNavigator from './ExercisesNavigator';
 import WorkoutsNavigator from './WorkoutsNavigator';
 import HomeNavigator from './HomeNavigator';
+import AssessmentsNavigator from './AssessmentsNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,6 +15,13 @@ function TabsTeacher() {
         tabBarLabel: "Home",
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="home" size={size} color={color} />
+        ),
+      }} />
+      <Tab.Screen name="AssessmentsScreen" component={AssessmentsNavigator} options={{
+        headerShown: false,
+        tabBarLabel: "Avaliação",
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name="bar-chart-outline" size={size} color={color} />
         ),
       }} />
       <Tab.Screen name="WorkoutsScreen" component={WorkoutsNavigator} options={{
@@ -30,6 +38,7 @@ function TabsTeacher() {
           <Ionicons name="barbell" size={size} color={color} />
         ),
       }} />
+
     </Tab.Navigator>
   );
 }

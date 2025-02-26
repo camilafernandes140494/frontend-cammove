@@ -10,6 +10,7 @@ import FilterInput from '@/components/FilterInput';
 import { useUser } from '../UserContext';
 import FormWorkout from '@/components/FormWorkout';
 import StudentCard from '@/components/StudentCard';
+import { useTheme } from '../ThemeContext';
 
 const CreateWorkout = () => {
     const navigation = useNavigation();
@@ -19,6 +20,7 @@ const CreateWorkout = () => {
     const [params, setParams] = useState('');
     const { workoutId } = route.params as { workoutId: string | undefined };
     const [newStudent, setNewStudent] = useState(!workoutId);
+    const { theme } = useTheme();
 
     return (
         <FlatList
@@ -30,7 +32,9 @@ const CreateWorkout = () => {
                         <Appbar.BackAction onPress={() => navigation.navigate('Workouts' as never)} />
                         <Appbar.Content title="Cadastrar treino" />
                     </Appbar.Header>
-                    {!newStudent && <StudentCard />}
+                    {!newStudent && <StudentCard>
+                        {workoutId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {workoutId}</Text>}
+                    </StudentCard>}
                 </>
             }
             data={[{}]}
