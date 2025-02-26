@@ -17,19 +17,19 @@ import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import CustomModal from './CustomModal';
 
-interface FormWorkoutProps {
-  workoutId?: string;
+interface FormAssessmentsProps {
+  assessmentsId?: string;
 };
-const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
+const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const [visible, setVisible] = useState(false);
   const { student } = useStudent();
   const { user } = useUser();
   const navigation = useNavigation();
 
   const { data: workoutByStudent, refetch } = useQuery({
-    queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
-    queryFn: () => getWorkoutByStudentIdAndWorkoutId(workoutId || '', student?.id || ''),
-    enabled: !!workoutId
+    queryKey: ['getWorkoutByStudentIdAndWorkoutId', assessmentsId, student?.id],
+    queryFn: () => getWorkoutByStudentIdAndWorkoutId(assessmentsId || '', student?.id || ''),
+    enabled: !!assessmentsId
   });
 
   const [exercisesList, setExercisesList] = useState<ExerciseWorkout[]>([]);
@@ -67,8 +67,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       studentName: student?.name || ''
     }
     try {
-      if (workoutId) {
-        await patchWorkout(workoutId, user.id || '', student?.id || '', workoutData);
+      if (assessmentsId) {
+        await patchWorkout(assessmentsId, user.id || '', student?.id || '', workoutData);
         refetch()
       } else {
         await postWorkout(user.id || '', student?.id || '', workoutData);
@@ -119,7 +119,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       renderItem={() => <>
         <View style={{ padding: 20 }}>
           {selectedType.value !== "" && selectedType.value !== "Personalizado" &&
-            <Text style={{ marginBottom: 16 }}>Objetivo de treino</Text>
+            <Text style={{ marginBottom: 16 }}>Medidas Corporais            </Text>
           }
 
           <FormField
@@ -185,7 +185,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     />
   );
 };
-export default FormWorkout;
+export default FormAssessments;
 
 
 
