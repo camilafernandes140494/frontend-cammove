@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const Login = () => {
     const navigation = useNavigation();
-    const { setUser } = useUser();
+    const { setUser, login } = useUser();
     const { theme } = useTheme();
     const [isLoadingButton, setIsLoadingButton] = useState(false);
 
@@ -36,8 +36,8 @@ const Login = () => {
         setIsLoadingButton(true)
         try {
             const userCredential = await postLogin(values);
-            setUser({ id: userCredential.user_id });
-            setUser({ token: userCredential.uid })
+            setUser({ id: userCredential.user_id, token: userCredential.uid });
+            login(userCredential.uid)
             navigation.navigate('Home' as never);
         } catch (error) {
             setVisible(true);

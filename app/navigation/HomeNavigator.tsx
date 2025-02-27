@@ -10,7 +10,7 @@ function HomeNavigator() {
     const { user } = useUser();
 
     return (
-        <StudentProvider studentCode={user.id || ''}>
+        <StudentProvider studentCode={user?.id || ''}>
             <Stack.Navigator>
                 <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
             </Stack.Navigator>
