@@ -3,7 +3,7 @@ import { useUser } from '../UserContext';
 import TabsTeacher from './TabsTeacher';
 
 function RootNavigator() {
-    const { user } = useUser(); // Verifica se o usuário está autenticado
+    const { user } = useUser();
 
     return (
         <>

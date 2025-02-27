@@ -10,6 +10,7 @@ import FilterInput from '@/components/FilterInput';
 import { useUser } from '../UserContext';
 import StudentCard from '@/components/StudentCard';
 import { useTheme } from '../ThemeContext';
+import FormAssessments from '@/components/FormAssessments';
 
 const CreateAssessments = () => {
   const navigation = useNavigation();
@@ -17,8 +18,8 @@ const CreateAssessments = () => {
   const { user } = useUser();
   const { refetchStudent } = useStudent();
   const [params, setParams] = useState('');
-  const { workoutId } = route.params as { workoutId: string | undefined };
-  const [newStudent, setNewStudent] = useState(!workoutId);
+  const { assessmentsId } = route.params as { assessmentsId: string | undefined };
+  const [newStudent, setNewStudent] = useState(!assessmentsId);
   const { theme } = useTheme();
 
   return (
@@ -32,7 +33,7 @@ const CreateAssessments = () => {
             <Appbar.Content title="Cadastrar avaliação" />
           </Appbar.Header>
           {!newStudent && <StudentCard>
-            {workoutId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {workoutId}</Text>}
+            {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId}</Text>}
           </StudentCard>}
         </>
       }
@@ -57,7 +58,7 @@ const CreateAssessments = () => {
           </View>
             :
             <>
-              {/* <FormWorkout workoutId={workoutId} /> */}
+              <FormAssessments assessmentsId={assessmentsId} />
             </>
           }
         </>

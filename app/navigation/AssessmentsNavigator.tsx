@@ -13,7 +13,7 @@ function CreateAssessmentsNavigator() {
   const { user } = useUser();
 
   return (
-    <StudentProvider studentCode={user.id || ''}>
+    <StudentProvider studentCode={user?.id || ''}>
       <Stack.Navigator>
         <Stack.Screen name="Assessments" component={Assessments} options={{ headerShown: false }} />
         <Stack.Screen name="CreateAssessments" component={CreateAssessments} options={{ headerShown: false }} />

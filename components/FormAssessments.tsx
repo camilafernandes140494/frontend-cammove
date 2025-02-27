@@ -118,8 +118,14 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       keyExtractor={() => 'FormWorkout'}
       renderItem={() => <>
         <View style={{ padding: 20 }}>
+
+          <Card>
+            <Card.Title
+              title="Medidas Corporais"
+            />
+          </Card>
           {selectedType.value !== "" && selectedType.value !== "Personalizado" &&
-            <Text style={{ marginBottom: 16 }}>Medidas Corporais            </Text>
+            <Text style={{ marginBottom: 16 }}>Medidas Corporais</Text>
           }
 
           <FormField
