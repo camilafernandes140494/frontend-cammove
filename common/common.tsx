@@ -1,4 +1,4 @@
-export function formatDate(dateString: string): string {
+export function formatDate(dateString: string | Date): string {
     const date = new Date(dateString);
 
     const day = String(date.getDate()).padStart(2, '0');
@@ -89,3 +89,38 @@ export const calculateAge = (birthdate: string | Date): number => {
 
     return age;
 };
+
+type IMCCategory =
+    | "Abaixo do peso"
+    | "Peso normal"
+    | "Sobrepeso"
+    | "Obesidade grau 1"
+    | "Obesidade grau 2"
+    | "Obesidade grau 3"
+    | 'Não definido';
+
+export function calculateIMC(peso: number, altura: number): { imc: number; categoria: IMCCategory } {
+    let categoria: IMCCategory;
+    const imc = Number((peso / (altura * altura)).toFixed(2));
+
+
+    if (imc < 18.5) {
+        categoria = "Abaixo do peso";
+    } else if (imc < 24.9) {
+        categoria = "Peso normal";
+    } else if (imc < 29.9) {
+        categoria = "Sobrepeso";
+    } else if (imc < 34.9) {
+        categoria = "Obesidade grau 1";
+    } else if (imc < 39.9) {
+        categoria = "Obesidade grau 2";
+    } else {
+        categoria = "Obesidade grau 3";
+    }
+    if (peso <= 0 || altura <= 0) {
+        categoria = "Não definido";
+    }
+
+    return { imc, categoria };
+}
+

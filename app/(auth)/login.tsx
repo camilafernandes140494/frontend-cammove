@@ -37,7 +37,7 @@ const Login = () => {
         try {
             const userCredential = await postLogin(values);
             setUser({ id: userCredential.user_id, token: userCredential.uid });
-            login(userCredential.uid)
+            login({ id: userCredential.user_id, token: userCredential.uid })
             navigation.navigate('Home' as never);
         } catch (error) {
             setVisible(true);

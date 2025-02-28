@@ -30,8 +30,8 @@ const Workouts = ({ navigation }: any) => {
 
   const { data: workoutsSummary, isLoading } = useQuery({
     queryKey: ['getRelationship', params],
-    queryFn: () => getWorkoutsSummary(user.id!, params),
-    enabled: !!user.id,
+    queryFn: () => getWorkoutsSummary(user?.id!, params),
+    enabled: !!user?.id,
   });
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const Workouts = ({ navigation }: any) => {
 
             {value === 'students' && (
               <SelectStudent
-                teacherId={user.id!}
+                teacherId={user?.id!}
                 onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('DetailsWorkout' as never) }}
                 filterName={params?.name}
               />

@@ -13,7 +13,7 @@ function WorkoutsNavigator() {
     const { user } = useUser();
 
     return (
-        <StudentProvider studentCode={user.id || ''}>
+        <StudentProvider studentCode={user?.id || ''}>
             <Stack.Navigator>
                 <Stack.Screen name="Workouts" component={Workouts} options={{ headerShown: false }} />
                 <Stack.Screen name="CreateWorkout" component={CreateWorkout} options={{ headerShown: false }} />

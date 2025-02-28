@@ -68,10 +68,10 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     }
     try {
       if (workoutId) {
-        await patchWorkout(workoutId, user.id || '', student?.id || '', workoutData);
+        await patchWorkout(workoutId, user?.id || '', student?.id || '', workoutData);
         refetch()
       } else {
-        await postWorkout(user.id || '', student?.id || '', workoutData);
+        await postWorkout(user?.id || '', student?.id || '', workoutData);
         navigation.navigate('Workouts' as never);
       }
 

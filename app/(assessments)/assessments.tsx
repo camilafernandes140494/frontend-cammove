@@ -34,7 +34,7 @@ const Assessments = ({ navigation }: any) => {
         renderItem={() => <>
           <View style={{ paddingHorizontal: 16 }}>
             <SelectStudent
-              teacherId={user.id!}
+              teacherId={user?.id!}
               onSelect={(student) => { refetchStudent(student.studentId) }}
               filterName={params?.name}
             />

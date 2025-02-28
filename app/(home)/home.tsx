@@ -33,7 +33,7 @@ const Home = () => {
                 })}>deslogar</Button>
 
                 <Text variant="headlineMedium" style={{ textAlign: 'center' }}>
-                    Olá {user.name}
+                    Olá {user?.name}
                 </Text>
 
                 {/* <Skeleton style={{ width: '90%', height: 500, borderRadius: 10 }} /> */}
