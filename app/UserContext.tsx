@@ -7,60 +7,58 @@ export type UserType = {
   name: string | null;
   permission: PERMISSION | null;
   gender: string | null;
-  image: string | null
-  token: string | null
+  image: string | null;
+  token: string | null;
 };
+
 type UserContextType = {
-  user: UserType | null;
+  user: Partial<UserType> | null;
   setUser: (user: Partial<UserType>) => void;
-  login: (token: string) => Promise<void>;
+  login: (userData: Partial<UserType>) => Promise<void>;
   logout: () => Promise<void>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserType | null>({
-    id: null,
-    name: null,
-    gender: null,
-    permission: null,
-    image: null,
-    token: null
-  });
+  const [user, setUser] = useState<Partial<UserType> | null>(null);
 
   useEffect(() => {
     const loadUser = async () => {
-      const storedToken = await AsyncStorage.getItem("@user_token");
-      if (storedToken) {
-        setUser((prevUser) => ({
-          ...(prevUser || { id: null, name: null, permission: null, gender: null, image: null, token: null }),
-          token: storedToken,
-        }));
+      const storedUser = await AsyncStorage.getItem("@user_data");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
       }
     };
 
     loadUser();
   }, []);
 
-  const login = async (token: string) => {
-    await AsyncStorage.setItem("@user_token", token);
-    setUser((prevUser) => ({
-      ...(prevUser || { id: null, name: null, permission: null, gender: null, image: null, token: null }),
-      token,
-    }));
+  const login = async (userData: Partial<UserType>) => {
+    await AsyncStorage.setItem("@user_data", JSON.stringify(userData));
+    setUser(userData);
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem("@user_token");
+    await AsyncStorage.removeItem("@user_data");
     setUser(null);
   };
 
-  const updateUser = (newUser: Partial<UserType>) => {
-    setUser((prevUser) => ({
-      ...(prevUser || { id: null, name: null, permission: null, gender: null, image: null, token: null }),
-      ...newUser,
-    }));
+  const updateUser = async (newUser: Partial<UserType>) => {
+    setUser((prevUser) => {
+      const updatedUser: UserType = {
+        id: prevUser?.id ?? null,
+        name: prevUser?.name ?? null,
+        permission: prevUser?.permission ?? null,
+        gender: prevUser?.gender ?? null,
+        image: prevUser?.image ?? null,
+        token: prevUser?.token ?? null,
+        ...newUser,
+      };
+
+      AsyncStorage.setItem("@user_data", JSON.stringify(updatedUser));
+      return updatedUser;
+    });
   };
 
 
