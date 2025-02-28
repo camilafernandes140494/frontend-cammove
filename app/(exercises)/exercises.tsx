@@ -34,9 +34,16 @@ const Exercises = ({ navigation }: any) => {
 
     return (
         <View style={{ flex: 1 }}>
-            <Appbar.Header>
+            <Appbar.Header mode='small'>
                 <Appbar.Content title="Exercícios" />
+                <Button
+                    icon="plus"
+                    mode="contained"
+                    onPress={() => navigation.navigate('CreateExercise', { exerciseId: undefined })}>
+                    Novo exercício
+                </Button>
             </Appbar.Header>
+
 
             <FlatList
                 data={exercises}
@@ -47,13 +54,7 @@ const Exercises = ({ navigation }: any) => {
                         value={params?.name || ''}
                         onIconPress={() => setParams(undefined)}
                     />
-                    <Button
-                        icon="plus"
-                        mode="contained"
-                        style={{ marginTop: 20, }}
-                        onPress={() => navigation.navigate('CreateExercise', { exerciseId: undefined })}>
-                        Cadastrar exercício
-                    </Button>
+
                     {isLoading && <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" />}
                     {exercises?.length === 0 && <Text variant="titleSmall" style={{ marginTop: 16, textAlign: 'center' }}>Nenhum dado encontrado</Text>
                     }

@@ -62,10 +62,10 @@ const Workouts = ({ navigation }: any) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <Appbar.Header>
+      <Appbar.Header mode='small'>
         <Appbar.Content title="Treinos" />
         <Button icon="plus" mode="contained" onPress={() => navigation.navigate('CreateWorkout', { workoutId: undefined })}>
-          Cadastrar treino
+          Novo treino
         </Button>
       </Appbar.Header>
 

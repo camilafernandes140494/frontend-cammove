@@ -16,7 +16,7 @@ const Assessments = ({ navigation }: any) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <Appbar.Header>
+      <Appbar.Header mode='small'>
         <Appbar.Content title="Avaliação" />
         <Button icon="plus" mode="contained" onPress={() => navigation.navigate('CreateAssessments', { workoutId: undefined })}>
           Nova Avaliação
