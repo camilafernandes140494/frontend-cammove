@@ -11,6 +11,7 @@ import { useUser } from '../UserContext';
 import StudentCard from '@/components/StudentCard';
 import { useTheme } from '../ThemeContext';
 import FormAssessments from '@/components/FormAssessments';
+import { formatDate } from '@/common/common';
 
 const CreateAssessments = () => {
   const navigation = useNavigation();
@@ -21,7 +22,8 @@ const CreateAssessments = () => {
   const { assessmentsId } = route.params as { assessmentsId: string | undefined };
   const [newStudent, setNewStudent] = useState(!assessmentsId);
   const { theme } = useTheme();
-
+  const today = new Date();
+  const formattedDate = formatDate(today);
   return (
     <FlatList
       style={{ flex: 1, }}
@@ -33,7 +35,8 @@ const CreateAssessments = () => {
             <Appbar.Content title="Cadastrar avaliação" />
           </Appbar.Header>
           {!newStudent && <StudentCard>
-            {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId}</Text>}
+            {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId} {formattedDate}</Text>}
+            <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>{`Criado em: ${formattedDate}`}</Text>
           </StudentCard>}
         </>
       }
