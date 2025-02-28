@@ -1,25 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, View, } from 'react-native';
+import React, { useState } from 'react';
+import { FlatList, View } from 'react-native';
 import * as z from "zod";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useStudent } from '@/app/context/StudentContext';
 import { FormField } from './FormField';
-import {
-  Text, Button, Card, Chip,
-  Snackbar
-} from 'react-native-paper';
-import ExerciseModal from './ExerciseModal';
-import { ExerciseWorkout } from '@/api/workout/workout.types';
-import { getWorkoutByStudentIdAndWorkoutId, patchWorkout, postWorkout } from '@/api/workout/workout.api';
+import { Button, Card, Chip, TextInput, Text } from 'react-native-paper';
+import { getWorkoutByStudentIdAndWorkoutId } from '@/api/workout/workout.api';
 import { useUser } from '@/app/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
-import CustomModal from './CustomModal';
+import { calculateIMC } from '@/common/common';
 
 interface FormAssessmentsProps {
   assessmentsId?: string;
 };
+
 const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const [visible, setVisible] = useState(false);
   const { student } = useStudent();
@@ -32,167 +28,299 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     enabled: !!assessmentsId
   });
 
-  const [exercisesList, setExercisesList] = useState<ExerciseWorkout[]>([]);
-
-  useEffect(() => {
-    if (workoutByStudent?.exercises) {
-      setExercisesList(workoutByStudent?.exercises)
-    }
-  }, [workoutByStudent])
-
   const schema = z.object({
-    type: z.object({
-      label: z.string(),
-      value: z.string(),
-    }).nullable().refine(value => value !== null, { message: "Adicione um objetivo ao treino" }),
-    customType: z.string(),
+    weight: z.number().optional(),
+    height: z.number().optional(),
+    waist: z.number().optional(),
+    hip: z.number().optional(),
+    chest: z.number().optional(),
+    armRight: z.number().optional(),
+    armLeft: z.number().optional(),
+    thighRight: z.number().optional(),
+    thighLeft: z.number().optional(),
+    calfRight: z.number().optional(),
+    calfLeft: z.number().optional(),
+    muscleMass: z.number().optional(),
+    boneMass: z.number().optional(),
+    balanceTest: z.string().optional(),
+    mobilityTest: z.string().optional(),
+    postureTest: z.string().optional(),
+    observation: z.string().optional(),
   });
 
-  const { control, handleSubmit, watch, } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, watch } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      type: workoutByStudent?.type ? { label: workoutByStudent?.type, value: workoutByStudent?.type } : {},
-      customType: workoutByStudent?.type || ""
+      weight: 0,
+      height: 0,
+      waist: 0,
+      hip: 0,
+      chest: 0,
+      armRight: 0,
+      armLeft: 0,
+      thighRight: 0,
+      thighLeft: 0,
+      calfRight: 0,
+      calfLeft: 0,
+      muscleMass: 0,
+      boneMass: 0,
+      balanceTest: '',
+      mobilityTest: '',
+      postureTest: '',
+      observation: '',
     },
   });
 
-  const selectedType = watch("type");
+  const selectedWeight = watch("weight");
+  const selectedHeight = watch("height");
+
+  const selectedBalanceTest = watch("balanceTest");
+  const selectedMobilityTest = watch("mobilityTest");
+  const selectedPostureTest = watch("postureTest");
+
 
   const onSubmit = async (data: any) => {
-    const typeData = data.type ? data.type.label : data.customType
-    const workoutData = {
-      type: typeData as string,
-      exercises: exercisesList,
-      studentId: student?.id || '',
-      studentName: student?.name || ''
-    }
+
     try {
       if (assessmentsId) {
-        await patchWorkout(assessmentsId, user.id || '', student?.id || '', workoutData);
-        refetch()
+        // await patchWorkout(assessmentsId, user?.id || '', student?.id || '', workoutData);
+        refetch();
       } else {
-        await postWorkout(user.id || '', student?.id || '', workoutData);
+        // await postWorkout(user?.id || '', student?.id || '', workoutData);
         navigation.navigate('Workouts' as never);
       }
-
     } catch (error) {
-      <Snackbar
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        action={{
-          label: '',
-          icon: 'close',
-          onPress: () => setVisible(false),
-        }}
-      >
-        <Text>Erro ao cadastrar treino</Text>
-      </Snackbar>
+      setVisible(true);
     }
-  }
-
-  const removeExercise = (exerciseId: string) => {
-    setExercisesList((prevList) =>
-      prevList.filter((exercise) => exercise.exerciseId.id !== exerciseId)
-    );
   };
-
-  const updateExerciseList = (exercise: ExerciseWorkout) => {
-    setExercisesList((prevList) => {
-      const index = prevList.findIndex((ex) => ex.exerciseId.id === exercise.exerciseId.id);
-      if (index !== -1) {
-        const updatedList = [...prevList];
-        updatedList[index] = exercise;
-        return updatedList;
-      }
-      return [...prevList, exercise];
-    });
-  };
-
 
   return (
     <FlatList
-      style={{ flex: 1, }}
+      style={{ flex: 1 }}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       data={[{}]}
       keyExtractor={() => 'FormWorkout'}
-      renderItem={() => <>
-        <View style={{ padding: 20 }}>
+      renderItem={() => (
+        <View style={{ padding: 20, gap: 16 }}>
+          <Card>
+            <Card.Title title="Medidas Corporais" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="scale-balance" />}
+                name="weight"
+                label="Peso"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="human-male-height-variant" />}
+                name="height"
+                label="Altura"
+                type="text"
+              />
+              <Chip icon="information">
+                {calculateIMC(Number(selectedWeight), Number(selectedHeight)).categoria}
+              </Chip>
+            </Card.Content>
+          </Card>
 
           <Card>
-            <Card.Title
-              title="Medidas Corporais"
-            />
+            <Card.Title title="Medidas de Circunferência" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="ruler" />}
+                name="waist"
+                label="Cintura"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="ruler" />}
+                name="hip"
+                label="Quadril"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="ruler" />}
+                name="chest"
+                label="Peito"
+                type="text"
+              />
+            </Card.Content>
           </Card>
-          {selectedType.value !== "" && selectedType.value !== "Personalizado" &&
-            <Text style={{ marginBottom: 16 }}>Medidas Corporais</Text>
-          }
 
-          <FormField
-            control={control}
-            name="type"
-            label="Escolha seu objetivo de treino"
-            type="select"
-            getLabel={(option) => option.label}
-            options={[
-              { label: "Personalizado", value: "Personalizado" },
-              { label: "Hipertrofia", value: "Hipertrofia" },
-              { label: "Emagrecimento", value: "Emagrecimento" },
-              { label: "Resistência", value: "Resistência" },
-              { label: "Definição", value: "Definição" },
-              { label: "Força", value: "Força" },
-              { label: "Flexibilidade", value: "Flexibilidade" },
-              { label: "Equilíbrio", value: "Equilíbrio" },
-              { label: "Saúde geral", value: "Saúde geral" },
-              { label: "Velocidade", value: "Velocidade" },
-              { label: "Desempenho atlético", value: "Desempenho atlético" },
-              { label: "Pré-natal", value: "Pré-natal" },
-              { label: "Reabilitação", value: "Reabilitação" },
-              { label: "Mobilidade", value: "Mobilidade" },
-              { label: "Potência", value: "Potência" },
-            ]}
-          />
-          {selectedType.value === "Personalizado" && (
-            <FormField control={control} name="customType" label="Objetivo do Treino" type="text" />
-          )}
+          <Card>
+            <Card.Title title="Medidas de Braços" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="human-male-height-variant" />}
+                name="armRight"
+                label="Braço Direito"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="human-male-height-variant" />}
+                name="armLeft"
+                label="Braço Esquerdo"
+                type="text"
+              />
+            </Card.Content>
+          </Card>
 
-          {exercisesList.length > 0 ? (
-            exercisesList.map((exercisesListData) => (
-              <Card key={exercisesListData?.exerciseId.id} style={{ marginVertical: 10 }}>
-                <Card.Title
-                  title={exercisesListData?.exerciseId.name}
-                  subtitle={exercisesListData?.exerciseId.category}
-                  right={(props) => <ExerciseModal exercise={exercisesListData} onSave={updateExerciseList} />}
-                />
-                <Card.Content style={{ flexDirection: "row", gap: 16, justifyContent: 'space-between', alignItems: 'center' }}>
+          <Card>
+            <Card.Title title="Medidas das Pernas" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="human-male-height-variant" />}
+                name="thighRight"
+                label="Coxa Direita"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="human-male-height-variant" />}
+                name="thighLeft"
+                label="Coxa Esquerda"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="human-male-height-variant" />}
+                name="calfRight"
+                label="Panturrilha Direita"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="human-male-height-variant" />}
+                name="calfLeft"
+                label="Panturrilha Esquerda"
+                type="text"
+              />
+            </Card.Content>
+          </Card>
 
-                  <View>
-                    <Chip icon="repeat">{`${exercisesListData.repetitions} ${exercisesListData.sets && `x ${exercisesListData.sets}`}`}</Chip>
-                  </View>
+          <Card>
+            <Card.Title title="Massa Corporal" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="scale-balance" />}
+                name="muscleMass"
+                label="Massa Muscular"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="scale-balance" />}
+                name="boneMass"
+                label="Massa Óssea"
+                type="text"
+              />
+            </Card.Content>
+          </Card>
 
-                  <CustomModal
-                    onPress={() => removeExercise(exercisesListData?.exerciseId.id || '')}
-                    title='Tem certeza que deseja deletar o exercício?'
-                    primaryButtonLabel='Deletar' />
-                </Card.Content>
-              </Card>
-            ))
-          ) : (
-            <Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhum exercício encontrado</Text>
-          )}
+          <Card>
+            <Card.Title title="Equilíbrio, Mobilidade e Postura" />
+            <Card.Content style={{ gap: 10 }}>
+              {selectedBalanceTest && <Text>Teste de Equilíbrio</Text>}
+              <FormField
+                control={control}
+                name="balanceTest"
+                label="Teste de Equilíbrio"
+                type="select"
+                getLabel={(option) => option.label}
+                options={[
+                  { label: "Boa", value: "Boa" },
+                  { label: "Regular", value: "Regular" },
+                  { label: "Ruim", value: "Ruim" },
+                ]}
+              />
+              {selectedMobilityTest && <Text>Teste de Mobilidade</Text>}
 
-          <ExerciseModal onSave={(exercise) => setExercisesList((prev) => [...prev, exercise])} />
+              <FormField
+                control={control}
+                name="mobilityTest"
+                label="Teste de Mobilidade"
+                type="select"
+                getLabel={(option) => option.label}
+                options={[
+                  { label: "Boa", value: "Boa" },
+                  { label: "Regular", value: "Regular" },
+                  { label: "Ruim", value: "Ruim" },
+                ]}
+              />
+
+              {selectedPostureTest && <Text>Teste de Postura</Text>}
+              <FormField
+                control={control}
+                name="postureTest"
+                label="Teste de Postura"
+                type="select"
+                getLabel={(option) => option.label}
+                options={[
+                  { label: "Boa", value: "Boa" },
+                  { label: "Regular", value: "Regular" },
+                  { label: "Ruim", value: "Ruim" },
+                ]}
+              />
+            </Card.Content>
+          </Card>
+
+          <Card>
+            <Card.Title title="Observação" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                left={<TextInput.Icon icon="comment" />}
+                name="observation"
+                label="Observação"
+                type="text"
+              />
+            </Card.Content>
+          </Card>
+
           <Button mode="contained" onPress={handleSubmit(onSubmit)}>
             Enviar
           </Button>
         </View>
-      </>
-      }
+      )}
     />
   );
 };
+
 export default FormAssessments;
-
-
-
-
