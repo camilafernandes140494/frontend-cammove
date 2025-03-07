@@ -127,23 +127,23 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     }
   }
 
-  const removeAssessments = (exerciseId: string) => {
-    setAssessmentsList((prevList) =>
-      prevList.filter((exercise) => exercise.exerciseId.id !== exerciseId)
-    );
-  };
+  // const removeAssessments = (exerciseId: string) => {
+  //   setAssessmentsList((prevList) =>
+  //     prevList.filter((exercise) => exercise.exerciseId.id !== exerciseId)
+  //   );
+  // };
 
-  const updateAssessmentsList = (exercise: ExerciseWorkout) => {
-    setAssessmentsList((prevList) => {
-      const index = prevList.findIndex((ex) => ex.exerciseId.id === exercise.exerciseId.id);
-      if (index !== -1) {
-        const updatedList = [...prevList];
-        updatedList[index] = exercise;
-        return updatedList;
-      }
-      return [...prevList, exercise];
-    });
-  };
+  // const updateAssessmentsList = (exercise: ExerciseWorkout) => {
+  //   setAssessmentsList((prevList) => {
+  //     const index = prevList.findIndex((ex) => ex.exerciseId.id === exercise.exerciseId.id);
+  //     if (index !== -1) {
+  //       const updatedList = [...prevList];
+  //       updatedList[index] = exercise;
+  //       return updatedList;
+  //     }
+  //     return [...prevList, exercise];
+  //   });
+  // };
 
 
   const handleSendPDFEmail = async () => {
