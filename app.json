@@ -1,54 +1,55 @@
 {
   "expo": {
-    "name": "frontend-cammove",
-    "slug": "frontend-cammove",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.camilafernandessilva.frontendcammove",
-      "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Precisamos de acesso à sua galeria para selecionar imagens.",
-        "NSCameraUsageDescription": "Precisamos de acesso à sua câmera para tirar fotos."
-      }
-    },
     "android": {
       "adaptiveIcon": {
+        "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "permissions": ["INTERNET"]
       }
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+    "experiments": {
+      "typedRoutes": true
     },
+    "extra": {
+      "eas": {
+        "projectId": "ce64223f-77d5-480a-abd6-aafe0cc90a5f"
+      },
+      "router": {
+        "origin": false
+      }
+    },
+    "icon": "./assets/images/icon.png",
+    "ios": {
+      "bundleIdentifier": "com.camilafernandessilva.frontendcammove",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Precisamos de acesso à sua câmera para tirar fotos.",
+        "NSPhotoLibraryUsageDescription": "Precisamos de acesso à sua galeria para selecionar imagens."
+      },
+      "supportsTablet": true
+    },
+    "name": "frontend-cammove",
+    "newArchEnabled": true,
+    "orientation": "portrait",
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
+          "backgroundColor": "#ffffff",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "resizeMode": "contain"
         }
       ]
     ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "ce64223f-77d5-480a-abd6-aafe0cc90a5f"
-      }
+    "scheme": "myapp",
+    "slug": "frontend-cammove",
+    "userInterfaceStyle": "automatic",
+    "version": "1.0.0",
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png",
+      "output": "static"
     }
   }
 }

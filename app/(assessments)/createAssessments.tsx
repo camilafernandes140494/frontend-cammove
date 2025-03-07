@@ -25,49 +25,48 @@ const CreateAssessments = () => {
   const today = new Date();
   const formattedDate = formatDate(today);
   return (
-    <FlatList
-      style={{ flex: 1, }}
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-      ListHeaderComponent={
-        <>
-          <Appbar.Header>
-            <Appbar.BackAction onPress={() => navigation.navigate('Assessments' as never)} />
-            <Appbar.Content title="Cadastrar avaliação" />
-          </Appbar.Header>
-          {!newStudent && <StudentCard>
-            {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId} {formattedDate}</Text>}
-            <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>{`Criado em: ${formattedDate}`}</Text>
-          </StudentCard>}
-        </>
-      }
-      data={[{}]}
-      keyExtractor={() => 'header'}
-      renderItem={() =>
-        <>
-          {newStudent ? <View style={{ margin: 20 }}>
-            <Text variant="titleMedium">Escolha um aluno(a)</Text>
-            <FilterInput placeholder="Pesquisar aluno(a)" onChange={setParams} />
-            <SelectStudent
-              teacherId={user?.id || ''}
-              onSelect={(student) => refetchStudent(student.studentId)}
-              filterName={params}
-            />
-            <Button
-              mode="contained"
-              onPress={() => setNewStudent(false)}
-            >
-              Continuar
-            </Button>
-          </View>
-            :
-            <>
-              <FormAssessments assessmentsId={assessmentsId} />
-            </>
-          }
-        </>
+    <>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => navigation.navigate('Assessments' as never)} />
+        <Appbar.Content title="Cadastrar avaliação" />
+      </Appbar.Header>
+      {!newStudent && <StudentCard>
+        {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId} {formattedDate}</Text>}
+        <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>{`Criado em: ${formattedDate}`}</Text>
+      </StudentCard>}
 
-      }
-    />
+      <FlatList
+        style={{ flex: 1, }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+        data={[{}]}
+        keyExtractor={() => 'header'}
+        renderItem={() =>
+          <>
+            {newStudent ? <View style={{ margin: 20 }}>
+              <Text variant="titleMedium">Escolha um aluno(a)</Text>
+              <FilterInput placeholder="Pesquisar aluno(a)" onChange={setParams} />
+              <SelectStudent
+                teacherId={user?.id || ''}
+                onSelect={(student) => refetchStudent(student.studentId)}
+                filterName={params}
+              />
+              <Button
+                mode="contained"
+                onPress={() => setNewStudent(false)}
+              >
+                Continuar
+              </Button>
+            </View>
+              :
+              <>
+                <FormAssessments assessmentsId={assessmentsId} />
+              </>
+            }
+          </>
+
+        }
+      />
+    </>
   );
 };
 
