@@ -1,36 +1,36 @@
 // Definindo o tipo para a avaliação física
 type BodyMeasurements = {
-  weight: number;
-  height: number;
-  bodyFatPercentage: number;
-  imc: number;
-  waistCircumference: number;
-  hipCircumference: number;
-  chestCircumference: number;
-  rightArmCircumference: number;
-  leftArmCircumference: number;
-  rightThighCircumference: number;
-  leftThighCircumference: number;
-  rightCalfCircumference: number;
-  leftCalfCircumference: number;
-  neckCircumference: number;
+  weight: number | string;
+  height: number | string;
+  bodyFatPercentage: number | string;
+  imc: number | string;
+  waistCircumference: number | string;
+  hipCircumference: number | string;
+  chestCircumference: number | string;
+  rightArmCircumference: number | string;
+  leftArmCircumference: number | string;
+  rightThighCircumference: number | string;
+  leftThighCircumference: number | string;
+  rightCalfCircumference: number | string;
+  leftCalfCircumference: number | string;
+  neckCircumference: number | string;
 };
 
 type BodyMass = {
-  muscleMass: number;
-  boneMass: number;
+  muscleMass: number | string;
+  boneMass: number | string;
 };
 
 type PhysicalTests = {
-  pushUpTest: number;
-  squatTest: number;
-  flexibilityTest: number;
-  cooperTestDistance: number;
+  pushUpTest: number | string;
+  squatTest: number | string;
+  flexibilityTest: number | string;
+  cooperTestDistance: number | string;
 };
 
 type HeartRate = {
-  restingHeartRate: number;
-  maxHeartRate: number;
+  restingHeartRate: number | string;
+  maxHeartRate: number | string;
 };
 
 type BalanceAndMobility = {

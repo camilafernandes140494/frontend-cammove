@@ -14,7 +14,6 @@ import GeneratePDFBase64 from '@/common/GeneratePDFBase64';
 import { postEmail } from '@/api/email/email.api';
 import { PostEmail } from '@/api/email/email.types';
 import { getAssessmentsByStudentIdAndAssessmentsId, patchAssessments, postAssessments } from '@/api/assessments/assessments.api';
-import { AssessmentData } from '@/api/assessments/assessments.types';
 
 
 interface FormAssessmentsProps {
@@ -85,23 +84,68 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const selectedMobilityTest = watch("mobilityTest");
   const selectedPostureTest = watch("postureTest");
 
-  const [assessmentsList, setAssessmentsList] = useState<AssessmentData[]>([]);
 
   const onSubmit = async (data: any) => {
-    const typeData = data.type ? data.type.label : data.customType
+    const bodyMeasurements = {
+      weight: assessmentsByStudent?.bodyMeasurements.weight || '',
+      height: assessmentsByStudent?.bodyMeasurements.height || '',
+      bodyFatPercentage: assessmentsByStudent?.bodyMeasurements.bodyFatPercentage || '',
+      imc: assessmentsByStudent?.bodyMeasurements.imc || '',
+      waistCircumference: assessmentsByStudent?.bodyMeasurements.waistCircumference || '',
+      hipCircumference: assessmentsByStudent?.bodyMeasurements.hipCircumference || '',
+      chestCircumference: assessmentsByStudent?.bodyMeasurements.chestCircumference || '',
+      rightArmCircumference: assessmentsByStudent?.bodyMeasurements.rightArmCircumference || '',
+      leftArmCircumference: assessmentsByStudent?.bodyMeasurements.leftArmCircumference || '',
+      rightThighCircumference: assessmentsByStudent?.bodyMeasurements.rightThighCircumference || '',
+      leftThighCircumference: assessmentsByStudent?.bodyMeasurements.leftThighCircumference || '',
+      rightCalfCircumference: assessmentsByStudent?.bodyMeasurements.rightCalfCircumference || '',
+      leftCalfCircumference: assessmentsByStudent?.bodyMeasurements.leftCalfCircumference || '',
+      neckCircumference: assessmentsByStudent?.bodyMeasurements.neckCircumference || '',
+    }
+    const bodyMass = {
+      muscleMass: assessmentsByStudent?.bodyMass.muscleMass || '',
+      boneMass: assessmentsByStudent?.bodyMass.boneMass || '',
+    }
+    const physicalTests = {
+      pushUpTest: assessmentsByStudent?.physicalTests.pushUpTest || '',
+      squatTest: assessmentsByStudent?.physicalTests.squatTest || '',
+      flexibilityTest: assessmentsByStudent?.physicalTests.flexibilityTest || '',
+      cooperTestDistance: assessmentsByStudent?.physicalTests.cooperTestDistance || '',
+    };
+    const heartRate = {
+      restingHeartRate: assessmentsByStudent?.heartRate.restingHeartRate || '',
+      maxHeartRate: assessmentsByStudent?.heartRate.maxHeartRate || '',
+    };
+
+
+    const balanceAndMobility = {
+      balanceTest: assessmentsByStudent?.balanceAndMobility.balanceTest || '',
+      mobilityTest: assessmentsByStudent?.balanceAndMobility.mobilityTest || '',
+    };
+
+    const posture = {
+      postureAssessment: assessmentsByStudent?.posture.postureAssessment || '',
+    };
+
+    const medicalHistory = {
+      injuryHistory: assessmentsByStudent?.medicalHistory.injuryHistory || '',
+      medicalConditions: assessmentsByStudent?.medicalHistory.medicalConditions || '',
+      chronicPain: assessmentsByStudent?.medicalHistory.chronicPain || '',
+    };
     const assessmentsData = {
       studentId: student?.id || '',
       studentName: student?.name || '',
-      bodyMeasurements: 'BodyMeasurements',
-      bodyMass: 'BodyMass',
-      physicalTests: 'PhysicalTests',
-      heartRate: 'HeartRate',
-      balanceAndMobility: 'BalanceAndMobility',
-      posture: 'Posture',
-      medicalHistory: 'MedicalHistory',
-      fitnessGoals: 'string',
-      observations: 'string',
-      assessmentDate: 'string'
+      bodyMeasurements: bodyMeasurements,
+      bodyMass: bodyMass,
+      physicalTests: physicalTests,
+      heartRate: heartRate,
+      balanceAndMobility: balanceAndMobility,
+      posture: posture,
+      medicalHistory: medicalHistory,
+      fitnessGoals: assessmentsByStudent?.fitnessGoals || '',
+      observations: assessmentsByStudent?.observations || '',
+      assessmentDate: assessmentsByStudent?.assessmentDate || '',
+
     }
     try {
       if (assessmentsId) {
@@ -145,10 +189,16 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   //   });
   // };
 
-
+  console.log()
   const handleSendPDFEmail = async () => {
     try {
-      const pdfBase64 = await GeneratePDFBase64();
+      const tableData = [
+        ['Medidas corporais', ''],
+        ['Peso', String(selectedWeight)],
+        ['Altura', String(selectedHeight)], // Linha 2
+        ['Valor 5', 'Valor 6'], // Linha 3
+      ];
+      const pdfBase64 = await GeneratePDFBase64(tableData);
 
       const emailData: PostEmail = {
         to: ['camilaferna140494@gmail.com'], // Destinatários
