@@ -180,7 +180,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 
   const handleSendPDFEmail = async () => {
     try {
-
       const pdfBase64 = await GeneratePDFBase64(`
         📊 Medições Corporais
     
@@ -235,7 +234,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
         Atenciosamente,
         ${user?.name}
         Equipe CamMove 🚀
-    `);
+    `, student);
 
       const emailData: PostEmail = {
         to: ['camilaferna140494@gmail.com'],
@@ -269,6 +268,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       console.error('Erro ao gerar/enviar PDF:', error);
     }
   };
+
   return (
     <FlatList
       style={{ flex: 1 }}
