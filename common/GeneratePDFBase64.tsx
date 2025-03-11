@@ -1,23 +1,21 @@
+import { useStudent } from '@/app/context/StudentContext';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { calculateAge } from './common';
 
 pdfMake.vfs = pdfFonts.vfs;
 
-const GeneratePDFBase64 = async (tableData?: string[][]): Promise<string> => {
+const GeneratePDFBase64 = async (body?: string): Promise<string> => {
   return new Promise((resolve, reject) => {
+    const { student } = useStudent();
+
     const docDefinition: TDocumentDefinitions = {
       content: [
-        { text: 'Avaliação fisica', fontSize: 14, margin: [0, 10, 0, 0], alignment: 'center', },
-        {
-          table: {
-            headerRows: 1, // número de linhas de cabeçalho
-            widths: ['*', '*'], // define a largura das colunas
-            body: [
-              ...tableData ?? [],  // Espalha o conteúdo da tabela recebido como argumento
-            ],
-          },
-        },
+        { text: 'Avaliação fisica', fontSize: 16, margin: 10, alignment: 'center', },
+        { text: `Aluno(a): ${student?.name}`, fontSize: 14, marginTop: 10, },
+        { text: `Gênero: ${student?.gender} | ${calculateAge(student?.birthDate || '')}`, fontSize: 14, marginBottom: 10, },
+        { text: body ?? '', fontSize: 12, margin: 10, },
       ],
       footer: (currentPage: number, pageCount: number) => [
         {
