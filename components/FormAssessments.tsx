@@ -14,6 +14,7 @@ import GeneratePDFBase64 from '@/common/GeneratePDFBase64';
 import { postEmail } from '@/api/email/email.api';
 import { PostEmail } from '@/api/email/email.types';
 import { getAssessmentsByStudentIdAndAssessmentsId, patchAssessments, postAssessments } from '@/api/assessments/assessments.api';
+import { AssessmentData } from '@/api/assessments/assessments.types';
 
 
 interface FormAssessmentsProps {
@@ -32,144 +33,132 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     enabled: !!assessmentsId
   });
 
-  console.log(assessmentsByStudent)
 
   const schema = z.object({
-    weight: z.number().optional(),
-    height: z.string().optional(),
-    waist: z.number().optional(),
-    hip: z.number().optional(),
-    chest: z.number().optional(),
-    armRight: z.number().optional(),
-    armLeft: z.number().optional(),
-    thighRight: z.number().optional(),
-    thighLeft: z.number().optional(),
-    calfRight: z.number().optional(),
-    calfLeft: z.number().optional(),
-    muscleMass: z.number().optional(),
-    boneMass: z.number().optional(),
-    balanceTest: z.string().optional(),
-    mobilityTest: z.string().optional(),
-    postureTest: z.string().optional(),
-    observation: z.string().optional(),
+    studentName: z.string().optional(),
+    studentId: z.string().optional(),
+    bodyMeasurements: z.object({
+      weight: z.number().optional(),
+      height: z.string().optional(),
+      bodyFatPercentage: z.number().optional(),
+      imc: z.number().optional(),
+      waistCircumference: z.number().optional(),
+      hipCircumference: z.number().optional(),
+      chestCircumference: z.number().optional(),
+      rightArmCircumference: z.number().optional(),
+      leftArmCircumference: z.number().optional(),
+      rightThighCircumference: z.number().optional(),
+      leftThighCircumference: z.number().optional(),
+      rightCalfCircumference: z.number().optional(),
+      leftCalfCircumference: z.number().optional(),
+      neckCircumference: z.number().optional(),
+    }),
+    bodyMass: z.object({
+      muscleMass: z.number().optional(),
+      boneMass: z.number().optional(),
+    }),
+    physicalTests: z.object({
+      pushUpTest: z.string().optional(),
+      squatTest: z.string().optional(),
+      flexibilityTest: z.string().optional(),
+      cooperTestDistance: z.string().optional(),
+    }),
+    heartRate: z.object({
+      restingHeartRate: z.string().optional(),
+      maxHeartRate: z.string().optional(),
+    }),
+    balanceAndMobility: z.object({
+      balanceTest: z.string().optional(),
+      mobilityTest: z.string().optional(),
+    }),
+    posture: z.object({
+      postureAssessment: z.string().optional(),
+    }),
+    medicalHistory: z.object({
+      injuryHistory: z.string().optional(),
+      medicalConditions: z.string().optional(),
+      chronicPain: z.string().optional(),
+    }),
+    fitnessGoals: z.string().optional(),
+    observations: z.string().optional(),
+    assessmentDate: z.string().optional(),
   });
 
   const { control, handleSubmit, watch } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      weight: 0,
-      height: '0',
-      waist: 0,
-      hip: 0,
-      chest: 0,
-      armRight: 0,
-      armLeft: 0,
-      thighRight: 0,
-      thighLeft: 0,
-      calfRight: 0,
-      calfLeft: 0,
-      muscleMass: 0,
-      boneMass: 0,
-      balanceTest: '',
-      mobilityTest: '',
-      postureTest: '',
-      observation: '',
-    },
-  });
-
-  const selectedWeight = watch("weight");
-  const selectedHeight = watch("height");
-
-  const selectedBalanceTest = watch("balanceTest");
-  const selectedMobilityTest = watch("mobilityTest");
-  const selectedPostureTest = watch("postureTest");
-
-
-  const onSubmit = async (data: any) => {
-    const bodyMeasurements = {
-      weight: assessmentsByStudent?.bodyMeasurements.weight || '',
-      height: assessmentsByStudent?.bodyMeasurements.height || '',
-      bodyFatPercentage: assessmentsByStudent?.bodyMeasurements.bodyFatPercentage || '',
-      imc: assessmentsByStudent?.bodyMeasurements.imc || '',
-      waistCircumference: assessmentsByStudent?.bodyMeasurements.waistCircumference || '',
-      hipCircumference: assessmentsByStudent?.bodyMeasurements.hipCircumference || '',
-      chestCircumference: assessmentsByStudent?.bodyMeasurements.chestCircumference || '',
-      rightArmCircumference: assessmentsByStudent?.bodyMeasurements.rightArmCircumference || '',
-      leftArmCircumference: assessmentsByStudent?.bodyMeasurements.leftArmCircumference || '',
-      rightThighCircumference: assessmentsByStudent?.bodyMeasurements.rightThighCircumference || '',
-      leftThighCircumference: assessmentsByStudent?.bodyMeasurements.leftThighCircumference || '',
-      rightCalfCircumference: assessmentsByStudent?.bodyMeasurements.rightCalfCircumference || '',
-      leftCalfCircumference: assessmentsByStudent?.bodyMeasurements.leftCalfCircumference || '',
-      neckCircumference: assessmentsByStudent?.bodyMeasurements.neckCircumference || '',
-    }
-    const bodyMass = {
-      muscleMass: assessmentsByStudent?.bodyMass.muscleMass || '',
-      boneMass: assessmentsByStudent?.bodyMass.boneMass || '',
-    }
-    const physicalTests = {
-      pushUpTest: assessmentsByStudent?.physicalTests.pushUpTest || '',
-      squatTest: assessmentsByStudent?.physicalTests.squatTest || '',
-      flexibilityTest: assessmentsByStudent?.physicalTests.flexibilityTest || '',
-      cooperTestDistance: assessmentsByStudent?.physicalTests.cooperTestDistance || '',
-    };
-    const heartRate = {
-      restingHeartRate: assessmentsByStudent?.heartRate.restingHeartRate || '',
-      maxHeartRate: assessmentsByStudent?.heartRate.maxHeartRate || '',
-    };
-
-
-    const balanceAndMobility = {
-      balanceTest: assessmentsByStudent?.balanceAndMobility.balanceTest || '',
-      mobilityTest: assessmentsByStudent?.balanceAndMobility.mobilityTest || '',
-    };
-
-    const posture = {
-      postureAssessment: assessmentsByStudent?.posture.postureAssessment || '',
-    };
-
-    const medicalHistory = {
-      injuryHistory: assessmentsByStudent?.medicalHistory.injuryHistory || '',
-      medicalConditions: assessmentsByStudent?.medicalHistory.medicalConditions || '',
-      chronicPain: assessmentsByStudent?.medicalHistory.chronicPain || '',
-    };
-    const assessmentsData = {
-      studentId: student?.id || '',
       studentName: student?.name || '',
-      bodyMeasurements: bodyMeasurements,
-      bodyMass: bodyMass,
-      physicalTests: physicalTests,
-      heartRate: heartRate,
-      balanceAndMobility: balanceAndMobility,
-      posture: posture,
-      medicalHistory: medicalHistory,
+      studentId: student?.id || '',
+      bodyMeasurements: {
+        weight: Number(assessmentsByStudent?.bodyMeasurements.weight) || 0,
+        height: String(assessmentsByStudent?.bodyMeasurements.height) || '',
+        bodyFatPercentage: Number(assessmentsByStudent?.bodyMeasurements.bodyFatPercentage) || 0,
+        imc: Number(assessmentsByStudent?.bodyMeasurements.imc) || 0,
+        waistCircumference: Number(assessmentsByStudent?.bodyMeasurements.waistCircumference) || 0,
+        hipCircumference: Number(assessmentsByStudent?.bodyMeasurements.hipCircumference) || 0,
+        chestCircumference: Number(assessmentsByStudent?.bodyMeasurements.chestCircumference) || 0,
+        rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements.rightArmCircumference) || 0,
+        leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements.leftArmCircumference) || 0,
+        rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements.rightThighCircumference) || 0,
+        leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements.leftThighCircumference) || 0,
+        rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements.rightCalfCircumference) || 0,
+        leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements.leftCalfCircumference) || 0,
+        neckCircumference: Number(assessmentsByStudent?.bodyMeasurements.neckCircumference) || 0,
+      },
+      bodyMass: {
+        muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
+        boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
+      },
+      physicalTests: {
+        pushUpTest: String(assessmentsByStudent?.physicalTests.pushUpTest) || '',
+        squatTest: String(assessmentsByStudent?.physicalTests.squatTest) || '',
+        flexibilityTest: String(assessmentsByStudent?.physicalTests.flexibilityTest) || '',
+        cooperTestDistance: String(assessmentsByStudent?.physicalTests.cooperTestDistance) || '',
+      },
+      heartRate: {
+        restingHeartRate: String(assessmentsByStudent?.heartRate.restingHeartRate) || '',
+        maxHeartRate: String(assessmentsByStudent?.heartRate.maxHeartRate) || '',
+      },
+      balanceAndMobility: {
+        balanceTest: assessmentsByStudent?.balanceAndMobility.balanceTest || '',
+        mobilityTest: assessmentsByStudent?.balanceAndMobility.mobilityTest || '',
+      },
+      posture: {
+        postureAssessment: assessmentsByStudent?.posture.postureAssessment || '',
+      },
+      medicalHistory: {
+        injuryHistory: assessmentsByStudent?.medicalHistory.injuryHistory || '',
+        medicalConditions: assessmentsByStudent?.medicalHistory.medicalConditions || '',
+        chronicPain: assessmentsByStudent?.medicalHistory.chronicPain || '',
+      },
       fitnessGoals: assessmentsByStudent?.fitnessGoals || '',
       observations: assessmentsByStudent?.observations || '',
       assessmentDate: assessmentsByStudent?.assessmentDate || '',
+    },
+  });
 
-    }
+
+  const selectedWeight = watch("bodyMeasurements.weight");
+  const selectedHeight = watch("bodyMeasurements.height");
+
+  const selectedBalanceTest = watch("balanceAndMobility.balanceTest");
+  const selectedMobilityTest = watch("balanceAndMobility.mobilityTest");
+  const selectedPostureTest = watch("posture.postureAssessment");
+
+  const onSubmit = async (data: AssessmentData) => {
     try {
       if (assessmentsId) {
-        await patchAssessments(assessmentsId, user?.id || '', student?.id || '', assessmentsData);
-        refetch()
+        await patchAssessments(assessmentsId, user?.id || '', student?.id || '', data);
+        refetch();
       } else {
-        await postAssessments(user?.id || '', student?.id || '', assessmentsData);
+        await postAssessments(user?.id || '', student?.id || '', data);
         navigation.navigate('Assessments' as never);
       }
-
     } catch (error) {
-      <Snackbar
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        action={{
-          label: '',
-          icon: 'close',
-          onPress: () => setVisible(false),
-        }}
-      >
-        <Text>Erro ao cadastrar treino</Text>
-      </Snackbar>
+      setVisible(true);
     }
-  }
+  };
+
 
   // const removeAssessments = (exerciseId: string) => {
   //   setAssessmentsList((prevList) =>
@@ -189,24 +178,84 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   //   });
   // };
 
-  console.log()
   const handleSendPDFEmail = async () => {
     try {
-      const tableData = [
-        ['Medidas corporais', ''],
-        ['Peso', String(selectedWeight)],
-        ['Altura', String(selectedHeight)], // Linha 2
-        ['Valor 5', 'Valor 6'], // Linha 3
-      ];
-      const pdfBase64 = await GeneratePDFBase64(tableData);
+
+      const pdfBase64 = await GeneratePDFBase64(`
+        📊 Medições Corporais
+    
+        Peso: ${assessmentsByStudent?.bodyMeasurements.weight || ''} kg
+        Altura: ${assessmentsByStudent?.bodyMeasurements.height || ''} cm
+        % Gordura Corporal: ${assessmentsByStudent?.bodyMeasurements.bodyFatPercentage || ''}%
+        IMC: ${assessmentsByStudent?.bodyMeasurements.imc || ''}
+    
+        Circunferências 
+        Cintura: ${assessmentsByStudent?.bodyMeasurements.waistCircumference || ''} cm
+        Quadril: ${assessmentsByStudent?.bodyMeasurements.hipCircumference || ''} cm
+        Peito: ${assessmentsByStudent?.bodyMeasurements.chestCircumference || ''} cm
+        Braço D: ${assessmentsByStudent?.bodyMeasurements.rightArmCircumference || ''} cm | Braço E: ${assessmentsByStudent?.bodyMeasurements.leftArmCircumference || ''} cm
+        Coxa D: ${assessmentsByStudent?.bodyMeasurements.rightThighCircumference || ''} cm | Coxa E: ${assessmentsByStudent?.bodyMeasurements.leftThighCircumference || ''} cm
+        Panturrilha D: ${assessmentsByStudent?.bodyMeasurements.rightCalfCircumference || ''} cm | Panturrilha E: ${assessmentsByStudent?.bodyMeasurements.leftCalfCircumference || ''} cm
+        Pescoço: ${assessmentsByStudent?.bodyMeasurements.neckCircumference || ''} cm
+    
+        💪 Composição Corporal
+        Massa Muscular: ${assessmentsByStudent?.bodyMass.muscleMass || ''} kg
+        Massa Óssea: ${assessmentsByStudent?.bodyMass.boneMass || ''} kg
+    
+        🏋️ Testes Físicos 
+        Flexões de braço: ${assessmentsByStudent?.physicalTests.pushUpTest || ''} repetições
+        Agachamentos: ${assessmentsByStudent?.physicalTests.squatTest || ''} repetições
+        Flexibilidade: ${assessmentsByStudent?.physicalTests.flexibilityTest || ''} cm
+        Teste de Cooper (Distância corrida): ${assessmentsByStudent?.physicalTests.cooperTestDistance || ''} metros
+    
+        ❤️ Frequência Cardíaca
+        Em repouso: ${assessmentsByStudent?.heartRate.restingHeartRate || ''} bpm
+        Máxima: ${assessmentsByStudent?.heartRate.maxHeartRate || ''} bpm
+    
+        ⚖️ Equilíbrio e Mobilidade 
+        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility.balanceTest || ''}
+        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility.mobilityTest || ''}
+    
+        🏃‍♂️ Postura 
+        Avaliação Postural: ${assessmentsByStudent?.posture.postureAssessment || ''}
+    
+        🏥 Histórico Médico 
+        Lesões Anteriores: ${assessmentsByStudent?.medicalHistory.injuryHistory || ''}
+        Condições Médicas: ${assessmentsByStudent?.medicalHistory.medicalConditions || ''}
+        Dores Crônicas: ${assessmentsByStudent?.medicalHistory.chronicPain || ''}
+    
+        🎯 Objetivos 
+        ${assessmentsByStudent?.fitnessGoals || ''}
+    
+        📝 Observações
+        ${assessmentsByStudent?.observations || ''}
+    
+        Caso tenha dúvidas ou precise de ajustes no seu plano de treino, me avise! Vamos juntos alcançar seus objetivos. 💪🔥
+    
+        Atenciosamente,
+        ${user?.name}
+        Equipe CamMove 🚀
+    `);
 
       const emailData: PostEmail = {
-        to: ['camilaferna140494@gmail.com'], // Destinatários
-        subject: 'Avaliação física - ', // Assunto
-        body: 'Segue o PDF em anexo.', // Corpo do e-mail
+        to: ['camilaferna140494@gmail.com'],
+        subject: ' Sua Avaliação Física – Resultados e Análise',
+        body: `Olá ${student?.name} 
+
+        Tudo bem? Segue em anexo sua avaliação física com todos os detalhes sobre seu progresso e pontos de melhoria. 
+
+        Com base nesses resultados, podemos ajustar seu treino e estabelecer novas metas para que você continue evoluindo.
+        
+        Se tiver dúvidas ou quiser marcar uma conversa para discutirmos os próximos passos, me avise! Estou à disposição.
+
+        Vamos juntos alcançar seus objetivos! 💪
+
+        Atenciosamente,
+        ${user?.name}
+        Equipe CamMove 🚀 `,
         attachments: [
           {
-            filename: 'meuArquivo.pdf', // Nome do arquivo
+            filename: `avaliacao.pdf`, // Nome do arquivo
             content: pdfBase64, // Conteúdo em base64
             encoding: 'base64', // Valor fixo para 'base64'
           },
@@ -238,7 +287,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="scale-balance" />}
-                name="weight"
+                name="bodyMeasurements.weight"
                 label="Peso"
                 type="text"
               />
@@ -247,7 +296,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="human-male-height-variant" />}
-                name="height"
+                name="bodyMeasurements.height"
                 label="Altura"
                 type="text"
               />
@@ -441,6 +490,18 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
               />
             </Card.Content>
           </Card>
+
+          <Snackbar
+            visible={visible}
+            onDismiss={() => setVisible(false)}
+            action={{
+              label: 'Close',
+              icon: 'close',
+              onPress: () => setVisible(false),
+            }}
+          >
+            <Text>Erro ao cadastrar treino</Text>
+          </Snackbar>
 
           <Button mode="contained" onPress={handleSubmit(onSubmit)}>
             Enviar
