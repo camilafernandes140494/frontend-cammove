@@ -239,18 +239,18 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       const emailData: PostEmail = {
         to: ['camilaferna140494@gmail.com'],
         subject: ' Sua Avaliação Física – Resultados e Análise',
-        body: `Olá ${student?.name} 
+        body: `Olá ${student?.name} <br><br>
 
-        Tudo bem? Segue em anexo sua avaliação física com todos os detalhes sobre seu progresso e pontos de melhoria. 
+        Tudo bem? Segue em anexo sua avaliação física com todos os detalhes sobre seu progresso e pontos de melhoria. <br><br>
 
-        Com base nesses resultados, podemos ajustar seu treino e estabelecer novas metas para que você continue evoluindo.
+        Com base nesses resultados, podemos ajustar seu treino e estabelecer novas metas para que você continue evoluindo.<br><br>
         
-        Se tiver dúvidas ou quiser marcar uma conversa para discutirmos os próximos passos, me avise! Estou à disposição.
+        Se tiver dúvidas ou quiser marcar uma conversa para discutirmos os próximos passos, me avise! Estou à disposição.<br><br>
 
-        Vamos juntos alcançar seus objetivos! 💪
+        Vamos juntos alcançar seus objetivos! 💪<br><br>
 
         Atenciosamente,
-        ${user?.name}
+        ${user?.name}<br><br>
         Equipe CamMove 🚀 `,
         attachments: [
           {
