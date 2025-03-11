@@ -38,7 +38,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     studentName: z.string().optional(),
     studentId: z.string().optional(),
     bodyMeasurements: z.object({
-      weight: z.number().optional(),
+      weight: z.string().optional(),
       height: z.string().optional(),
       bodyFatPercentage: z.number().optional(),
       imc: z.number().optional(),
@@ -90,46 +90,46 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       studentName: student?.name || '',
       studentId: student?.id || '',
       bodyMeasurements: {
-        weight: Number(assessmentsByStudent?.bodyMeasurements.weight) || 0,
-        height: String(assessmentsByStudent?.bodyMeasurements.height) || '',
-        bodyFatPercentage: Number(assessmentsByStudent?.bodyMeasurements.bodyFatPercentage) || 0,
-        imc: Number(assessmentsByStudent?.bodyMeasurements.imc) || 0,
-        waistCircumference: Number(assessmentsByStudent?.bodyMeasurements.waistCircumference) || 0,
-        hipCircumference: Number(assessmentsByStudent?.bodyMeasurements.hipCircumference) || 0,
-        chestCircumference: Number(assessmentsByStudent?.bodyMeasurements.chestCircumference) || 0,
-        rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements.rightArmCircumference) || 0,
-        leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements.leftArmCircumference) || 0,
-        rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements.rightThighCircumference) || 0,
-        leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements.leftThighCircumference) || 0,
-        rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements.rightCalfCircumference) || 0,
-        leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements.leftCalfCircumference) || 0,
-        neckCircumference: Number(assessmentsByStudent?.bodyMeasurements.neckCircumference) || 0,
+        weight: String(assessmentsByStudent?.bodyMeasurements?.weight) || '0',
+        height: String(assessmentsByStudent?.bodyMeasurements?.height) || '0',
+        bodyFatPercentage: Number(assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage) || 0,
+        imc: Number(assessmentsByStudent?.bodyMeasurements?.imc) || 0,
+        waistCircumference: Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
+        hipCircumference: Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
+        chestCircumference: Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
+        rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || 0,
+        leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || 0,
+        rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || 0,
+        leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || 0,
+        rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || 0,
+        leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || 0,
+        neckCircumference: Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
       },
       bodyMass: {
         muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
         boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
       },
       physicalTests: {
-        pushUpTest: String(assessmentsByStudent?.physicalTests.pushUpTest) || '',
-        squatTest: String(assessmentsByStudent?.physicalTests.squatTest) || '',
-        flexibilityTest: String(assessmentsByStudent?.physicalTests.flexibilityTest) || '',
-        cooperTestDistance: String(assessmentsByStudent?.physicalTests.cooperTestDistance) || '',
+        pushUpTest: String(assessmentsByStudent?.physicalTests?.pushUpTest) || '',
+        squatTest: String(assessmentsByStudent?.physicalTests?.squatTest) || '',
+        flexibilityTest: String(assessmentsByStudent?.physicalTests?.flexibilityTest) || '',
+        cooperTestDistance: String(assessmentsByStudent?.physicalTests?.cooperTestDistance) || '',
       },
       heartRate: {
-        restingHeartRate: String(assessmentsByStudent?.heartRate.restingHeartRate) || '',
-        maxHeartRate: String(assessmentsByStudent?.heartRate.maxHeartRate) || '',
+        restingHeartRate: String(assessmentsByStudent?.heartRate?.restingHeartRate) || '',
+        maxHeartRate: String(assessmentsByStudent?.heartRate?.maxHeartRate) || '',
       },
       balanceAndMobility: {
-        balanceTest: assessmentsByStudent?.balanceAndMobility.balanceTest || '',
-        mobilityTest: assessmentsByStudent?.balanceAndMobility.mobilityTest || '',
+        balanceTest: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
+        mobilityTest: String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
       },
       posture: {
-        postureAssessment: assessmentsByStudent?.posture.postureAssessment || '',
+        postureAssessment: String(assessmentsByStudent?.posture?.postureAssessment) || '',
       },
       medicalHistory: {
-        injuryHistory: assessmentsByStudent?.medicalHistory.injuryHistory || '',
-        medicalConditions: assessmentsByStudent?.medicalHistory.medicalConditions || '',
-        chronicPain: assessmentsByStudent?.medicalHistory.chronicPain || '',
+        injuryHistory: String(assessmentsByStudent?.medicalHistory?.injuryHistory) || '',
+        medicalConditions: String(assessmentsByStudent?.medicalHistory?.medicalConditions) || '',
+        chronicPain: String(assessmentsByStudent?.medicalHistory?.chronicPain) || '',
       },
       fitnessGoals: assessmentsByStudent?.fitnessGoals || '',
       observations: assessmentsByStudent?.observations || '',
@@ -184,45 +184,45 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       const pdfBase64 = await GeneratePDFBase64(`
         📊 Medições Corporais
     
-        Peso: ${assessmentsByStudent?.bodyMeasurements.weight || ''} kg
-        Altura: ${assessmentsByStudent?.bodyMeasurements.height || ''} cm
-        % Gordura Corporal: ${assessmentsByStudent?.bodyMeasurements.bodyFatPercentage || ''}%
-        IMC: ${assessmentsByStudent?.bodyMeasurements.imc || ''}
+        Peso: ${assessmentsByStudent?.bodyMeasurements?.weight || ''} kg
+        Altura: ${assessmentsByStudent?.bodyMeasurements?.height || ''} cm
+        % Gordura Corporal: ${assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || ''}%
+        IMC: ${assessmentsByStudent?.bodyMeasurements?.imc || ''}
     
         Circunferências 
-        Cintura: ${assessmentsByStudent?.bodyMeasurements.waistCircumference || ''} cm
-        Quadril: ${assessmentsByStudent?.bodyMeasurements.hipCircumference || ''} cm
-        Peito: ${assessmentsByStudent?.bodyMeasurements.chestCircumference || ''} cm
-        Braço D: ${assessmentsByStudent?.bodyMeasurements.rightArmCircumference || ''} cm | Braço E: ${assessmentsByStudent?.bodyMeasurements.leftArmCircumference || ''} cm
-        Coxa D: ${assessmentsByStudent?.bodyMeasurements.rightThighCircumference || ''} cm | Coxa E: ${assessmentsByStudent?.bodyMeasurements.leftThighCircumference || ''} cm
-        Panturrilha D: ${assessmentsByStudent?.bodyMeasurements.rightCalfCircumference || ''} cm | Panturrilha E: ${assessmentsByStudent?.bodyMeasurements.leftCalfCircumference || ''} cm
-        Pescoço: ${assessmentsByStudent?.bodyMeasurements.neckCircumference || ''} cm
+        Cintura: ${assessmentsByStudent?.bodyMeasurements?.waistCircumference || ''} cm
+        Quadril: ${assessmentsByStudent?.bodyMeasurements?.hipCircumference || ''} cm
+        Peito: ${assessmentsByStudent?.bodyMeasurements?.chestCircumference || ''} cm
+        Braço D: ${assessmentsByStudent?.bodyMeasurements?.rightArmCircumference || ''} cm | Braço E: ${assessmentsByStudent?.bodyMeasurements?.leftArmCircumference || ''} cm
+        Coxa D: ${assessmentsByStudent?.bodyMeasurements?.rightThighCircumference || ''} cm | Coxa E: ${assessmentsByStudent?.bodyMeasurements?.leftThighCircumference || ''} cm
+        Panturrilha D: ${assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference || ''} cm | Panturrilha E: ${assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference || ''} cm
+        Pescoço: ${assessmentsByStudent?.bodyMeasurements?.neckCircumference || ''} cm
     
         💪 Composição Corporal
         Massa Muscular: ${assessmentsByStudent?.bodyMass.muscleMass || ''} kg
         Massa Óssea: ${assessmentsByStudent?.bodyMass.boneMass || ''} kg
     
         🏋️ Testes Físicos 
-        Flexões de braço: ${assessmentsByStudent?.physicalTests.pushUpTest || ''} repetições
-        Agachamentos: ${assessmentsByStudent?.physicalTests.squatTest || ''} repetições
-        Flexibilidade: ${assessmentsByStudent?.physicalTests.flexibilityTest || ''} cm
-        Teste de Cooper (Distância corrida): ${assessmentsByStudent?.physicalTests.cooperTestDistance || ''} metros
+        Flexões de braço: ${assessmentsByStudent?.physicalTests?.pushUpTest || ''} repetições
+        Agachamentos: ${assessmentsByStudent?.physicalTests?.squatTest || ''} repetições
+        Flexibilidade: ${assessmentsByStudent?.physicalTests?.flexibilityTest || ''} cm
+        Teste de Cooper (Distância corrida): ${assessmentsByStudent?.physicalTests?.cooperTestDistance || ''} metros
     
         ❤️ Frequência Cardíaca
-        Em repouso: ${assessmentsByStudent?.heartRate.restingHeartRate || ''} bpm
-        Máxima: ${assessmentsByStudent?.heartRate.maxHeartRate || ''} bpm
+        Em repouso: ${assessmentsByStudent?.heartRate?.restingHeartRate || ''} bpm
+        Máxima: ${assessmentsByStudent?.heartRate?.maxHeartRate || ''} bpm
     
         ⚖️ Equilíbrio e Mobilidade 
-        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility.balanceTest || ''}
-        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility.mobilityTest || ''}
+        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility?.balanceTest || ''}
+        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility?.mobilityTest || ''}
     
         🏃‍♂️ Postura 
-        Avaliação Postural: ${assessmentsByStudent?.posture.postureAssessment || ''}
+        Avaliação Postural: ${assessmentsByStudent?.posture?.postureAssessment || ''}
     
         🏥 Histórico Médico 
-        Lesões Anteriores: ${assessmentsByStudent?.medicalHistory.injuryHistory || ''}
-        Condições Médicas: ${assessmentsByStudent?.medicalHistory.medicalConditions || ''}
-        Dores Crônicas: ${assessmentsByStudent?.medicalHistory.chronicPain || ''}
+        Lesões Anteriores: ${assessmentsByStudent?.medicalHistory?.injuryHistory || ''}
+        Condições Médicas: ${assessmentsByStudent?.medicalHistory?.medicalConditions || ''}
+        Dores Crônicas: ${assessmentsByStudent?.medicalHistory?.chronicPain || ''}
     
         🎯 Objetivos 
         ${assessmentsByStudent?.fitnessGoals || ''}
