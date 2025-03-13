@@ -328,6 +328,25 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 label="Cintura"
                 type="text"
               />
+
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="ruler" />}
+                name="hip"
+                label="Quadril"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="ruler" />}
+                name="hip"
+                label="Quadril"
+                type="text"
+              />
               <FormField
                 control={control}
                 mode="flat"
