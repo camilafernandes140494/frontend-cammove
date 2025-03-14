@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import * as z from "zod";
 import { useForm } from 'react-hook-form';
@@ -40,28 +40,22 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     bodyMeasurements: z.object({
       weight: z.string().optional(),
       height: z.string().optional(),
-      bodyFatPercentage: z.number().optional(),
-      imc: z.number().optional(),
-      waistCircumference: z.number().optional(),
-      hipCircumference: z.number().optional(),
-      chestCircumference: z.number().optional(),
-      rightArmCircumference: z.number().optional(),
-      leftArmCircumference: z.number().optional(),
-      rightThighCircumference: z.number().optional(),
-      leftThighCircumference: z.number().optional(),
-      rightCalfCircumference: z.number().optional(),
-      leftCalfCircumference: z.number().optional(),
-      neckCircumference: z.number().optional(),
+      bodyFatPercentage: z.string().optional(),
+      imc: z.string().optional(),
+      waistCircumference: z.string().optional(),
+      hipCircumference: z.string().optional(),
+      chestCircumference: z.string().optional(),
+      rightArmCircumference: z.string().optional(),
+      leftArmCircumference: z.string().optional(),
+      rightThighCircumference: z.string().optional(),
+      leftThighCircumference: z.string().optional(),
+      rightCalfCircumference: z.string().optional(),
+      leftCalfCircumference: z.string().optional(),
+      neckCircumference: z.string().optional(),
     }),
     bodyMass: z.object({
-      muscleMass: z.number().optional(),
-      boneMass: z.number().optional(),
-    }),
-    physicalTests: z.object({
-      pushUpTest: z.string().optional(),
-      squatTest: z.string().optional(),
-      flexibilityTest: z.string().optional(),
-      cooperTestDistance: z.string().optional(),
+      muscleMass: z.string().optional(),
+      boneMass: z.string().optional(),
     }),
     heartRate: z.object({
       restingHeartRate: z.string().optional(),
@@ -84,7 +78,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     assessmentDate: z.string().optional(),
   });
 
-  const { control, handleSubmit, watch } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, watch, setValue } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       studentName: student?.name || '',
@@ -92,28 +86,22 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       bodyMeasurements: {
         weight: String(assessmentsByStudent?.bodyMeasurements?.weight) || '0',
         height: String(assessmentsByStudent?.bodyMeasurements?.height) || '0',
-        bodyFatPercentage: Number(assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage) || 0,
-        imc: Number(assessmentsByStudent?.bodyMeasurements?.imc) || 0,
-        waistCircumference: Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
-        hipCircumference: Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
-        chestCircumference: Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
-        rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || 0,
-        leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || 0,
-        rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || 0,
-        leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || 0,
-        rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || 0,
-        leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || 0,
-        neckCircumference: Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
+        bodyFatPercentage: String(assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage) || '0',
+        imc: String(assessmentsByStudent?.bodyMeasurements?.imc) || '',
+        waistCircumference: String(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || '0',
+        hipCircumference: String(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || '0',
+        chestCircumference: String(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || '0',
+        rightArmCircumference: String(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || '0',
+        leftArmCircumference: String(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || '0',
+        rightThighCircumference: String(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || '0',
+        leftThighCircumference: String(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || '0',
+        rightCalfCircumference: String(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || '0',
+        leftCalfCircumference: String(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || '0',
+        neckCircumference: String(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || '0',
       },
       bodyMass: {
-        muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
-        boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
-      },
-      physicalTests: {
-        pushUpTest: String(assessmentsByStudent?.physicalTests?.pushUpTest) || '',
-        squatTest: String(assessmentsByStudent?.physicalTests?.squatTest) || '',
-        flexibilityTest: String(assessmentsByStudent?.physicalTests?.flexibilityTest) || '',
-        cooperTestDistance: String(assessmentsByStudent?.physicalTests?.cooperTestDistance) || '',
+        muscleMass: String(assessmentsByStudent?.bodyMass.muscleMass) || '0',
+        boneMass: String(assessmentsByStudent?.bodyMass.boneMass) || '0',
       },
       heartRate: {
         restingHeartRate: String(assessmentsByStudent?.heartRate?.restingHeartRate) || '',
@@ -144,6 +132,14 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const selectedBalanceTest = watch("balanceAndMobility.balanceTest");
   const selectedMobilityTest = watch("balanceAndMobility.mobilityTest");
   const selectedPostureTest = watch("posture.postureAssessment");
+
+  const imcDescription = useMemo(() => {
+    return `${calculateIMC(Number(selectedWeight), selectedHeight?.replace(",", ".") || 0).categoria} - ${calculateIMC(Number(selectedWeight), selectedHeight?.replace(",", ".") || 0).imc}`;
+  }, [selectedWeight, selectedHeight]);
+
+  useEffect(() => {
+    setValue('bodyMeasurements.imc', imcDescription)
+  }, [imcDescription])
 
   const onSubmit = async (data: AssessmentData) => {
     try {
@@ -192,20 +188,14 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
         Cintura: ${assessmentsByStudent?.bodyMeasurements?.waistCircumference || ''} cm
         Quadril: ${assessmentsByStudent?.bodyMeasurements?.hipCircumference || ''} cm
         Peito: ${assessmentsByStudent?.bodyMeasurements?.chestCircumference || ''} cm
-        Braço D: ${assessmentsByStudent?.bodyMeasurements?.rightArmCircumference || ''} cm | Braço E: ${assessmentsByStudent?.bodyMeasurements?.leftArmCircumference || ''} cm
-        Coxa D: ${assessmentsByStudent?.bodyMeasurements?.rightThighCircumference || ''} cm | Coxa E: ${assessmentsByStudent?.bodyMeasurements?.leftThighCircumference || ''} cm
-        Panturrilha D: ${assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference || ''} cm | Panturrilha E: ${assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference || ''} cm
+        Braço Direita: ${assessmentsByStudent?.bodyMeasurements?.rightArmCircumference || ''} cm | Braço Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftArmCircumference || ''} cm
+        Coxa Direita: ${assessmentsByStudent?.bodyMeasurements?.rightThighCircumference || ''} cm | Coxa Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftThighCircumference || ''} cm
+        Panturrilha Direita: ${assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference || ''} cm | Panturrilha Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference || ''} cm
         Pescoço: ${assessmentsByStudent?.bodyMeasurements?.neckCircumference || ''} cm
     
         💪 Composição Corporal
         Massa Muscular: ${assessmentsByStudent?.bodyMass.muscleMass || ''} kg
         Massa Óssea: ${assessmentsByStudent?.bodyMass.boneMass || ''} kg
-    
-        🏋️ Testes Físicos 
-        Flexões de braço: ${assessmentsByStudent?.physicalTests?.pushUpTest || ''} repetições
-        Agachamentos: ${assessmentsByStudent?.physicalTests?.squatTest || ''} repetições
-        Flexibilidade: ${assessmentsByStudent?.physicalTests?.flexibilityTest || ''} cm
-        Teste de Cooper (Distância corrida): ${assessmentsByStudent?.physicalTests?.cooperTestDistance || ''} metros
     
         ❤️ Frequência Cardíaca
         Em repouso: ${assessmentsByStudent?.heartRate?.restingHeartRate || ''} bpm
@@ -290,6 +280,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.weight"
                 label="Peso"
                 type="text"
+
               />
               <FormField
                 control={control}
@@ -300,6 +291,16 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 label="Altura"
                 type="text"
               />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="percent" />}
+                name="bodyMeasurements.bodyFatPercentage"
+                label="Porcentagem de Gordura Corporal"
+                type="text"
+              />
+
               <Chip icon="information">
                 {calculateIMC(Number(selectedWeight), selectedHeight?.replace(",", ".") || 0
                 ).categoria}
@@ -315,17 +316,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="waist"
-                label="Cintura"
-                type="text"
-              />
-              <FormField
-                control={control}
-                mode="flat"
-                keyboardType="numeric"
-                left={<TextInput.Icon icon="ruler" />}
-                name="waist"
-                label="Cintura"
+                name="bodyMeasurements.waistCircumference" label="Cintura"
                 type="text"
               />
 
@@ -334,7 +325,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="hip"
+                name="bodyMeasurements.hipCircumference"
                 label="Quadril"
                 type="text"
               />
@@ -343,28 +334,20 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="hip"
-                label="Quadril"
-                type="text"
-              />
-              <FormField
-                control={control}
-                mode="flat"
-                keyboardType="numeric"
-                left={<TextInput.Icon icon="ruler" />}
-                name="hip"
-                label="Quadril"
-                type="text"
-              />
-              <FormField
-                control={control}
-                mode="flat"
-                keyboardType="numeric"
-                left={<TextInput.Icon icon="ruler" />}
-                name="chest"
+                name="bodyMeasurements.chestCircumference"
                 label="Peito"
                 type="text"
               />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="ruler" />}
+                name="bodyMeasurements.neckCircumference"
+                label="Pescoço"
+                type="text"
+              />
+
             </Card.Content>
           </Card>
 
@@ -376,8 +359,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="armRight"
-                label="Braço Direito"
+                name="bodyMeasurements.rightArmCircumference" label="Braço Direito"
                 type="text"
               />
               <FormField
@@ -385,7 +367,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="armLeft"
+                name="bodyMeasurements.leftArmCircumference"
                 label="Braço Esquerdo"
                 type="text"
               />
@@ -400,7 +382,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="thighRight"
+                name="bodyMeasurements.rightThighCircumference"
                 label="Coxa Direita"
                 type="text"
               />
@@ -409,7 +391,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="thighLeft"
+                name="bodyMeasurements.leftThighCircumference"
                 label="Coxa Esquerda"
                 type="text"
               />
@@ -418,7 +400,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="calfRight"
+                name="bodyMeasurements.rightCalfCircumference"
                 label="Panturrilha Direita"
                 type="text"
               />
@@ -427,7 +409,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="calfLeft"
+                name="bodyMeasurements.leftCalfCircumference"
                 label="Panturrilha Esquerda"
                 type="text"
               />
@@ -442,7 +424,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="scale-balance" />}
-                name="muscleMass"
+                name="bodyMass.muscleMass"
                 label="Massa Muscular"
                 type="text"
               />
@@ -451,7 +433,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="bone" />}
-                name="boneMass"
+                name="bodyMass.boneMass"
                 label="Massa Óssea"
                 type="text"
               />
@@ -459,12 +441,69 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
           </Card>
 
           <Card>
+            <Card.Title title="Frequência Cardíaca" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="sleep" />}
+                name="heartRate.restingHeartRate"
+                label="Em repouso"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="heart-pulse" />}
+                name="heartRate.maxHeartRate"
+                label="Máxima"
+                type="text"
+              />
+            </Card.Content>
+          </Card>
+
+
+          <Card>
+            <Card.Title title="Histórico Médico" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="bandage" />}
+                name="medicalHistory.injuryHistory"
+                label="Lesões Anteriores"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="stethoscope" />}
+                name="medicalHistory.medicalConditions"
+                label="Condições Médicas"
+                type="text"
+              />
+              <FormField
+                control={control}
+                mode="flat"
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="pill" />}
+                name="medicalHistory.chronicPain"
+                label="Dores Crônicas"
+                type="text"
+              />
+            </Card.Content>
+          </Card>
+          <Card>
             <Card.Title title="Equilíbrio, Mobilidade e Postura" />
             <Card.Content style={{ gap: 10 }}>
               {selectedBalanceTest && <Text>Teste de Equilíbrio</Text>}
               <FormField
                 control={control}
-                name="balanceTest"
+                name="balanceAndMobility.balanceTest"
                 label="Teste de Equilíbrio"
                 type="select"
                 getLabel={(option) => option.label}
@@ -478,7 +517,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 
               <FormField
                 control={control}
-                name="mobilityTest"
+                name="balanceAndMobility.mobilityTest"
                 label="Teste de Mobilidade"
                 type="select"
                 getLabel={(option) => option.label}
@@ -492,7 +531,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
               {selectedPostureTest && <Text>Teste de Postura</Text>}
               <FormField
                 control={control}
-                name="postureTest"
+                name="posture.postureAssessment"
                 label="Teste de Postura"
                 type="select"
                 getLabel={(option) => option.label}
@@ -505,6 +544,22 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
             </Card.Content>
           </Card>
 
+
+          <Card>
+            <Card.Title title="Objetivo" />
+            <Card.Content style={{ gap: 10 }}>
+              <FormField
+                control={control}
+                mode="flat"
+                left={<TextInput.Icon icon="bullseye-arrow" />}
+                name="fitnessGoals"
+                label="Objetivo"
+                type="text"
+
+              />
+            </Card.Content>
+          </Card>
+
           <Card>
             <Card.Title title="Observação" />
             <Card.Content style={{ gap: 10 }}>
@@ -512,7 +567,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 control={control}
                 mode="flat"
                 left={<TextInput.Icon icon="comment" />}
-                name="observation"
+                name="observations"
                 label="Observação"
                 type="text"
               />
