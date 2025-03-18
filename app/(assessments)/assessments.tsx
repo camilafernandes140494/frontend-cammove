@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import {
-  Button, Appbar
+  Button, Appbar,
+  SegmentedButtons
 } from 'react-native-paper';
 import FilterInput from '@/components/FilterInput';
 import { useStudent } from '../context/StudentContext';
@@ -12,6 +13,7 @@ const Assessments = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>({ name: '' });
   const { refetchStudent } = useStudent();
   const { user } = useUser();
+  const [value, setValue] = useState('workouts');
 
 
   return (
@@ -27,8 +29,17 @@ const Assessments = ({ navigation }: any) => {
         data={['student']}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
-          <View style={{ paddingHorizontal: 16 }}>
+          <View style={{ padding: 16 }}>
+            <SegmentedButtons
+              value={value}
+              onValueChange={setValue}
+              buttons={[
+                { value: 'assessments', label: 'Avaliações', icon: 'chart-bar' },
+                { value: 'students', label: 'Alunos', icon: 'account-group' },
+              ]}
+            />
             <FilterInput placeholder="Pesquisar aluno(a)" onChange={(value) => setParams({ name: value })} />
+
           </View>
         }
         renderItem={() => <>
