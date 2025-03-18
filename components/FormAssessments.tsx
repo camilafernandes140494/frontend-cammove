@@ -15,6 +15,7 @@ import { postEmail } from '@/api/email/email.api';
 import { PostEmail } from '@/api/email/email.types';
 import { getAssessmentsByStudentIdAndAssessmentsId, patchAssessments, postAssessments } from '@/api/assessments/assessments.api';
 import { AssessmentData } from '@/api/assessments/assessments.types';
+import { useTheme } from '@/app/ThemeContext';
 
 
 interface FormAssessmentsProps {
@@ -25,6 +26,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const [visible, setVisible] = useState(false);
   const { student } = useStudent();
   const { user } = useUser();
+  const { theme } = useTheme();
+  const today = new Date();
   const navigation = useNavigation();
 
   const { data: assessmentsByStudent, refetch } = useQuery({
@@ -34,32 +37,125 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   });
 
 
+  const [sendEmail, setSendEmail] = useState(false)
+
+  const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  const handleSendPDFEmail = async () => {
+    try {
+      setSendEmail(true)
+      const pdfBase64 = await GeneratePDFBase64(`
+        Medições Corporais
+    
+        Peso: ${assessmentsByStudent?.bodyMeasurements?.weight || ''} kg
+        Altura: ${assessmentsByStudent?.bodyMeasurements?.height || ''} cm
+        Porcentagem de Gordura Corporal: ${assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || ''}%
+        IMC: ${assessmentsByStudent?.bodyMeasurements?.imc || ''}
+    
+        Circunferências 
+        Cintura: ${assessmentsByStudent?.bodyMeasurements?.waistCircumference || ''} cm
+        Quadril: ${assessmentsByStudent?.bodyMeasurements?.hipCircumference || ''} cm
+        Peito: ${assessmentsByStudent?.bodyMeasurements?.chestCircumference || ''} cm
+        Braço Direita: ${assessmentsByStudent?.bodyMeasurements?.rightArmCircumference || ''} cm | Braço Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftArmCircumference || ''} cm
+        Coxa Direita: ${assessmentsByStudent?.bodyMeasurements?.rightThighCircumference || ''} cm | Coxa Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftThighCircumference || ''} cm
+        Panturrilha Direita: ${assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference || ''} cm | Panturrilha Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference || ''} cm
+        Pescoço: ${assessmentsByStudent?.bodyMeasurements?.neckCircumference || ''} cm
+    
+        Composição Corporal
+        Massa Muscular: ${assessmentsByStudent?.bodyMass.muscleMass || ''} kg
+        Massa Óssea: ${assessmentsByStudent?.bodyMass.boneMass || ''} kg
+    
+        Frequência Cardíaca
+        Em repouso: ${assessmentsByStudent?.heartRate?.restingHeartRate || ''} bpm
+        Máxima: ${assessmentsByStudent?.heartRate?.maxHeartRate || ''} bpm
+    
+        Equilíbrio e Mobilidade 
+        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility?.balanceTest || ''}
+        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility?.mobilityTest || ''}
+    
+        Postura 
+        Avaliação Postural: ${assessmentsByStudent?.posture?.postureAssessment || ''}
+    
+        Histórico Médico 
+        Lesões Anteriores: ${assessmentsByStudent?.medicalHistory?.injuryHistory || ''}
+        Condições Médicas: ${assessmentsByStudent?.medicalHistory?.medicalConditions || ''}
+        Dores Crônicas: ${assessmentsByStudent?.medicalHistory?.chronicPain || ''}
+    
+        Objetivos 
+        ${assessmentsByStudent?.fitnessGoals || ''}
+    
+        Observações
+        ${assessmentsByStudent?.observations || ''}
+    
+        Caso tenha dúvidas ou precise de ajustes no seu plano de treino, me avise! Vamos juntos alcançar seus objetivos.
+    
+        Atenciosamente,
+        ${user?.name}
+        Equipe CamMove 
+    `, student);
+
+      const emailData: PostEmail = {
+        to: ['camilaferna140494@gmail.com'],
+        subject: ' Sua Avaliação Física – Resultados e Análise',
+        body: `Olá ${student?.name} <br><br>
+
+        Tudo bem? Segue em anexo sua avaliação física com todos os detalhes sobre seu progresso e pontos de melhoria. <br><br>
+
+        Com base nesses resultados, podemos ajustar seu treino e estabelecer novas metas para que você continue evoluindo.<br><br>
+        
+        Se tiver dúvidas ou quiser marcar uma conversa para discutirmos os próximos passos, me avise! Estou à disposição.<br><br>
+
+        Vamos juntos alcançar seus objetivos! 💪<br><br>
+
+        Atenciosamente,
+        ${user?.name}<br><br>
+        Equipe CamMove 🚀 `,
+        attachments: [
+          {
+            filename: `avaliacao-${formattedDate}.pdf`,
+            content: pdfBase64, // Conteúdo em base64
+            encoding: 'base64', // Valor fixo para 'base64'
+          },
+        ],
+      };
+
+      // Chamando a função da API
+      const result = await postEmail(emailData);
+      console.log(result); // Verifique o resultado no console
+    } catch (error) {
+      console.error('Erro ao gerar/enviar PDF:', error);
+    }
+    finally {
+      setSendEmail(false)
+    }
+  };
+
   const schema = z.object({
     studentName: z.string().optional(),
     studentId: z.string().optional(),
     bodyMeasurements: z.object({
-      weight: z.string().optional(),
-      height: z.string().optional(),
-      bodyFatPercentage: z.string().optional(),
+      weight: z.number().optional(),
+      height: z.number().optional(),
+      bodyFatPercentage: z.number().optional(),
       imc: z.string().optional(),
-      waistCircumference: z.string().optional(),
-      hipCircumference: z.string().optional(),
-      chestCircumference: z.string().optional(),
-      rightArmCircumference: z.string().optional(),
-      leftArmCircumference: z.string().optional(),
-      rightThighCircumference: z.string().optional(),
-      leftThighCircumference: z.string().optional(),
-      rightCalfCircumference: z.string().optional(),
-      leftCalfCircumference: z.string().optional(),
-      neckCircumference: z.string().optional(),
+      waistCircumference: z.number().optional(),
+      hipCircumference: z.number().optional(),
+      chestCircumference: z.number().optional(),
+      rightArmCircumference: z.number().optional(),
+      leftArmCircumference: z.number().optional(),
+      rightThighCircumference: z.number().optional(),
+      leftThighCircumference: z.number().optional(),
+      rightCalfCircumference: z.number().optional(),
+      leftCalfCircumference: z.number().optional(),
+      neckCircumference: z.number().optional(),
     }),
     bodyMass: z.object({
-      muscleMass: z.string().optional(),
-      boneMass: z.string().optional(),
+      muscleMass: z.number().optional(),
+      boneMass: z.number().optional(),
     }),
     heartRate: z.object({
-      restingHeartRate: z.string().optional(),
-      maxHeartRate: z.string().optional(),
+      restingHeartRate: z.number().optional(),
+      maxHeartRate: z.number().optional(),
     }),
     balanceAndMobility: z.object({
       balanceTest: z.string().optional(),
@@ -84,28 +180,28 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       studentName: student?.name || '',
       studentId: student?.id || '',
       bodyMeasurements: {
-        weight: String(assessmentsByStudent?.bodyMeasurements?.weight) || '0',
-        height: String(assessmentsByStudent?.bodyMeasurements?.height) || '0',
-        bodyFatPercentage: String(assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage) || '0',
+        weight: Number(assessmentsByStudent?.bodyMeasurements?.weight) || 0,
+        height: Number(assessmentsByStudent?.bodyMeasurements?.height) || 0,
+        bodyFatPercentage: assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || 0,
         imc: String(assessmentsByStudent?.bodyMeasurements?.imc) || '',
-        waistCircumference: String(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || '0',
-        hipCircumference: String(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || '0',
-        chestCircumference: String(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || '0',
-        rightArmCircumference: String(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || '0',
-        leftArmCircumference: String(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || '0',
-        rightThighCircumference: String(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || '0',
-        leftThighCircumference: String(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || '0',
-        rightCalfCircumference: String(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || '0',
-        leftCalfCircumference: String(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || '0',
-        neckCircumference: String(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || '0',
+        waistCircumference: Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
+        hipCircumference: Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
+        chestCircumference: Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
+        rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || 0,
+        leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || 0,
+        rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || 0,
+        leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || 0,
+        rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || 0,
+        leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || 0,
+        neckCircumference: Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
       },
       bodyMass: {
-        muscleMass: String(assessmentsByStudent?.bodyMass.muscleMass) || '0',
-        boneMass: String(assessmentsByStudent?.bodyMass.boneMass) || '0',
+        muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
+        boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
       },
       heartRate: {
-        restingHeartRate: String(assessmentsByStudent?.heartRate?.restingHeartRate) || '',
-        maxHeartRate: String(assessmentsByStudent?.heartRate?.maxHeartRate) || '',
+        restingHeartRate: Number(assessmentsByStudent?.heartRate?.restingHeartRate) || 0,
+        maxHeartRate: Number(assessmentsByStudent?.heartRate?.maxHeartRate) || 0,
       },
       balanceAndMobility: {
         balanceTest: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
@@ -115,9 +211,9 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
         postureAssessment: String(assessmentsByStudent?.posture?.postureAssessment) || '',
       },
       medicalHistory: {
-        injuryHistory: String(assessmentsByStudent?.medicalHistory?.injuryHistory) || '',
-        medicalConditions: String(assessmentsByStudent?.medicalHistory?.medicalConditions) || '',
-        chronicPain: String(assessmentsByStudent?.medicalHistory?.chronicPain) || '',
+        injuryHistory: assessmentsByStudent?.medicalHistory?.injuryHistory as string || '',
+        medicalConditions: assessmentsByStudent?.medicalHistory?.medicalConditions as string || '',
+        chronicPain: assessmentsByStudent?.medicalHistory?.chronicPain as string || '',
       },
       fitnessGoals: assessmentsByStudent?.fitnessGoals || '',
       observations: assessmentsByStudent?.observations || '',
@@ -134,7 +230,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const selectedPostureTest = watch("posture.postureAssessment");
 
   const imcDescription = useMemo(() => {
-    return `${calculateIMC(Number(selectedWeight), selectedHeight?.replace(",", ".") || 0).categoria} - ${calculateIMC(Number(selectedWeight), selectedHeight?.replace(",", ".") || 0).imc}`;
+    return `${calculateIMC(Number(selectedWeight), String(selectedHeight)?.replace(",", ".") || 0).categoria} - ${calculateIMC(Number(selectedWeight), String(selectedHeight)?.replace(",", ".") || 0).imc}`;
   }, [selectedWeight, selectedHeight]);
 
   useEffect(() => {
@@ -150,9 +246,11 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
         await postAssessments(user?.id || '', student?.id || '', data);
         navigation.navigate('Assessments' as never);
       }
+      handleSendPDFEmail()
     } catch (error) {
       setVisible(true);
     }
+
   };
 
 
@@ -174,90 +272,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   //   });
   // };
 
-  const handleSendPDFEmail = async () => {
-    try {
-      const pdfBase64 = await GeneratePDFBase64(`
-        📊 Medições Corporais
-    
-        Peso: ${assessmentsByStudent?.bodyMeasurements?.weight || ''} kg
-        Altura: ${assessmentsByStudent?.bodyMeasurements?.height || ''} cm
-        % Gordura Corporal: ${assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || ''}%
-        IMC: ${assessmentsByStudent?.bodyMeasurements?.imc || ''}
-    
-        Circunferências 
-        Cintura: ${assessmentsByStudent?.bodyMeasurements?.waistCircumference || ''} cm
-        Quadril: ${assessmentsByStudent?.bodyMeasurements?.hipCircumference || ''} cm
-        Peito: ${assessmentsByStudent?.bodyMeasurements?.chestCircumference || ''} cm
-        Braço Direita: ${assessmentsByStudent?.bodyMeasurements?.rightArmCircumference || ''} cm | Braço Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftArmCircumference || ''} cm
-        Coxa Direita: ${assessmentsByStudent?.bodyMeasurements?.rightThighCircumference || ''} cm | Coxa Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftThighCircumference || ''} cm
-        Panturrilha Direita: ${assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference || ''} cm | Panturrilha Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference || ''} cm
-        Pescoço: ${assessmentsByStudent?.bodyMeasurements?.neckCircumference || ''} cm
-    
-        💪 Composição Corporal
-        Massa Muscular: ${assessmentsByStudent?.bodyMass.muscleMass || ''} kg
-        Massa Óssea: ${assessmentsByStudent?.bodyMass.boneMass || ''} kg
-    
-        ❤️ Frequência Cardíaca
-        Em repouso: ${assessmentsByStudent?.heartRate?.restingHeartRate || ''} bpm
-        Máxima: ${assessmentsByStudent?.heartRate?.maxHeartRate || ''} bpm
-    
-        ⚖️ Equilíbrio e Mobilidade 
-        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility?.balanceTest || ''}
-        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility?.mobilityTest || ''}
-    
-        🏃‍♂️ Postura 
-        Avaliação Postural: ${assessmentsByStudent?.posture?.postureAssessment || ''}
-    
-        🏥 Histórico Médico 
-        Lesões Anteriores: ${assessmentsByStudent?.medicalHistory?.injuryHistory || ''}
-        Condições Médicas: ${assessmentsByStudent?.medicalHistory?.medicalConditions || ''}
-        Dores Crônicas: ${assessmentsByStudent?.medicalHistory?.chronicPain || ''}
-    
-        🎯 Objetivos 
-        ${assessmentsByStudent?.fitnessGoals || ''}
-    
-        📝 Observações
-        ${assessmentsByStudent?.observations || ''}
-    
-        Caso tenha dúvidas ou precise de ajustes no seu plano de treino, me avise! Vamos juntos alcançar seus objetivos. 💪🔥
-    
-        Atenciosamente,
-        ${user?.name}
-        Equipe CamMove 🚀
-    `, student);
 
-      const emailData: PostEmail = {
-        to: ['camilaferna140494@gmail.com'],
-        subject: ' Sua Avaliação Física – Resultados e Análise',
-        body: `Olá ${student?.name} <br><br>
-
-        Tudo bem? Segue em anexo sua avaliação física com todos os detalhes sobre seu progresso e pontos de melhoria. <br><br>
-
-        Com base nesses resultados, podemos ajustar seu treino e estabelecer novas metas para que você continue evoluindo.<br><br>
-        
-        Se tiver dúvidas ou quiser marcar uma conversa para discutirmos os próximos passos, me avise! Estou à disposição.<br><br>
-
-        Vamos juntos alcançar seus objetivos! 💪<br><br>
-
-        Atenciosamente,
-        ${user?.name}<br><br>
-        Equipe CamMove 🚀 `,
-        attachments: [
-          {
-            filename: `avaliacao.pdf`, // Nome do arquivo
-            content: pdfBase64, // Conteúdo em base64
-            encoding: 'base64', // Valor fixo para 'base64'
-          },
-        ],
-      };
-
-      // Chamando a função da API
-      const result = await postEmail(emailData);
-      console.log(result); // Verifique o resultado no console
-    } catch (error) {
-      console.error('Erro ao gerar/enviar PDF:', error);
-    }
-  };
 
   return (
     <FlatList
@@ -266,10 +281,14 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       data={[{}]}
       keyExtractor={() => 'FormWorkout'}
+      ListHeaderComponent={<View
+        style={{ backgroundColor: theme.colors.secondaryContainer, padding: 12, }}>
+        <Button disabled={sendEmail} icon="email-fast-outline" mode='contained' onPress={handleSendPDFEmail}
+        >Enviar por e-mail</Button>
+      </View>}
       renderItem={() => (
         <View style={{ padding: 20, gap: 16 }}>
           <Card>
-            <Button onPress={handleSendPDFEmail} >"Gerar e Enviar PDF"</Button>
             <Card.Title title="Medidas Corporais" />
             <Card.Content style={{ gap: 10 }}>
               <FormField
@@ -280,6 +299,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.weight"
                 label="Peso"
                 type="text"
+                right={<TextInput.Affix text=" kg" />}
+
 
               />
               <FormField
@@ -290,6 +311,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.height"
                 label="Altura"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
               <FormField
                 control={control}
@@ -299,10 +322,12 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.bodyFatPercentage"
                 label="Porcentagem de Gordura Corporal"
                 type="text"
+                right={<TextInput.Affix text=" %" />}
+
               />
 
               <Chip icon="information">
-                {calculateIMC(Number(selectedWeight), selectedHeight?.replace(",", ".") || 0
+                {calculateIMC(Number(selectedWeight), String(selectedHeight)?.replace(",", ".") || 0
                 ).categoria}
               </Chip>
             </Card.Content>
@@ -316,8 +341,10 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 mode="flat"
                 keyboardType="numeric"
                 left={<TextInput.Icon icon="ruler" />}
-                name="bodyMeasurements.waistCircumference" label="Cintura"
+                name="bodyMeasurements.waistCircumference"
+                label="Cintura"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
               />
 
               <FormField
@@ -328,6 +355,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.hipCircumference"
                 label="Quadril"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
               <FormField
                 control={control}
@@ -337,6 +366,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.chestCircumference"
                 label="Peito"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
               <FormField
                 control={control}
@@ -346,6 +377,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.neckCircumference"
                 label="Pescoço"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
               />
 
             </Card.Content>
@@ -361,6 +393,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 left={<TextInput.Icon icon="ruler" />}
                 name="bodyMeasurements.rightArmCircumference" label="Braço Direito"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
               <FormField
                 control={control}
@@ -370,6 +404,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.leftArmCircumference"
                 label="Braço Esquerdo"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
             </Card.Content>
           </Card>
@@ -385,6 +421,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.rightThighCircumference"
                 label="Coxa Direita"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
               <FormField
                 control={control}
@@ -394,6 +432,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.leftThighCircumference"
                 label="Coxa Esquerda"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
               <FormField
                 control={control}
@@ -403,6 +443,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.rightCalfCircumference"
                 label="Panturrilha Direita"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
               <FormField
                 control={control}
@@ -412,6 +454,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMeasurements.leftCalfCircumference"
                 label="Panturrilha Esquerda"
                 type="text"
+                right={<TextInput.Affix text=" cm" />}
+
               />
             </Card.Content>
           </Card>
@@ -427,6 +471,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMass.muscleMass"
                 label="Massa Muscular"
                 type="text"
+                right={<TextInput.Affix text=" kg" />}
+
               />
               <FormField
                 control={control}
@@ -436,6 +482,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="bodyMass.boneMass"
                 label="Massa Óssea"
                 type="text"
+                right={<TextInput.Affix text=" kg" />}
+
               />
             </Card.Content>
           </Card>
@@ -451,6 +499,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="heartRate.restingHeartRate"
                 label="Em repouso"
                 type="text"
+                right={<TextInput.Affix text=" bpm" />}
+
               />
               <FormField
                 control={control}
@@ -460,6 +510,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 name="heartRate.maxHeartRate"
                 label="Máxima"
                 type="text"
+                right={<TextInput.Affix text=" bpm" />}
+
               />
             </Card.Content>
           </Card>
@@ -471,7 +523,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
               <FormField
                 control={control}
                 mode="flat"
-                keyboardType="numeric"
                 left={<TextInput.Icon icon="bandage" />}
                 name="medicalHistory.injuryHistory"
                 label="Lesões Anteriores"
@@ -480,7 +531,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
               <FormField
                 control={control}
                 mode="flat"
-                keyboardType="numeric"
                 left={<TextInput.Icon icon="stethoscope" />}
                 name="medicalHistory.medicalConditions"
                 label="Condições Médicas"
@@ -489,7 +539,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
               <FormField
                 control={control}
                 mode="flat"
-                keyboardType="numeric"
                 left={<TextInput.Icon icon="pill" />}
                 name="medicalHistory.chronicPain"
                 label="Dores Crônicas"
