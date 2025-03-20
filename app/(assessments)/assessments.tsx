@@ -12,8 +12,8 @@ import FilterInput from '@/components/FilterInput';
 import { useStudent } from '../context/StudentContext';
 import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
-import { getWorkoutsSummary } from '@/api/workout/workout.api';
 import { formatDate, getNextMonth } from '@/common/common';
+import { getAssessmentsSummary } from '@/api/assessments/assessments.api';
 
 const Assessments = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>({ name: '' });
@@ -23,8 +23,8 @@ const Assessments = ({ navigation }: any) => {
 
 
   const { data: assessmentsSummary, isLoading } = useQuery({
-    queryKey: ['getRelationship', params],
-    queryFn: () => getWorkoutsSummary(user?.id!, params),
+    queryKey: ['getAssessmentsSummary', params],
+    queryFn: () => getAssessmentsSummary(user?.id!, params),
     enabled: !!user?.id,
   });
 

@@ -84,7 +84,7 @@ export const getAssessmentsSummary = async (
   params?: Record<string, string>,
 ) => {
   try {
-    const response = await api.get<[]>(
+    const response = await api.get<any[]>(
       `/physical-assessment/teachers/${teacherId}/summary`,
       {
         params,
