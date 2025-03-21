@@ -13,12 +13,13 @@ import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate, getNextMonth } from '@/common/common';
 import { getAssessmentsSummary } from '@/api/assessments/assessments.api';
+import SelectStudent from '@/components/SelectStudent';
 
 const Assessments = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>({ name: '' });
   const { refetchStudent } = useStudent();
   const { user } = useUser();
-  const [value, setValue] = useState('workouts');
+  const [value, setValue] = useState('assessments');
 
 
   const { data: assessmentsSummary, isLoading } = useQuery({
@@ -51,6 +52,13 @@ const Assessments = ({ navigation }: any) => {
             />
             <FilterInput placeholder="Pesquisar aluno(a)" onChange={(value) => setParams({ name: value })} />
 
+            {value === 'students' && (
+              <SelectStudent
+                teacherId={user?.id!}
+                onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('DetailsAssessments' as never) }}
+                filterName={params?.name}
+              />
+            )}
           </View>
         }
         renderItem={({ item }) => <>
@@ -80,7 +88,6 @@ const Assessments = ({ navigation }: any) => {
                 <Text variant="bodySmall" style={{ fontSize: 16, color: 'blue', fontWeight: '500', marginBottom: 20 }}>
                   {getNextMonth(item.createdAt)}
                 </Text>
-                {/* <Chip>{item.workoutType}</Chip> */}
               </Card.Content>
             </Card>
           }
