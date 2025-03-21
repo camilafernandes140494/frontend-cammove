@@ -5,8 +5,7 @@ import {
   SegmentedButtons,
   Text,
   Card,
-  IconButton,
-  Chip
+  IconButton
 } from 'react-native-paper';
 import FilterInput from '@/components/FilterInput';
 import { useStudent } from '../context/StudentContext';
@@ -81,7 +80,7 @@ const Assessments = ({ navigation }: any) => {
                 <Text variant="bodySmall" style={{ fontSize: 16, color: 'blue', fontWeight: '500', marginBottom: 20 }}>
                   {getNextMonth(item.createdAt)}
                 </Text>
-                <Chip>{item.workoutType}</Chip>
+                {/* <Chip>{item.workoutType}</Chip> */}
               </Card.Content>
             </Card>
           }
