@@ -7,17 +7,18 @@ import {
   Button
 } from 'react-native-paper';
 import { useStudent } from '../context/StudentContext';
-import { deleteWorkoutsByStudentId, duplicateWorkout, getWorkoutsByStudentId } from '@/api/workout/workout.api';
+import { deleteWorkoutsByStudentId, duplicateWorkout } from '@/api/workout/workout.api';
 import { useQuery } from '@tanstack/react-query';
 import StudentCard from '@/components/StudentCard';
 import Skeleton from '@/components/Skeleton';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
 import CustomModal from '@/components/CustomModal';
+import { getAssessmentsByStudentId } from '@/api/assessments/assessments.api';
 
 export type RootStackParamList = {
   Assessments: undefined;
-  CreateAssessments: { workoutId?: string };
+  CreateAssessments: { assessmentsId?: string };
 };
 
 const DetailsAssessments = () => {
@@ -29,9 +30,9 @@ const DetailsAssessments = () => {
   const [isLoadingButtonDelete, setIsLoadingButtonDelete] = useState(false);
   const { user } = useUser();
 
-  const { data: workoutsStudent, isLoading, refetch } = useQuery({
-    queryKey: ['getWorkoutsByStudentId', student?.id],
-    queryFn: () => getWorkoutsByStudentId(student?.id || ''),
+  const { data: assessmentsStudent, isLoading, refetch } = useQuery({
+    queryKey: ['getAssessmentsByStudentId', student?.id],
+    queryFn: () => getAssessmentsByStudentId(student?.id || ''),
     enabled: !!student?.id
   });
 
@@ -54,7 +55,7 @@ const DetailsAssessments = () => {
       await duplicateWorkout(workoutId, student?.id || '', user?.id || '');
       refetch()
     } catch (error) {
-      console.error('Erro ao criar exercício:', error);
+      console.error('Erro ao criar avaliação:', error);
     } finally {
       setIsLoadingButton(false);
     }
@@ -74,8 +75,8 @@ const DetailsAssessments = () => {
               <Button
                 icon="plus"
                 mode='text'
-                onPress={() => navigation.navigate('CreateAssessments', { workoutId: student?.id })}
-              >Novo treino
+                onPress={() => navigation.navigate('CreateAssessments', { assessmentsId: student?.id })}
+              >Nova avaliação
               </Button>
             }
           />
@@ -93,24 +94,24 @@ const DetailsAssessments = () => {
           </Snackbar>
         </>
       }
-      data={workoutsStudent}
+      data={assessmentsStudent}
       keyExtractor={(item) => String(item)}
       renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
       >
         <Card.Title
-          title="Treino"
+          title="Avaliação"
           subtitle={`ID ${item}`}
-          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateAssessments', { workoutId: item }) }} />}
+          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateAssessments', { assessmentsId: item }) }} />}
         />
         <Card.Actions>
 
           <CustomModal
             onPress={() => handleDelete(item)}
-            title='Tem certeza que deseja deletar o treino?'
+            title='Tem certeza que deseja deletar a avaliação?'
             primaryButtonLabel='Deletar' />
           <CustomModal
             onPress={() => handleDuplicate(item)}
-            title='Tem certeza que deseja duplicar o treino?'
+            title='Tem certeza que deseja duplicar a avaliação?'
             primaryButtonLabel="Duplicar"
             trigger={<Button
               disabled={isLoadingButton}

@@ -31,7 +31,7 @@ const CreateAssessments = () => {
         <Appbar.Content title="Cadastrar avaliação" />
       </Appbar.Header>
       {!newStudent && <StudentCard>
-        {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId} {formattedDate}</Text>}
+        {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId}</Text>}
         <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>{`Criado em: ${formattedDate}`}</Text>
       </StudentCard>}
 
