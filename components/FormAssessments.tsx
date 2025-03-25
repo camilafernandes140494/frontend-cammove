@@ -300,8 +300,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 label="Peso"
                 type="text"
                 right={<TextInput.Affix text=" kg" />}
-
-
               />
               <FormField
                 control={control}

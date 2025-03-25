@@ -13,6 +13,7 @@ import { postLogin } from '@/api/auth/auth.api';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
 import { useNavigation } from '@react-navigation/native';
+import { getUserById } from '@/api/users/users.api';
 
 const Login = () => {
     const navigation = useNavigation();
@@ -36,8 +37,10 @@ const Login = () => {
         setIsLoadingButton(true)
         try {
             const userCredential = await postLogin(values);
-            setUser({ id: userCredential.user_id, token: userCredential.uid });
-            login({ id: userCredential.user_id, token: userCredential.uid })
+            const user = await getUserById(userCredential.user_id);
+
+            setUser({ id: userCredential.user_id, token: userCredential.uid, });
+            login({ id: userCredential.user_id, token: userCredential.uid, name: user.name, gender: user.gender, permission: user.permission })
             navigation.navigate('Home' as never);
         } catch (error) {
             setVisible(true);
