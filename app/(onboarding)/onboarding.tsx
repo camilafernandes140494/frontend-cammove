@@ -78,11 +78,11 @@ const Onboarding = () => {
     }) => {
         try {
             if (!userById) {
-                await postUser(user.id!, values);
+                await postUser(user?.id!, values);
                 console.log('cadastrou');
                 refetch();
             } else {
-                await patchUser(user.id!, values);
+                await patchUser(user?.id!, values);
                 console.log('atualizou');
                 refetch();
             }
@@ -103,7 +103,7 @@ const Onboarding = () => {
 
             }}
         >
-            {!user.id && isLoading ? (
+            {!user?.id && isLoading ? (
                 <Skeleton style={{ width: '90%', height: 500, borderRadius: 20 }} />
             ) : (
                 <View style={{ marginTop: 50, }}>
@@ -140,7 +140,7 @@ const Onboarding = () => {
                                                 name: '',
                                                 gender: null,
                                                 birthDate: '',
-                                                image:'',
+                                                image: '',
                                                 permission: status as PERMISSION,
                                             })
                                         }
