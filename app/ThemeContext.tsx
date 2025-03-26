@@ -36,6 +36,11 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 
   const backgroundCard = {
     card: {
+      feedback: {
+        background: '#D4EDDA',
+        text: { primary: '#155724', secondary: "#6C757D" },
+        button: '#218838'
+      },
       blue: {
         background: {
           default: '#ADD8E6', // Azul Claro Suave
@@ -67,6 +72,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
         border: {
           default: '#B8A58C', // Bege mais neutro para bordas, se necessário
         },
+
       },
       purple: {
         background: {
