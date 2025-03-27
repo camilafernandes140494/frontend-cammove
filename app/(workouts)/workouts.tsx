@@ -18,6 +18,7 @@ import { getWorkoutsSummaryResponse } from '@/api/workout/workout.types';
 import { useStudent } from '../context/StudentContext';
 import SelectStudent from '@/components/SelectStudent';
 import { useUser } from '../UserContext';
+import { useTheme } from '../ThemeContext';
 
 const Workouts = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
@@ -26,7 +27,7 @@ const Workouts = ({ navigation }: any) => {
   const { refetchStudent } = useStudent();
   const [value, setValue] = useState('workouts');
   const { user } = useUser();
-
+  const { theme } = useTheme();
 
   const { data: workoutsSummary, isLoading } = useQuery({
     queryKey: ['getRelationship', params],
@@ -61,7 +62,7 @@ const Workouts = ({ navigation }: any) => {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Appbar.Header mode='small'>
         <Appbar.Content title="Treinos" />
         <Button icon="plus" mode="contained" onPress={() => navigation.navigate('CreateWorkout', { workoutId: undefined })}>

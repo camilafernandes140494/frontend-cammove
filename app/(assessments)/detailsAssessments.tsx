@@ -15,6 +15,7 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
 import CustomModal from '@/components/CustomModal';
 import { getAssessmentsByStudentId } from '@/api/assessments/assessments.api';
+import { useTheme } from '../ThemeContext';
 
 export type RootStackParamList = {
   Assessments: undefined;
@@ -26,6 +27,7 @@ const DetailsAssessments = () => {
   const { student } = useStudent();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const { theme } = useTheme();
 
   const [isLoadingButtonDelete, setIsLoadingButtonDelete] = useState(false);
   const { user } = useUser();
@@ -62,7 +64,7 @@ const DetailsAssessments = () => {
   };
   return (
     <FlatList
-      style={{ flex: 1, }}
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       ListHeaderComponent={
         <>
@@ -108,7 +110,9 @@ const DetailsAssessments = () => {
           <CustomModal
             onPress={() => handleDelete(item)}
             title='Tem certeza que deseja deletar a avaliação?'
-            primaryButtonLabel='Deletar' />
+            primaryButtonLabel='Deletar'
+          />
+
           <CustomModal
             onPress={() => handleDuplicate(item)}
             title='Tem certeza que deseja duplicar a avaliação?'

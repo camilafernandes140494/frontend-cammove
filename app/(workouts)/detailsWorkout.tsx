@@ -14,6 +14,7 @@ import Skeleton from '@/components/Skeleton';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
 import CustomModal from '@/components/CustomModal';
+import { useTheme } from '../ThemeContext';
 
 export type RootStackParamList = {
   Workouts: undefined;
@@ -25,6 +26,7 @@ const DetailsWorkout = () => {
   const { student } = useStudent();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const { theme } = useTheme();
 
   const [isLoadingButtonDelete, setIsLoadingButtonDelete] = useState(false);
   const { user } = useUser();
@@ -61,7 +63,7 @@ const DetailsWorkout = () => {
   };
   return (
     <FlatList
-      style={{ flex: 1, }}
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       ListHeaderComponent={
         <>
@@ -103,7 +105,7 @@ const DetailsWorkout = () => {
           right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item }) }} />}
         />
         <Card.Actions>
-          
+
           <CustomModal
             onPress={() => handleDelete(item)}
             title='Tem certeza que deseja deletar o treino?'

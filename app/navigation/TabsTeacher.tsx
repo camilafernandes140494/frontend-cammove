@@ -4,12 +4,22 @@ import ExercisesNavigator from './ExercisesNavigator';
 import WorkoutsNavigator from './WorkoutsNavigator';
 import HomeNavigator from './HomeNavigator';
 import AssessmentsNavigator from './AssessmentsNavigator';
+import { useTheme } from '../ThemeContext';
 
 const Tab = createBottomTabNavigator();
 
 function TabsTeacher() {
+  const { isDarkMode, theme } = useTheme();
+
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{
+      tabBarStyle: {
+        backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF', // Fundo da tab bar
+        borderTopColor: isDarkMode ? '#333' : '#ddd', // Cor da borda superior
+      },
+      tabBarActiveTintColor: isDarkMode ? theme.colors.onPrimaryContainer : '#6200EE', // Cor do ícone ativo
+      tabBarInactiveTintColor: isDarkMode ? '#AAAAAA' : '#666666', // Cor do ícone inativo
+    }}>
       <Tab.Screen name="HomeScreen" component={HomeNavigator} options={{
         headerShown: false,
         tabBarLabel: "Home",

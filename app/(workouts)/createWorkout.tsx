@@ -24,7 +24,7 @@ const CreateWorkout = () => {
 
     return (
         <FlatList
-            style={{ flex: 1, }}
+            style={{ flex: 1, backgroundColor: theme.colors.background }}
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
             ListHeaderComponent={
                 <>

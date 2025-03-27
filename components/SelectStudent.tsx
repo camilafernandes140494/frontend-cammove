@@ -14,7 +14,7 @@ interface UserListProps {
 }
 
 const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
-    const { theme } = useTheme();
+    const { theme, isDarkMode } = useTheme();
     const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
     const [studentsFilter, setStudentsFilter] = useState<Student[]>();
 
@@ -50,7 +50,7 @@ const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
                         mode='outlined'
                         style={{
                             marginVertical: 10,
-                            backgroundColor: selectedStudent === item.studentId ? theme.colors.primaryContainer : 'white',
+                            backgroundColor: selectedStudent === item.studentId ? theme.colors.primaryContainer : isDarkMode ? theme.colors.background : 'white',
                             borderRadius: 16,
                             borderColor: selectedStudent === item.studentId ? theme.colors.primary : undefined,
                         }}

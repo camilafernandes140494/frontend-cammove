@@ -11,8 +11,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { deleteExercise, getExercises } from '@/api/exercise/exercise.api';
 import CustomModal from '@/components/CustomModal';
+import { useTheme } from '../ThemeContext';
 
 const Exercises = ({ navigation }: any) => {
+    const { theme } = useTheme();
 
     const [params, setParams] = useState<{ name: string }>();
 
@@ -33,7 +35,7 @@ const Exercises = ({ navigation }: any) => {
 
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Appbar.Header mode='small'>
                 <Appbar.Content title="Exercícios" />
                 <Button

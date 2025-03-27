@@ -14,13 +14,14 @@ import { useQuery } from '@tanstack/react-query';
 import { formatDate, getNextMonth } from '@/common/common';
 import { getAssessmentsSummary } from '@/api/assessments/assessments.api';
 import SelectStudent from '@/components/SelectStudent';
+import { useTheme } from '../ThemeContext';
 
 const Assessments = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>({ name: '' });
   const { refetchStudent } = useStudent();
   const { user } = useUser();
   const [value, setValue] = useState('assessments');
-
+  const { theme } = useTheme();
 
   const { data: assessmentsSummary, isLoading } = useQuery({
     queryKey: ['getAssessmentsSummary', params],
@@ -29,7 +30,7 @@ const Assessments = ({ navigation }: any) => {
   });
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Appbar.Header mode='small'>
         <Appbar.Content title="Avaliação" />
         <Button icon="plus" mode="contained" onPress={() => navigation.navigate('CreateAssessments', { workoutId: undefined })}>
