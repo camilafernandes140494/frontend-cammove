@@ -163,17 +163,17 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       onError: 'rgb(105, 0, 5)',
       errorContainer: 'rgb(147, 0, 10)',
       onErrorContainer: 'rgb(255, 180, 171)',
-      background: 'rgb(29, 27, 30)',
-      onBackground: 'rgb(231, 225, 229)',
-      surface: 'rgb(29, 27, 30)',
-      onSurface: 'rgb(231, 225, 229)',
+      background: 'rgb(55, 53, 60)', // Tom mais claro e suave
+      onBackground: 'rgb(245, 240, 245)', // Um tom muito mais claro para contraste suave
+      surface: 'rgb(60, 58, 65)', // Superfície também mais suave
+      onSurface: 'rgb(245, 240, 245)', // Contraste mais suave no texto
       surfaceVariant: 'rgb(74, 69, 78)',
       onSurfaceVariant: 'rgb(204, 196, 206)',
       outline: 'rgb(150, 142, 152)',
       outlineVariant: 'rgb(74, 69, 78)',
       shadow: 'rgb(0, 0, 0)',
       scrim: 'rgb(0, 0, 0)',
-      inverseSurface: 'rgb(231, 225, 229)',
+      inverseSurface: 'rgb(240, 234, 238)', // Cor de fundo invertida mais suave
       inverseOnSurface: 'rgb(50, 47, 51)',
       inversePrimary: 'rgb(120, 69, 172)',
       elevation: {
@@ -189,6 +189,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       backdrop: 'rgba(51, 47, 55, 0.4)',
     },
   };
+
 
   // Selecionar o tema atual com base no estado
   const theme = isDarkMode ? CustomDarkTheme : LightTheme;
