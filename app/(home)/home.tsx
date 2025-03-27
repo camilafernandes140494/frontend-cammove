@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 const Home = () => {
     const { user, setUser } = useUser();
     const [visible, setVisible] = useState(false);
-    const { theme } = useTheme();
+    const { theme, toggleTheme, isDarkMode } = useTheme();
     const [rating, setRating] = useState(0);
 
     const modalSchema = z.object({
@@ -53,7 +53,7 @@ const Home = () => {
     type IoniconName = keyof typeof Ionicons.glyphMap;
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Appbar.Header mode='small'>
                 <Appbar.Content title="CamMove" />
                 <Appbar.Action icon="bell-outline" onPress={() => { }} />
@@ -62,9 +62,16 @@ const Home = () => {
                 <Avatar.Text label={getInitials(user?.name || '')} />
 
                 <View style={{ display: 'flex', marginHorizontal: 16 }}>
-                    <Text variant="headlineMedium" >
-                        Olá, {user?.name}
-                    </Text>
+                    <View style={{ display: 'flex', flexDirection: "row", alignItems: 'center', justifyContent: "space-between", width: '90%' }}>
+                        <Text variant="headlineMedium" >
+                            Olá, {user?.name}
+                        </Text>
+                        <Ionicons name={isDarkMode ? "moon-outline" : "sunny-outline"}
+                            size={24} onPress={toggleTheme} color={theme.colors.onBackground} />
+
+                    </View>
+
+
 
                     <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
 
@@ -124,44 +131,47 @@ const Home = () => {
                     }}
                 >
                     {[
-                        { label: 'Total de alunos', value: 10, icon: 'person-outline' },
-                        { label: 'Alunos ativos', value: 50, icon: 'person-outline' },
-                        { label: 'Alunos inativos', value: 30, icon: 'person-outline' },
+                        {
+                            label: 'Total de alunos', value: 10, icon: 'people-outline', backgroundColor: theme.colors.primary, color: theme.colors.onPrimary,
+                        },
+                        {
+                            label: 'Alunos ativos', value: 50, icon: 'person-outline',
+                            backgroundColor: theme.colors.card.feedback.background, color: theme.colors.card.feedback.text.primary,
+                        },
+                        { label: 'Alunos inativos', value: 30, icon: 'warning-outline', backgroundColor: theme.colors.error, color: theme.colors.onError, },
 
                     ].map((item, index) => (
-
                         <View
                             key={index}
                             style={{
-                                backgroundColor: theme.colors.card.feedback.background,
+                                backgroundColor: item.backgroundColor,
                                 borderRadius: 16,
-                                width: '48%', // Distribui 2 colunas
-                                marginBottom: 10, // Espaçamento entre as linhas
-                                padding: 12, // Adiciona um pouco de espaço interno
+                                width: '32%', // Agora são 3 colunas
+                                marginBottom: 10,
+                                padding: 12,
+                                alignItems: 'center', // Centraliza os textos e ícones
                             }}
                         >
-                            <Ionicons name={item.icon as IoniconName} size={24} />
+                            <Ionicons name={item.icon} size={24} color={item.color} />
                             <Text
                                 variant="headlineSmall"
-                                style={{ color: theme.colors.card.feedback.text.primary }}
+                                style={{ color: item.color, textAlign: 'center' }}
                             >
                                 {item.value}
                             </Text>
                             <Text
                                 variant="bodyLarge"
-                                style={{ color: theme.colors.card.feedback.text.primary }}
+                                style={{ color: item.color, textAlign: 'center' }}
                             >
                                 {item.label}
                             </Text>
                         </View>
                     ))}
-
                 </View>
 
-                <Card>
+                <Card >
                     <Card.Title
                         title="Gerenciar Alunos"
-                        subtitle="Adicione e visualize alunos facilmente."
                     />
                     <Card.Cover style={{ height: 300 }} source={require('@/assets/images/student.png')} />
                     <Card.Actions>
@@ -169,6 +179,7 @@ const Home = () => {
                         <Button >Adicionar</Button>
                     </Card.Actions>
                 </Card>
+
                 <View style={{ backgroundColor: theme.colors.card.feedback.background, borderRadius: 16 }}>
                     <Card.Title
                         title="Feedbacks dos treinos"
