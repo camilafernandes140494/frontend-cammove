@@ -152,7 +152,7 @@ const Home = () => {
                                 alignItems: 'center', // Centraliza os textos e ícones
                             }}
                         >
-                            <Ionicons name={item.icon} size={24} color={item.color} />
+                            <Ionicons name={item.icon as IoniconName} size={24} color={item.color} />
                             <Text
                                 variant="headlineSmall"
                                 style={{ color: item.color, textAlign: 'center' }}
