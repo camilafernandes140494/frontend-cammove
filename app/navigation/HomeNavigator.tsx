@@ -2,6 +2,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StudentProvider } from '../context/StudentContext';
 import { useUser } from '../UserContext';
 import Home from '../(home)/home';
+import StudentProfile from '../(home)/studentProfile';
 
 
 const Stack = createStackNavigator();
@@ -13,6 +14,8 @@ function HomeNavigator() {
         <StudentProvider studentCode={user?.id || ''}>
             <Stack.Navigator>
                 <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+                <Stack.Screen name="StudentProfile" component={StudentProfile} options={{ headerShown: false }} />
+
             </Stack.Navigator>
         </StudentProvider>
 
