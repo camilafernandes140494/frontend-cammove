@@ -12,11 +12,17 @@ import {
 import { postCreateUser } from '@/api/auth/auth.api';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+
+
+export type RootOnboardingStackParamList = {
+  createUser: undefined;
+  Onboarding: { email?: string };
+};
 
 const CreateUser = () => {
   const { theme } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootOnboardingStackParamList>>();
   const { setUser } = useUser();
   const [showPassword, setShowPassword] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -31,12 +37,16 @@ const CreateUser = () => {
       .required('A senha é obrigatória'),
   });
 
+
+
+
   const handleLogin = async (values: { email: string; password: string }) => {
     setIsLoadingButton(true)
     try {
       const userCredential = await postCreateUser(values);
       setUser({ id: userCredential.uid });
-      navigation.navigate('Onboarding' as never);
+      navigation.navigate('Onboarding', { email: values.email });
+
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
     } finally {

@@ -8,6 +8,7 @@ export type UserType = {
   permission: PERMISSION | null;
   gender: string | null;
   image: string | null;
+  email: string | null;
   token: string | null;
 };
 
@@ -52,6 +53,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         permission: prevUser?.permission ?? null,
         gender: prevUser?.gender ?? null,
         image: prevUser?.image ?? null,
+        email: prevUser?.email ?? null,
         token: prevUser?.token ?? null,
         ...newUser,
       };

@@ -73,7 +73,7 @@ const Home = () => {
                 <Avatar.Text label={getInitials(user?.name || '')} />
 
                 <View style={{ display: 'flex', marginHorizontal: 16 }}>
-                    <View style={{ display: 'flex', flexDirection: "row", alignItems: 'center', justifyContent: "space-between", width: '90%' }}>
+                    <View style={{ display: 'flex', flexDirection: "row", alignItems: 'center', justifyContent: "space-between", width: '85%', gap: 16 }}>
                         <Text variant="headlineMedium" >
                             Olá, {user?.name}
                         </Text>
