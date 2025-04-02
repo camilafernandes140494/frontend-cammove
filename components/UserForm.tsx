@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 
 interface UserFormProps {
     color?: string;
-    onSubmit: (values: { name: string; gender: null; birthDate: string; image: string, permission: PERMISSION }) => void;
+    onSubmit: (values: { name: string; gender: null; birthDate: string; image: string, permission: PERMISSION, email: string }) => void;
 
 }
 
@@ -32,12 +32,12 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
 
     const formik = useFormik({
         initialValues: {
-            name: "", birthDate: "", gender: null, permission: user.permission, image: ""
+            name: "", birthDate: "", gender: null, permission: user?.permission || 'STUDENT', image: "", email: ''
         },
         validationSchema: validationSchema,
         enableReinitialize: true,
         onSubmit: (value) => {
-            onSubmit(value), setUser(value), setShowListTeacher(true), navigation.navigate('Onboarding' as never);
+            onSubmit(value), setUser(value), setShowListTeacher(true)
         },
         validateOnChange: false,
     });
@@ -50,7 +50,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         setFieldValue('birthDate', selectedDate)
     };
 
-
+    const [date, setDate] = useState(new Date())
     return (
         <View style={{ padding: 20 }}>
             <Snackbar
@@ -82,6 +82,19 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
 
                     <Text variant='titleMedium' style={{ marginTop: 20 }}>Selecione sua data de nascimento</Text>
 
+                    {/* <DatePicker
+                        modal
+                        open={showDatePicker}
+                        date={date}
+                        onConfirm={(selectedDate) => {
+                            setDate(selectedDate)
+                            setShowDatePicker(false);
+                            setFieldValue('birthDate', selectedDate)
+                        }}
+                        onCancel={() => {
+                            setShowDatePicker(false)
+                        }}
+                    /> */}
                     {/* {showDatePicker && (
                         <DateTimePicker
                             value={values.birthDate ? new Date(values.birthDate) : new Date()}
@@ -91,7 +104,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                         />
                     )} */}
 
-                    <Button mode='outlined' onPress={() => setShowDatePicker(true)} style={{ marginTop: 20 }}
+                    <Button mode='outlined' onPress={() => { setFieldValue('birthDate', '14/04/1994'), setShowDatePicker(true) }} style={{ marginTop: 20 }}
                     >
                         {values.birthDate ? new Date(values.birthDate).toLocaleDateString("pt-BR") : "Selecionar Data de Nascimento"}
                     </Button>
@@ -139,7 +152,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                 </Card>
             </FormikProvider>}
 
-            {showListTeacher && user.permission === 'STUDENT' &&
+            {showListTeacher && user?.permission === 'STUDENT' &&
                 <UserList params={{ permission: 'TEACHER' }} navigation={navigation} />}
         </View >
     );

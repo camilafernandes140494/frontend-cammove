@@ -1,45 +1,56 @@
-import React, { useState } from 'react';
-import { FlatList } from 'react-native';
+import React from 'react';
+import { FlatList, View } from 'react-native';
 import {
-  Text, Appbar
+  Text, Avatar,
+  Surface,
+  Divider
 } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { useStudent } from '../context/StudentContext';
+import { useRoute } from '@react-navigation/native';
 import { useUser } from '../UserContext';
-import StudentCard from '@/components/StudentCard';
 import { useTheme } from '../ThemeContext';
+import { calculateAge, getInitials } from '@/common/common';
+import InfoField from '@/components/InfoField';
+import { getUserById } from '@/api/users/users.api';
+import { useQuery } from '@tanstack/react-query';
 
 const StudentProfile = () => {
-  const navigation = useNavigation();
   const route = useRoute();
   const { user } = useUser();
-  const { refetchStudent } = useStudent();
-  const [params, setParams] = useState('');
   const { studentProfileId } = route.params as { studentProfileId: string | undefined };
-  const [newStudent, setNewStudent] = useState(!studentProfileId);
   const { theme } = useTheme();
+
+  const { data: studentId } = useQuery({
+    queryKey: ['studentId', studentProfileId],
+    queryFn: () => getUserById(studentProfileId || ''),
+    enabled: !!studentProfileId,
+  });
+
 
   return (
     <FlatList
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-      ListHeaderComponent={
-        <>
-          <Appbar.Header>
-            <Appbar.BackAction onPress={() => navigation.navigate('Home' as never)} />
-            <Appbar.Content title="Perfil do aluno" />
-          </Appbar.Header>
-          {!newStudent && <StudentCard>
-            {studentProfileId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {studentProfileId}</Text>}
-          </StudentCard>}
-        </>
-      }
       data={[{}]}
       keyExtractor={() => 'header'}
       renderItem={() =>
         <>
+          <View style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <Avatar.Text label={getInitials(user?.name || '')} />
+            <Text variant="headlineMedium">{user?.name}</Text>
+          </View>
+          <Surface elevation={2} style={{ display: 'flex', gap: 16, margin: 16, padding: 16 }}>
+            <InfoField title='Data de Nascimento' description={`${calculateAge(studentId?.birthDate || '')} anos`} />
+            <Divider />
+            <InfoField title='E-mail' description={user?.email || ''} />
 
+            <Divider />
+            <InfoField title='Gênero' description={user?.gender || ''} />
+            <Divider />
+            <Text> Data de Nascimento: 15/08/1995 (29 anos)</Text>
+
+          </Surface>
         </>
+
 
       }
     />
