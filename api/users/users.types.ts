@@ -6,6 +6,8 @@ export type PostUser = {
   gender: GENDER;
   birthDate: string;
   permission: PERMISSION;
+  image: string;
+  email: string;
 };
 
 export type Users = {

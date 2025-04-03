@@ -19,6 +19,7 @@ import { useStudent } from '../context/StudentContext';
 export type RootHomeStackParamList = {
     home: undefined;
     StudentProfile: { studentProfileId?: string };
+    RegisterUserByTeacher: undefined
 };
 
 const Home = () => {
@@ -202,7 +203,7 @@ const Home = () => {
                         <Card.Cover style={{ height: 300 }} source={require('@/assets/images/student.png')} />
                         <Card.Actions>
                             <Button onPress={() => setShowStudent(true)}>Ver</Button>
-                            <Button >Adicionar</Button>
+                            <Button onPress={() => navigation.navigate('RegisterUserByTeacher')}>Adicionar</Button>
                         </Card.Actions>
                     </Card>
 
