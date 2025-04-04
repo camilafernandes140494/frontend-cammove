@@ -2,13 +2,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import ExercisesNavigator from './ExercisesNavigator';
 import WorkoutsNavigator from './WorkoutsNavigator';
-import HomeNavigator from './HomeNavigator';
 import AssessmentsNavigator from './AssessmentsNavigator';
 import { useTheme } from '../ThemeContext';
+import HomeStudentNavigator from './HomeStudentNavigator';
 
 const Tab = createBottomTabNavigator();
 
-function TabsTeacher() {
+function TabsStudent() {
   const { isDarkMode, theme } = useTheme();
 
   return (
@@ -20,7 +20,7 @@ function TabsTeacher() {
       tabBarActiveTintColor: isDarkMode ? theme.colors.onPrimaryContainer : '#6200EE', // Cor do ícone ativo
       tabBarInactiveTintColor: isDarkMode ? '#AAAAAA' : '#666666', // Cor do ícone inativo
     }}>
-      <Tab.Screen name="HomeScreen" component={HomeNavigator} options={{
+      <Tab.Screen name="HomeScreen" component={HomeStudentNavigator} options={{
         headerShown: false,
         tabBarLabel: "Início",
         tabBarIcon: ({ color, size }) => (
@@ -43,9 +43,9 @@ function TabsTeacher() {
       }} />
       <Tab.Screen name="ExercisesScreen" component={ExercisesNavigator} options={{
         headerShown: false,
-        tabBarLabel: "Exercícios",
+        tabBarLabel: "Agendamentos",
         tabBarIcon: ({ color, size }) => (
-          <Ionicons name="barbell" size={size} color={color} />
+          <Ionicons name="calendar-outline" size={size} color={color} />
         ),
       }} />
 
@@ -53,4 +53,4 @@ function TabsTeacher() {
   );
 }
 
-export default TabsTeacher;
+export default TabsStudent;
