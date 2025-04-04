@@ -8,6 +8,21 @@ export function formatDate(dateString: string | Date): string {
     return `${day}/${month}/${year}`;
 }
 
+export const maskDateInput = (text: string) => {
+    // Remove tudo que não for número
+    const cleaned = text.replace(/\D/g, "");
+
+    // Aplica a máscara
+    let formatted = cleaned;
+    if (cleaned.length >= 3 && cleaned.length <= 4) {
+        formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+    } else if (cleaned.length > 4) {
+        formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
+    }
+
+    return formatted;
+};
+
 export function getNextMonth(dateString: string): string {
     const date = new Date(dateString);
     date.setMonth(date.getMonth() + 1);

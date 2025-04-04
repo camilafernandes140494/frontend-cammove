@@ -3,12 +3,13 @@ import { View } from "react-native";
 import { TextInput, Switch, HelperText, Button, Menu, Text, RadioButton, Checkbox, TextInputProps, Chip } from "react-native-paper";
 import { Controller } from "react-hook-form";
 import { useTheme } from "@/app/ThemeContext";
+import { maskDateInput } from "@/common/common";
 
 interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
   control: any;
   name: string;
   label: string;
-  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip';
+  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip' | 'birthDate';
   options?: any[];
   getLabel?: (option: any) => string;
 }
@@ -23,11 +24,14 @@ export function FormField({ control, name, label, type = "text", options, getLab
       name={name}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View style={{ marginBottom: 10 }}>
-          {type === "text" && (
+          {(type === "text" || type === "birthDate") && (
             <TextInput
               label={label}
               value={value}
-              onChangeText={onChange}
+              onChangeText={(text) => {
+                const newValue = type === "birthDate" ? maskDateInput(text) : text;
+                onChange(newValue);
+              }}
               mode="outlined"
               error={!!error}
               {...textInputProps}
