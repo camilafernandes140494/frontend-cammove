@@ -157,8 +157,10 @@ const RegisterUserByTeacher = () => {
               mode="flat"
               left={<TextInput.Icon icon="calendar" />}
               name="birthDate"
-              label="Idade"
-              type="text"
+              type='birthDate'
+              label="Data de nascimento"
+              maxLength={10}
+              keyboardType="numeric"
             />
             <Text variant='titleMedium' >Escolha o gênero com o qual seu aluno se identifica</Text>
             <FormField

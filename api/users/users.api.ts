@@ -2,7 +2,7 @@
 import api from '../axios';
 import { PostUser, Users } from './users.types';
 
-export const postUser = async (IdUser: string, params: PostUser) => {
+export const postUser = async (IdUser: string, params: Partial<PostUser>) => {
   try {
     const response = await api.post(`/users/${IdUser}`, params);
     return response.data; // Retorna os dados da resposta
@@ -12,7 +12,7 @@ export const postUser = async (IdUser: string, params: PostUser) => {
   }
 };
 
-export const patchUser = async (IdUser: string, params: PostUser) => {
+export const patchUser = async (IdUser: string, params: Partial<PostUser>) => {
   try {
     const response = await api.patch(`/users/${IdUser}`, params);
     return response.data; // Retorna os dados da resposta

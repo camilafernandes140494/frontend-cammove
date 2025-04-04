@@ -10,6 +10,7 @@ export type UserType = {
   image: string | null;
   email: string | null;
   token: string | null;
+  birthDate: string | null;
 };
 
 type UserContextType = {
@@ -55,6 +56,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         image: prevUser?.image ?? null,
         email: prevUser?.email ?? null,
         token: prevUser?.token ?? null,
+        birthDate: prevUser?.birthDate ?? null,
         ...newUser,
       };
 
