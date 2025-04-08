@@ -1,6 +1,6 @@
 // File: api.js
 import api from '../axios';
-import { GetStudentsResponse } from './relationships.types';
+import { GetStudentsResponse, Relationship } from './relationships.types';
 
 export const postRelationship = async (
   teacherId: string,
@@ -30,5 +30,36 @@ export const getRelationship = async (
   } catch (error) {
     console.error('Erro no login:', error);
     throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
+export const getStatusRelationships = async (
+  teacherId: string,
+  studentId: string,
+) => {
+  try {
+    const response = await api.get<Relationship>(
+      `/relationships/teachers/${teacherId}/students/${studentId}`,
+    );
+    return response.data; // Retorna os dados da resposta
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
+export const patchRelationship = async (
+  relationshipsId: string,
+  params?: Record<string, string>,
+) => {
+  try {
+    const response = await api.patch(
+      `/relationships/${relationshipsId}`,
+      params,
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao atualizar vínculo:', error);
+    throw error;
   }
 };
