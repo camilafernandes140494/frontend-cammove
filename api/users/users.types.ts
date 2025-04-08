@@ -1,5 +1,6 @@
 export type PERMISSION = 'ADMIN' | 'STUDENT' | 'TEACHER' | null;
 export type GENDER = 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY' | null;
+export type STATUS = 'ACTIVE' | 'INACTIVE' | null;
 
 export type PostUser = {
   name: string;
@@ -8,6 +9,7 @@ export type PostUser = {
   permission: PERMISSION;
   image: string;
   email: string;
+  status: STATUS;
 };
 
 export type Users = {
@@ -20,4 +22,5 @@ export type Users = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  status: STATUS;
 };
