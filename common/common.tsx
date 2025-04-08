@@ -120,8 +120,19 @@ type IMCCategory =
 
 export function calculateIMC(peso: number, altura: number | string): { imc: number; categoria: IMCCategory } {
     let categoria: IMCCategory;
-    const imc = Number((peso / (Number(altura) * Number(altura))).toFixed(2));
+    const alturaNum = Number(altura);
+    const pesoNum = Number(peso);
 
+    const imcCalculado = pesoNum > 0 && alturaNum > 0
+        ? pesoNum / (alturaNum * alturaNum)
+        : 0;
+
+    const imc = Number(imcCalculado.toFixed(2));
+
+    if (!isFinite(imc) || isNaN(imc) || imc === 0) {
+        categoria = "Não definido";
+        return { imc: 0, categoria };
+    }
 
     if (imc < 18.5) {
         categoria = "Abaixo do peso";
@@ -135,9 +146,6 @@ export function calculateIMC(peso: number, altura: number | string): { imc: numb
         categoria = "Obesidade grau 2";
     } else {
         categoria = "Obesidade grau 3";
-    }
-    if (peso <= 0 || Number(altura) <= 0) {
-        categoria = "Não definido";
     }
 
     return { imc, categoria };
