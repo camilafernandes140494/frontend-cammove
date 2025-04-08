@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Avatar, Card } from 'react-native-paper';
+import { ActivityIndicator, Avatar, Card, Chip } from 'react-native-paper';
 import { FlatList, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/app/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import { getRelationship } from '@/api/relationships/relationships.api';
 import { getInitials } from '@/common/common';
 import { Student } from '@/api/relationships/relationships.types';
+import { Ionicons } from '@expo/vector-icons';
 
 interface UserListProps {
     teacherId: string
@@ -27,7 +28,6 @@ const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
     useEffect(() => {
         if (!students) return;
         let filteredData = students.students;
-
         if (filterName) {
             filteredData = filteredData.filter((student) =>
                 student.studentName.toLowerCase().includes(filterName.toLowerCase())
@@ -60,6 +60,33 @@ const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
                             left={(props) => <Avatar.Text {...props} label={getInitials(item.studentName)} />}
 
                         />
+                        <Card.Content>
+
+                            <Chip
+                                mode="flat"
+                                compact
+                                disabled
+                                icon={() => (
+                                    <Ionicons
+                                        name={item.studentStatus === 'ACTIVE' ? 'checkmark' : 'alert-circle-outline'}
+                                        size={18}
+                                        color={item.studentStatus === 'ACTIVE' ? '#2E7D32' : '#C62828'}
+                                        style={{ marginRight: 4 }}
+                                    />
+
+                                )}
+                                style={{
+                                    backgroundColor: item.studentStatus === 'ACTIVE' ? '#C8E6C9' : '#FFCDD2',
+                                }}
+                                textStyle={{
+                                    color: item.studentStatus === 'ACTIVE' ? '#2E7D32' : '#C62828',
+                                }}
+                            >
+                                {item.studentStatus === 'ACTIVE' ? 'Ativo' : 'Inativo'}
+                            </Chip>
+
+                        </Card.Content>
+
                     </Card>
                 </TouchableOpacity>
             )}

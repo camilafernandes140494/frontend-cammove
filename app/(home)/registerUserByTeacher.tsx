@@ -18,6 +18,7 @@ import { FormField } from '@/components/FormField';
 import { postUser } from '@/api/users/users.api';
 import { postEmail } from '@/api/email/email.api';
 import { GENDER, PERMISSION } from '@/api/users/users.types';
+import { postRelationship } from '@/api/relationships/relationships.api';
 
 const RegisterUserByTeacher = () => {
   const route = useRoute();
@@ -76,16 +77,19 @@ const RegisterUserByTeacher = () => {
         throw new Error("Erro ao obter UID do usuário.");
       }
 
+      const userCreated = await postUser(userCredential.uid, {
+        name: values.name,
+        birthDate: values.birthDate,
+        gender: values.gender as GENDER,
+        permission: values.permission as PERMISSION,
+        image: values.image,
+        email: values.email,
+      });
+
+
       // Criando usuário e enviando e-mail ao mesmo tempo
       await Promise.all([
-        postUser(userCredential.uid, {
-          name: values.name,
-          birthDate: values.birthDate,
-          gender: values.gender as GENDER,
-          permission: values.permission as PERMISSION,
-          image: values.image,
-          email: values.email,
-        }),
+        postRelationship(user?.id!, userCreated.id),
         postEmail({
           body: `
             Olá ${values.name}, <br><br>

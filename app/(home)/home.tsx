@@ -15,6 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import SelectStudent from '@/components/SelectStudent';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useStudent } from '../context/StudentContext';
+import { getRelationship } from '@/api/relationships/relationships.api';
+import { useQuery } from '@tanstack/react-query';
 
 export type RootHomeStackParamList = {
     home: undefined;
@@ -42,6 +44,11 @@ const Home = () => {
         },
     });
 
+    const { data: students, isLoading } = useQuery({
+        queryKey: ['getRelationship', user?.id],
+        queryFn: () => getRelationship(user?.id!),
+        enabled: !!user?.id
+    });
 
     const onSubmit = async (data: any) => {
         try {
@@ -64,6 +71,7 @@ const Home = () => {
 
     type IoniconName = keyof typeof Ionicons.glyphMap;
 
+
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Appbar.Header mode='small'>
@@ -81,8 +89,6 @@ const Home = () => {
                         <Ionicons name={isDarkMode ? "moon-outline" : "sunny-outline"}
                             size={24} onPress={toggleTheme} color={theme.colors.onBackground} />
                     </View>
-
-
 
                     <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
 
@@ -131,11 +137,12 @@ const Home = () => {
                     <Appbar.BackAction onPress={() => setShowStudent(false)} />
                     <Appbar.Content title="Alunos" />
                 </View>
-
-                <SelectStudent
-                    teacherId={user?.id!}
-                    onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('StudentProfile', { studentProfileId: student.studentId }) }}
-                />
+                <View style={{ padding: 20, }}>
+                    <SelectStudent
+                        teacherId={user?.id!}
+                        onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('StudentProfile', { studentProfileId: student.studentId }) }}
+                    />
+                </View>
             </> :
 
                 <ScrollView
@@ -159,13 +166,13 @@ const Home = () => {
                     >
                         {[
                             {
-                                label: 'Total de alunos', value: 10, icon: 'people-outline', backgroundColor: theme.colors.primary, color: theme.colors.onPrimary,
+                                label: 'Total de alunos', value: students?.students.length, icon: 'people-outline', backgroundColor: theme.colors.primary, color: theme.colors.onPrimary,
                             },
                             {
-                                label: 'Alunos ativos', value: 50, icon: 'person-outline',
+                                label: 'Alunos ativos', value: students?.students.filter(student => student.studentStatus === "ACTIVE").length, icon: 'person-outline',
                                 backgroundColor: theme.colors.card.feedback.background, color: theme.colors.card.feedback.text.primary,
                             },
-                            { label: 'Alunos inativos', value: 30, icon: 'warning-outline', backgroundColor: theme.colors.error, color: theme.colors.onError, },
+                            { label: 'Alunos inativos', value: students?.students.filter(student => student.studentStatus === "INACTIVE").length, icon: 'warning-outline', backgroundColor: theme.colors.error, color: theme.colors.onError, },
 
                         ].map((item, index) => (
                             <View

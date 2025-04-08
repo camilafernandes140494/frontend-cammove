@@ -89,15 +89,19 @@ export const getGender = (gender: string) => {
     }
 };
 
+const parseDate = (dateStr: string): Date => {
+    const [day, month, year] = dateStr.split('/');
+    return new Date(Number(year), Number(month) - 1, Number(day));
+};
+
 export const calculateAge = (birthdate: string | Date): number => {
-    const birth = new Date(birthdate);
+    const birth = typeof birthdate === 'string' ? parseDate(birthdate) : birthdate;
     const today = new Date();
 
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
     const dayDiff = today.getDate() - birth.getDate();
 
-    // Ajusta a idade se ainda não fez aniversário no ano atual
     if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
         age--;
     }

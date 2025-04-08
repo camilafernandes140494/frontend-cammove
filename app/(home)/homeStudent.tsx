@@ -178,7 +178,7 @@ const HomeStudent = () => {
 
         <View
           style={{
-            backgroundColor: '#F5F5F5', // muda aqui para a cor que quiser
+            backgroundColor: '#fff', // muda aqui para a cor que quiser
             borderRadius: 12,
             padding: 10,
             elevation: 3,

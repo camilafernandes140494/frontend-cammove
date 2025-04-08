@@ -2,9 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import ExercisesNavigator from './ExercisesNavigator';
 import WorkoutsNavigator from './WorkoutsNavigator';
-import AssessmentsNavigator from './AssessmentsNavigator';
 import { useTheme } from '../ThemeContext';
 import HomeStudentNavigator from './HomeStudentNavigator';
+import AssessmentsStudentNavigator from './AssessmentsStudentNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,7 +27,7 @@ function TabsStudent() {
           <Ionicons name="home" size={size} color={color} />
         ),
       }} />
-      <Tab.Screen name="AssessmentsScreen" component={AssessmentsNavigator} options={{
+      <Tab.Screen name="AssessmentsScreen" component={AssessmentsStudentNavigator} options={{
         headerShown: false,
         tabBarLabel: "Avaliação",
         tabBarIcon: ({ color, size }) => (
