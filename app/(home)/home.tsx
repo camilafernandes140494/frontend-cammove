@@ -44,9 +44,9 @@ const Home = () => {
         },
     });
 
-    const { data: students, isLoading } = useQuery({
+    const { data: students } = useQuery({
         queryKey: ['getRelationship', user?.id],
-        queryFn: () => getRelationship(user?.id!),
+        queryFn: () => getRelationship(user?.id!,),
         enabled: !!user?.id
     });
 
@@ -140,6 +140,8 @@ const Home = () => {
                 <View style={{ padding: 20, }}>
                     <SelectStudent
                         teacherId={user?.id!}
+                        studentStatus={null}
+                        showStatus={true}
                         onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('StudentProfile', { studentProfileId: student.studentId }) }}
                     />
                 </View>
@@ -204,10 +206,10 @@ const Home = () => {
                     </View>
 
                     <Card >
-                        <Card.Title
-                            title="Gerenciar Alunos"
-                        />
-                        <Card.Cover style={{ height: 300 }} source={require('@/assets/images/student.png')} />
+                        <Card.Content>
+                            <Text variant='titleMedium'>Gerenciar Alunos</Text>
+                        </Card.Content>
+                        <Card.Cover style={{ height: 300, backgroundColor: 'transparent' }} source={require('@/assets/images/student.png')} />
                         <Card.Actions>
                             <Button onPress={() => setShowStudent(true)}>Ver</Button>
                             <Button onPress={() => navigation.navigate('RegisterUserByTeacher')}>Adicionar</Button>

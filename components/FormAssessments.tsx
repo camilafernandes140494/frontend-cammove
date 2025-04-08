@@ -33,9 +33,11 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 
   const { data: assessmentsByStudent, refetch, isLoading } = useQuery({
     queryKey: ['getAssessmentsByStudentIdAndAssessmentsId', assessmentsId, student?.id],
-    queryFn: () => getAssessmentsByStudentIdAndAssessmentsId(assessmentsId || '', student?.id || ''),
-    enabled: !!assessmentsId
+    queryFn: () =>
+      getAssessmentsByStudentIdAndAssessmentsId(assessmentsId || '', student?.id || ''),
+    enabled: Boolean(assessmentsId && student?.id), // ✅ só ativa quando os dois existem
   });
+
 
 
   const [sendEmail, setSendEmail] = useState(false)
@@ -183,62 +185,71 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     assessmentDate: z.string().optional(),
   });
 
-  const { control, handleSubmit, watch, setValue, getValues } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      studentName: student?.name || '',
-      studentId: student?.id || '',
-      bodyMeasurements: {
-        weight: Number(assessmentsByStudent?.bodyMeasurements?.weight) || 0,
-        height: Number(assessmentsByStudent?.bodyMeasurements?.height) || 0,
-        bodyFatPercentage: assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || 0,
-        imc: String(assessmentsByStudent?.bodyMeasurements?.imc) || '',
-        waistCircumference: Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
-        hipCircumference: Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
-        chestCircumference: Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
-        rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || 0,
-        leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || 0,
-        rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || 0,
-        leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || 0,
-        rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || 0,
-        leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || 0,
-        neckCircumference: Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
-      },
-      bodyMass: {
-        muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
-        boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
-      },
-      heartRate: {
-        restingHeartRate: Number(assessmentsByStudent?.heartRate?.restingHeartRate) || 0,
-        maxHeartRate: Number(assessmentsByStudent?.heartRate?.maxHeartRate) || 0,
-      },
-      balanceAndMobility: {
-        balanceTest: {
-          value: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
-          label: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
-        },
-        mobilityTest: {
-          value: String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
-          label: String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
-        }
-      },
-      posture: {
-        postureAssessment: {
-          value: String(assessmentsByStudent?.posture?.postureAssessment) || '',
-          label: String(assessmentsByStudent?.posture?.postureAssessment) || '',
-        }
-      },
-      medicalHistory: {
-        injuryHistory: assessmentsByStudent?.medicalHistory?.injuryHistory as string || '',
-        medicalConditions: assessmentsByStudent?.medicalHistory?.medicalConditions as string || '',
-        chronicPain: assessmentsByStudent?.medicalHistory?.chronicPain as string || '',
-      },
-      fitnessGoals: assessmentsByStudent?.fitnessGoals || '',
-      observations: assessmentsByStudent?.observations || '',
-      assessmentDate: assessmentsByStudent?.assessmentDate || '',
+  const mapAssessmentToForm = {
+    studentName: student?.name || '',
+    studentId: student?.id || '',
+    bodyMeasurements: {
+      weight: Number(assessmentsByStudent?.bodyMeasurements?.weight) || 0,
+      height: Number(assessmentsByStudent?.bodyMeasurements?.height) || 0,
+      bodyFatPercentage: assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || 0,
+      imc: String(assessmentsByStudent?.bodyMeasurements?.imc) || '',
+      waistCircumference: Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
+      hipCircumference: Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
+      chestCircumference: Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
+      rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || 0,
+      leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || 0,
+      rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || 0,
+      leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || 0,
+      rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || 0,
+      leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || 0,
+      neckCircumference: Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
     },
+    bodyMass: {
+      muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
+      boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
+    },
+    heartRate: {
+      restingHeartRate: Number(assessmentsByStudent?.heartRate?.restingHeartRate) || 0,
+      maxHeartRate: Number(assessmentsByStudent?.heartRate?.maxHeartRate) || 0,
+    },
+    balanceAndMobility: {
+      balanceTest: {
+        value: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
+        label: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
+      },
+      mobilityTest: {
+        value: String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
+        label: String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
+      }
+    },
+    posture: {
+      postureAssessment: {
+        value: String(assessmentsByStudent?.posture?.postureAssessment) || '',
+        label: String(assessmentsByStudent?.posture?.postureAssessment) || '',
+      }
+    },
+    medicalHistory: {
+      injuryHistory: assessmentsByStudent?.medicalHistory?.injuryHistory as string || '',
+      medicalConditions: assessmentsByStudent?.medicalHistory?.medicalConditions as string || '',
+      chronicPain: assessmentsByStudent?.medicalHistory?.chronicPain as string || '',
+    },
+    fitnessGoals: assessmentsByStudent?.fitnessGoals || '',
+    observations: assessmentsByStudent?.observations || '',
+    assessmentDate: assessmentsByStudent?.assessmentDate || '',
+  };
+
+
+  const { control, handleSubmit, watch, setValue, getValues, reset } = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: mapAssessmentToForm,
   });
 
+
+  useEffect(() => {
+    if (assessmentsByStudent) {
+      reset(mapAssessmentToForm);
+    }
+  }, [assessmentsByStudent]);
 
   const selectedWeight = watch("bodyMeasurements.weight");
   const selectedHeight = watch("bodyMeasurements.height");
@@ -355,7 +366,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     label="Altura"
                     type="number"
                     right={<TextInput.Affix text=" cm" />}
-
                   />
                   <FormField
                     control={control}
@@ -594,7 +604,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                   {selectedBalanceTest.value && <Text>Teste de Equilíbrio</Text>}
                   <FormField
                     control={control}
-                    name="balanceAndMobility.balanceTest"
+                    name="balanceAndMobility.balanceTest.value"
                     label="Teste de Equilíbrio"
                     type="select"
                     getLabel={(option) => option.label}
@@ -608,7 +618,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 
                   <FormField
                     control={control}
-                    name="balanceAndMobility.mobilityTest"
+                    name="balanceAndMobility.mobilityTest.value"
                     label="Teste de Mobilidade"
                     type="select"
                     getLabel={(option) => option.label}
@@ -622,7 +632,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                   {selectedPostureTest.value && <Text>Teste de Postura</Text>}
                   <FormField
                     control={control}
-                    name="posture.postureAssessment"
+                    name="posture.postureAssessment.value"
                     label="Teste de Postura"
                     type="select"
                     getLabel={(option) => option.label}

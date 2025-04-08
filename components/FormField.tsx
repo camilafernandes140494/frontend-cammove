@@ -9,7 +9,7 @@ interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
   control: any;
   name: string;
   label: string;
-  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip' | 'birthDate';
+  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip' | 'birthDate' | 'number';
   options?: any[];
   getLabel?: (option: any) => string;
 }
@@ -24,18 +24,29 @@ export function FormField({ control, name, label, type = "text", options, getLab
       name={name}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View style={{ marginBottom: 10 }}>
-          {(type === "text" || type === "birthDate") && (
+          {(type === "text" || type === "birthDate" || type === 'number') && (
             <TextInput
               label={label}
-              value={value}
+              value={value?.toString() || ''}
               onChangeText={(text) => {
-                const newValue = type === "birthDate" ? maskDateInput(text) : text;
+                let newValue;
+
+                if (type === "birthDate") {
+                  newValue = maskDateInput(text);
+                } else if (type === "number") {
+
+                  newValue = Number(text);
+                } else {
+                  newValue = text;
+                }
+
                 onChange(newValue);
               }}
               mode="outlined"
               error={!!error}
               {...textInputProps}
             />
+
           )}
 
           {type === "switch" && (

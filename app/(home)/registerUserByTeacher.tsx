@@ -19,6 +19,7 @@ import { postUser } from '@/api/users/users.api';
 import { postEmail } from '@/api/email/email.api';
 import { GENDER, PERMISSION } from '@/api/users/users.types';
 import { postRelationship } from '@/api/relationships/relationships.api';
+import { useQueryClient } from '@tanstack/react-query';
 
 const RegisterUserByTeacher = () => {
   const route = useRoute();
@@ -26,6 +27,7 @@ const RegisterUserByTeacher = () => {
   const { theme } = useTheme();
   const [visible, setVisible] = useState(false);
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
 
   const schema = z.object({
     name: z.string().nonempty("Obrigatório"),
@@ -86,12 +88,13 @@ const RegisterUserByTeacher = () => {
         email: values.email,
       });
 
+      queryClient.invalidateQueries({ queryKey: ['getRelationship'] }),
 
-      // Criando usuário e enviando e-mail ao mesmo tempo
-      await Promise.all([
-        postRelationship(user?.id!, userCreated.id),
-        postEmail({
-          body: `
+        // Criando usuário e enviando e-mail ao mesmo tempo
+        await Promise.all([
+          postRelationship(user?.id!, userCreated.id),
+          postEmail({
+            body: `
             Olá ${values.name}, <br><br>
             Seja bem-vindo(a) à CamMove! 🎉<br><br>
             Seu cadastro foi realizado com sucesso e agora você faz parte da nossa comunidade dedicada ao seu bem-estar e evolução. <br><br>
@@ -100,10 +103,11 @@ const RegisterUserByTeacher = () => {
             Atenciosamente,<br>
             Equipe CamMove 🚀
           `,
-          subject: "Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!",
-          to: [values.email],
-        }),
-      ]);
+            subject: "Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!",
+            to: [values.email],
+          }),
+
+        ]);
 
       navigation.goBack();
     } catch (error) {

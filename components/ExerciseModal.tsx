@@ -8,11 +8,12 @@ import {
   Text, Button,
   Modal, Portal,
   Card,
-  Chip
+  Chip,
 } from 'react-native-paper';
 import { getExercises } from '@/api/exercise/exercise.api';
 import { useQuery } from '@tanstack/react-query';
 import { ExerciseWorkout } from '@/api/workout/workout.types';
+import { useTheme } from '@/app/ThemeContext';
 
 interface ExerciseModalProps {
   onSave: (exercise: ExerciseWorkout) => void,
@@ -21,6 +22,7 @@ interface ExerciseModalProps {
 
 const ExerciseModal = ({ onSave, exercise }: ExerciseModalProps) => {
   const [visibleModal, setVisibleModal] = useState(false);
+  const { theme } = useTheme();
 
   const showModal = () => setVisibleModal(true);
   const hideModal = () => setVisibleModal(false);
@@ -73,7 +75,7 @@ const ExerciseModal = ({ onSave, exercise }: ExerciseModalProps) => {
   return (
     <>
       <Portal>
-        <Modal visible={visibleModal} onDismiss={hideModal} contentContainerStyle={{ backgroundColor: 'white', padding: 20 }}>
+        <Modal visible={visibleModal} onDismiss={hideModal} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20 }}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >

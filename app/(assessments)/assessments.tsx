@@ -85,7 +85,7 @@ const Assessments = ({ navigation }: any) => {
                     size={24}
                     onPress={() => {
                       refetchStudent(item.studentId);
-                      navigation.navigate('CreateAssessments', { workoutId: item.workoutId });
+                      navigation.navigate('CreateAssessments', { assessmentsId: item.workoutId });
                     }}
                   />
                 )}
@@ -96,7 +96,7 @@ const Assessments = ({ navigation }: any) => {
                 <Text variant="bodyMedium" style={{ fontSize: 14, marginBottom: 8 }}>
                   Próxima atualização
                 </Text>
-                <Text variant="bodySmall" style={{ fontSize: 16, color: 'blue', fontWeight: '500', marginBottom: 20 }}>
+                <Text variant="bodySmall" style={{ fontSize: 16, color: theme.colors.primary, fontWeight: '500', marginBottom: 20 }}>
                   {getNextMonth(item.createdAt)}
                 </Text>
               </Card.Content>

@@ -7,23 +7,27 @@ import { getRelationship } from '@/api/relationships/relationships.api';
 import { getInitials } from '@/common/common';
 import { Student } from '@/api/relationships/relationships.types';
 import { Ionicons } from '@expo/vector-icons';
+import { STATUS } from '@/api/users/users.types';
 
 interface UserListProps {
     teacherId: string
     onSelect: (student: Student) => void
     filterName?: string
+    studentStatus?: STATUS
+    showStatus?: boolean
 }
 
-const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
+const SelectStudent = ({ teacherId, filterName, onSelect, studentStatus = 'ACTIVE', showStatus = false }: UserListProps) => {
     const { theme, isDarkMode } = useTheme();
     const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
     const [studentsFilter, setStudentsFilter] = useState<Student[]>();
 
     const { data: students, isLoading } = useQuery({
-        queryKey: ['getRelationship', teacherId],
-        queryFn: () => getRelationship(teacherId),
+        queryKey: ['getRelationship', teacherId, studentStatus],
+        queryFn: () => getRelationship(teacherId, { status: studentStatus }),
         enabled: !!teacherId
     });
+
 
     useEffect(() => {
         if (!students) return;
@@ -60,7 +64,7 @@ const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
                             left={(props) => <Avatar.Text {...props} label={getInitials(item.studentName)} />}
 
                         />
-                        <Card.Content>
+                        {showStatus && <Card.Content>
 
                             <Chip
                                 mode="flat"
@@ -85,7 +89,8 @@ const SelectStudent = ({ teacherId, filterName, onSelect }: UserListProps) => {
                                 {item.studentStatus === 'ACTIVE' ? 'Ativo' : 'Inativo'}
                             </Chip>
 
-                        </Card.Content>
+                        </Card.Content>}
+
 
                     </Card>
                 </TouchableOpacity>
