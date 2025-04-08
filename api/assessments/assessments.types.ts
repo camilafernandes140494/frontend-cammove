@@ -34,12 +34,12 @@ type HeartRate = {
 };
 
 type BalanceAndMobility = {
-  balanceTest?: number | string;
-  mobilityTest?: number | string;
+  balanceTest?: any;
+  mobilityTest?: any;
 };
 
 type Posture = {
-  postureAssessment?: number | string;
+  postureAssessment?: any;
 };
 
 type MedicalHistory = {

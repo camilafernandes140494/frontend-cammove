@@ -15,3 +15,7 @@ export type Relationship = {
   teacherId: string;
   id: string;
 };
+
+export type getRelationshipFilter = {
+  status: string | null;
+};

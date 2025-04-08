@@ -1,6 +1,10 @@
 // File: api.js
 import api from '../axios';
-import { GetStudentsResponse, Relationship } from './relationships.types';
+import {
+  getRelationshipFilter,
+  GetStudentsResponse,
+  Relationship,
+} from './relationships.types';
 
 export const postRelationship = async (
   teacherId: string,
@@ -19,7 +23,7 @@ export const postRelationship = async (
 
 export const getRelationship = async (
   teacherId: string,
-  params?: Record<string, string>,
+  params?: getRelationshipFilter,
 ) => {
   try {
     const response = await api.get<GetStudentsResponse>(
