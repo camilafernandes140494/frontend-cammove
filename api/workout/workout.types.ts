@@ -25,4 +25,12 @@ export type WorkoutData = {
   type: string;
   studentName: string;
   studentId: string;
+  nameWorkout: string;
+};
+
+export type WorkoutDataByIdStudent = {
+  id: string;
+  createdAt: string;
+  type?: string;
+  nameWorkout: string;
 };

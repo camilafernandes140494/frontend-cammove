@@ -1,6 +1,10 @@
 // File: api.js
 import api from '../axios';
-import { getWorkoutsSummaryResponse, WorkoutData } from './workout.types';
+import {
+  getWorkoutsSummaryResponse,
+  WorkoutData,
+  WorkoutDataByIdStudent,
+} from './workout.types';
 
 export const postWorkout = async (
   teacherId: string,
@@ -57,7 +61,9 @@ export const getWorkoutsSummary = async (
 
 export const getWorkoutsByStudentId = async (studentId: string) => {
   try {
-    const response = await api.get<string[]>(`/workouts/students/${studentId}`);
+    const response = await api.get<WorkoutDataByIdStudent[]>(
+      `/workouts/students/${studentId}`,
+    );
     return response.data; // Retorna os dados da resposta
   } catch (error) {
     console.error('Erro no login:', error);
