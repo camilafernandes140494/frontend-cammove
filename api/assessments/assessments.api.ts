@@ -1,5 +1,5 @@
 import api from '../axios';
-import { AssessmentData } from './assessments.types';
+import { AssessmentData, BasicAssessmentItem } from './assessments.types';
 
 export const postAssessments = async (
   teacherId: string,
@@ -69,7 +69,7 @@ export const getAssessmentsByStudentIdAndAssessmentsId = async (
 
 export const getAssessmentsByStudentId = async (studentId: string) => {
   try {
-    const response = await api.get<string[]>(
+    const response = await api.get<BasicAssessmentItem[]>(
       `/physical-assessment/students/${studentId}`,
     );
     return response.data; // Retorna os dados da resposta

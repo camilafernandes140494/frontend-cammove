@@ -79,4 +79,10 @@ export type AssessmentData = {
   observations?: string;
   // Data da avaliação
   assessmentDate?: string;
+  createdAt: string;
+};
+
+export type BasicAssessmentItem = {
+  id: string;
+  createdAt: string;
 };
