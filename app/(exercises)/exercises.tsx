@@ -57,7 +57,7 @@ const Exercises = ({ navigation }: any) => {
                         onIconPress={() => setParams(undefined)}
                     />
 
-                    {isLoading && <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" />}
+                    {isLoading && <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" />}
                     {exercises?.length === 0 && <Text variant="titleSmall" style={{ marginTop: 16, textAlign: 'center' }}>Nenhum dado encontrado</Text>
                     }
                 </View>

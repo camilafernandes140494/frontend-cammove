@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Appbar, Avatar, Button, Card, Snackbar, Text } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
@@ -173,6 +173,7 @@ const HomeStudent = () => {
           padding: 24,
           gap: 12
         }}
+       
       >
 
 

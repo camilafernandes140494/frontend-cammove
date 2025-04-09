@@ -139,7 +139,7 @@ const CreateExercise = () => {
             data={[{}]}
             keyExtractor={() => exerciseById?.id || 'header'}  // Usar id ou um identificador único
             renderItem={() => <>{
-                isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" /> : <Formik
+                isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : <Formik
                     initialValues={{
                         name: exerciseById?.name || '',
                         description: exerciseById?.description || '',
