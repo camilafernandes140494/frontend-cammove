@@ -1,10 +1,10 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import ExercisesNavigator from './ExercisesNavigator';
-import WorkoutsNavigator from './WorkoutsNavigator';
 import { useTheme } from '../ThemeContext';
 import HomeStudentNavigator from './HomeStudentNavigator';
 import AssessmentsStudentNavigator from './AssessmentsStudentNavigator';
+import WorkoutsNavigatorStudent from './WorkoutsNavigatorStudent';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,7 +34,7 @@ function TabsStudent() {
           <Ionicons name="bar-chart-outline" size={size} color={color} />
         ),
       }} />
-      <Tab.Screen name="WorkoutsScreen" component={WorkoutsNavigator} options={{
+      <Tab.Screen name="WorkoutsScreen" component={WorkoutsNavigatorStudent} options={{
         headerShown: false,
         tabBarLabel: "Treinos",
         tabBarIcon: ({ color, size }) => (

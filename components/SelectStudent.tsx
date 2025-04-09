@@ -44,7 +44,7 @@ const SelectStudent = ({ teacherId, filterName, onSelect, studentStatus = 'ACTIV
     return (
         <FlatList
             data={studentsFilter}
-            ListFooterComponent={isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" /> : null}
+            ListFooterComponent={isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : null}
             renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => {
                     onSelect(item);

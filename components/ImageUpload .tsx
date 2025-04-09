@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Image, View, StyleSheet, ActivityIndicator, Text } from 'react-native';
+import { Image, View, ActivityIndicator, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { postUpload } from '@/api/exercise/exercise.api';
 import { Button } from 'react-native-paper';
@@ -76,7 +76,7 @@ export default function ImageUpload({ onSelect }: ImageUploadProps) {
                         borderRadius: 10,
                         marginBottom: 10,
                     }} />
-                    {isLoading && <ActivityIndicator animating={true} size="large" color="#6200ea" />}
+                    {isLoading && <ActivityIndicator animating={true} size="large" />}
                 </View>
             )}
 
