@@ -1,53 +1,54 @@
 import React from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import {
-  Appbar, Button, Card,
-  Chip,
-  IconButton,
-  Text
+  Appbar,
+  Button,
+  Card,
+  Chip, IconButton, Text
 } from 'react-native-paper';
-import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
-import { getAssessmentsByStudentId } from '@/api/assessments/assessments.api';
+import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { getWorkoutsByStudentId } from '@/api/workout/workout.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Skeleton from '@/components/Skeleton';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-const AssessmentsStudent = ({ navigation }: any) => {
+const WorkoutsStudent = ({ navigation }: any) => {
   const { user } = useUser();
   const { theme } = useTheme();
 
-  const { data: assessmentsSummary, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['getAssessmentsByStudentId', user?.id],
-    queryFn: () => getAssessmentsByStudentId(user?.id || ''),
+  const { data: workoutsStudent, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ['getWorkoutsByStudentId', user?.id],
+    queryFn: () => getWorkoutsByStudentId(user?.id || ''),
     enabled: !!user?.id
   });
 
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background, }}>
-      <Appbar.Header mode='small'>
-        <Appbar.Content title="Minhas avaliações" />
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <Appbar.Header >
+        <Appbar.BackAction onPress={() => navigation.navigate('AssessmentsStudent')} />
+        <Appbar.Content title="Meus treinos" />
       </Appbar.Header>
-
       <FlatList
-        data={assessmentsSummary}
-        keyExtractor={(item) => `${item.id}`}
+        data={workoutsStudent}
+        keyExtractor={(item) => `${item}`}
         refreshing={isLoading || isFetching}
         onRefresh={refetch}
         renderItem={({ item }) => <>
           {
             isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginTop: 16 }}>
               <Card.Title
-                title="Avaliação física"
-                subtitle={`ID ${item.id}`}
-                right={(props) => <IconButton {...props} icon="chevron-right" onPress={() => { navigation.navigate('DetailsAssessmentsStudent', { assessmentsId: item.id }) }} />}
+                title={item.nameWorkout || 'Treino'}
+                subtitle={item.type}
                 titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
                 subtitleStyle={{ fontSize: 12, color: 'gray' }}
+                right={(props) => <IconButton {...props} icon="chevron-right" onPress={() => { navigation.navigate('DetailsWorkoutStudent', { workoutId: item.id }) }} />}
               />
-              <Card.Content>
+              <Card.Content style={{ display: 'flex', gap: 16, justifyContent: 'space-between' }}>
+
                 <Chip disabled icon={() => (
                   <Ionicons
                     name={'calendar'}
@@ -66,6 +67,7 @@ const AssessmentsStudent = ({ navigation }: any) => {
                   }}>{format(new Date(item.createdAt), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</Chip>
 
               </Card.Content>
+
             </Card>
           }
         </>
@@ -89,14 +91,15 @@ const AssessmentsStudent = ({ navigation }: any) => {
           ) : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-              Nenhuma avaliação encontrada.
+              Nenhum treino encontrado.
             </Text>
             <Button onPress={() => refetch()} >Tentar novamente</Button>
           </View>
         }
       />
+
     </View>
   );
 };
 
-export default AssessmentsStudent;
+export default WorkoutsStudent;

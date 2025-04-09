@@ -74,7 +74,7 @@ const Assessments = ({ navigation }: any) => {
         }
         renderItem={({ item }) => <>
           {
-            isLoading && isFetching && value === 'assessments' ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" /> : value === 'assessments' && <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginBottom: 16 }}>
+            isLoading && isFetching && value === 'assessments' ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : value === 'assessments' && <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginBottom: 16 }}>
               <Card.Title
                 title={item.studentName}
                 subtitle={`Criado em: ${formatDate(item.createdAt)}`}

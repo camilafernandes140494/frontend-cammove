@@ -96,22 +96,22 @@ const DetailsWorkout = () => {
         </>
       }
       data={workoutsStudent}
-      keyExtractor={(item) => String(item)}
+      keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
       >
         <Card.Title
           title="Treino"
-          subtitle={`ID ${item}`}
-          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item }) }} />}
+          subtitle={`ID ${item.id}`}
+          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item.id }) }} />}
         />
         <Card.Actions>
 
           <CustomModal
-            onPress={() => handleDelete(item)}
+            onPress={() => handleDelete(item.id)}
             title='Tem certeza que deseja deletar o treino?'
             primaryButtonLabel='Deletar' />
           <CustomModal
-            onPress={() => handleDuplicate(item)}
+            onPress={() => handleDuplicate(item.id)}
             title='Tem certeza que deseja duplicar o treino?'
             primaryButtonLabel="Duplicar"
             trigger={<Button

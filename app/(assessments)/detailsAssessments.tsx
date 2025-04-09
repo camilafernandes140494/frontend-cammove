@@ -102,7 +102,7 @@ const DetailsAssessments = () => {
       >
         <Card.Title
           title="Avaliação"
-          subtitle={`ID ${item}`}
+          subtitle={`ID ${item.id}`}
           right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateAssessments', { assessmentsId: item.id }) }} />}
         />
         <Card.Actions>

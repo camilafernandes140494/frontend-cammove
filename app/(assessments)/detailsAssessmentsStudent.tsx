@@ -5,11 +5,12 @@ import { NavigationProp, useNavigation, useRoute } from '@react-navigation/nativ
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
 import { getAssessmentsByStudentIdAndAssessmentsId } from '@/api/assessments/assessments.api';
-import { ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import InfoField from '@/components/InfoField';
+import StudentCard from '@/components/StudentCard';
 
 export type RootStackParamList = {
   AssessmentsStudent: undefined;
@@ -25,46 +26,45 @@ const DetailsAssessmentsStudent = () => {
 
   const { user } = useUser();
 
-  const { data: assessmentsByStudent, refetch, isLoading } = useQuery({
+  const { data: assessmentsByStudent, refetch, isLoading, isFetching } = useQuery({
     queryKey: ['getAssessmentsByStudentIdAndAssessmentsId', assessmentsId, user?.id],
     queryFn: () =>
       getAssessmentsByStudentIdAndAssessmentsId(assessmentsId || '', user?.id || ''),
     enabled: Boolean(assessmentsId && user?.id), // ✅ só ativa quando os dois existem
   });
 
-  console.log(assessmentsByStudent)
 
   return (<>
     <Appbar.Header>
       <Appbar.BackAction onPress={() => navigation.navigate('AssessmentsStudent')} />
       <Appbar.Content title="Avaliação" />
+
     </Appbar.Header>
-    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background, padding: 16 }}>
+    <StudentCard>
+      {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId}</Text>}
+      <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', marginLeft: 16, marginTop: 16 }}>
+        <Ionicons
+          name={'calendar'}
+          size={18}
+          color={theme.colors.primary}
+        />
+        {assessmentsByStudent?.createdAt ? (
+          <Text>
+            {format(new Date(assessmentsByStudent.createdAt), "dd 'de' MMMM 'de' yyyy", {
+              locale: ptBR,
+            })}
+          </Text>
+        ) : null}
+      </View>
+    </StudentCard>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background, padding: 16 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={isLoading || isFetching}
+          onRefresh={refetch}
+        />
+      }>
       <View style={{ display: 'flex', gap: 16 }}>
-        <Card>
-          <Card.Content>
-            <View style={{ display: 'flex', flexDirection: 'row', gap: 16, alignItems: 'center', }}>
-              <Ionicons
-                name={'calendar'}
-                size={18}
-                color={theme.colors.primary}
-              />
-              {assessmentsByStudent?.createdAt ? (
-                <Text>
-                  {format(new Date(assessmentsByStudent.createdAt), "dd 'de' MMMM 'de' yyyy", {
-                    locale: ptBR,
-                  })}
-                </Text>
-              ) : null}
-            </View>
-
-            <Text style={{ marginTop: 16 }} >
-              {`ID - ${assessmentsId}`}
-            </Text>
-          </Card.Content>
-        </Card>
-
-
         <Card>
           <Card.Title title="Medidas Corporais" />
           <Card.Content style={{ gap: 10 }}>

@@ -110,7 +110,7 @@ const Workouts = ({ navigation }: any) => {
         }
         renderItem={({ item }) => <>
           {
-            isLoading && value === 'workouts' ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" /> : value === 'workouts' && <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginBottom: 16 }}>
+            isLoading && value === 'workouts' ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : value === 'workouts' && <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginBottom: 16 }}>
               <Card.Title
                 title={item.studentName}
                 subtitle={`Criado em: ${formatDate(item.createdAt)}`}
