@@ -81,6 +81,7 @@ const SelectStudent = ({ teacherId, filterName, onSelect, studentStatus = 'ACTIV
                                 )}
                                 style={{
                                     backgroundColor: item.studentStatus === 'ACTIVE' ? '#C8E6C9' : '#FFCDD2',
+                                    alignSelf: 'flex-start',
                                 }}
                                 textStyle={{
                                     color: item.studentStatus === 'ACTIVE' ? '#2E7D32' : '#C62828',

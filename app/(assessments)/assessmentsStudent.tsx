@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import {
   Appbar, Card,
   Chip,
   IconButton
 } from 'react-native-paper';
-import { useStudent } from '../context/StudentContext';
 import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentsByStudentId } from '@/api/assessments/assessments.api';
@@ -15,10 +14,7 @@ import { ptBR } from 'date-fns/locale';
 import { Ionicons } from '@expo/vector-icons';
 
 const AssessmentsStudent = ({ navigation }: any) => {
-  const [params, setParams] = useState<{ name: string }>({ name: '' });
-  const { refetchStudent } = useStudent();
   const { user } = useUser();
-  const [value, setValue] = useState('assessments');
   const { theme } = useTheme();
 
   const { data: assessmentsSummary, isLoading, refetch } = useQuery({
@@ -35,11 +31,11 @@ const AssessmentsStudent = ({ navigation }: any) => {
       </Appbar.Header>
 
       <FlatList
-        data={value === 'students' ? [] : assessmentsSummary}
+        data={assessmentsSummary}
         keyExtractor={(item) => `${item.id}`}
         renderItem={({ item }) => <>
           {
-            isLoading && value === 'assessments' ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" /> : value === 'assessments' && <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginTop: 16 }}>
+            isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" color="#6200ea" /> : <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginTop: 16 }}>
               <Card.Title
                 title="Avaliação física"
                 subtitle={`ID ${item.id}`}
@@ -59,6 +55,7 @@ const AssessmentsStudent = ({ navigation }: any) => {
                 )}
                   style={{
                     backgroundColor: theme.colors.primaryContainer,
+                    alignSelf: 'flex-start',
                   }}
                   textStyle={{
                     color: theme.colors.primary,
