@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { ActivityIndicator, FlatList, View, Image } from 'react-native';
 import {
   Text, Appbar,
   Button,
-  Card, Chip
+  Card, Chip,
+  IconButton,
+  Badge
 } from 'react-native-paper';
 import { useStudent } from '../context/StudentContext';
 import { getWorkoutByStudentIdAndWorkoutId } from '@/api/workout/workout.api';
@@ -15,6 +17,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Skeleton from '@/components/Skeleton';
+import InfoField from '@/components/InfoField';
 
 export type RootStackParamList = {
   WorkoutsStudent: undefined;
@@ -27,7 +30,22 @@ const DetailsWorkoutStudent = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { theme } = useTheme();
   const route = useRoute();
+  const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
+  const [showDetails, setShowDetails] = useState<{ [key: string]: boolean }>({});
 
+  const toggleShowDetails = (id: string) => {
+    setShowDetails(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const toggleCheckbox = (id: string) => {
+    setCheckedItems(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
   const { workoutId } = route.params as { workoutId: string | undefined };
 
 
@@ -37,71 +55,166 @@ const DetailsWorkoutStudent = () => {
     enabled: !!workoutId
   });
 
-  console.log(workoutByStudent?.exercises, workoutId)
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => navigation.navigate('WorkoutsStudent')} />
+          <Appbar.Content title={workoutByStudent?.nameWorkout} />
+
+        </Appbar.Header>
+        <StudentCard>
+
+          {workoutId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {workoutId}</Text>}
+          <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', marginLeft: 16, marginTop: 16 }}>
+            <Ionicons
+              name={'calendar'}
+              size={18}
+              color={theme.colors.primary}
+            />
+            {workoutByStudent?.createdAt ? (
+              <Text>
+                {format(new Date(workoutByStudent.createdAt), "dd 'de' MMMM 'de' yyyy", {
+                  locale: ptBR,
+                })}
+              </Text>
+            ) : null}
+          </View>
+        </StudentCard>
+      </>
       <FlatList
         data={workoutByStudent?.exercises}
         keyExtractor={(item) => `${item}`}
         refreshing={isLoading || isFetching}
         onRefresh={refetch}
-        ListHeaderComponent={<>
-          <Appbar.Header>
-            <Appbar.BackAction onPress={() => navigation.navigate('WorkoutsStudent')} />
-            <Appbar.Content title={workoutByStudent?.nameWorkout} />
-
-          </Appbar.Header>
-          <StudentCard>
-
-            {workoutId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {workoutId}</Text>}
-            <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', marginLeft: 16, marginTop: 16 }}>
-              <Ionicons
-                name={'calendar'}
-                size={18}
-                color={theme.colors.primary}
-              />
-              {workoutByStudent?.createdAt ? (
-                <Text>
-                  {format(new Date(workoutByStudent.createdAt), "dd 'de' MMMM 'de' yyyy", {
-                    locale: ptBR,
-                  })}
-                </Text>
-              ) : null}
-            </View>
-
-          </StudentCard> </>}
         renderItem={({ item }) => <>
           {
-            isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginTop: 16 }}>
-              <Card.Title
-                title={item?.exerciseId.name || ''}
-                subtitle={`${item?.repetitions || ''} `}
-                titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
-                subtitleStyle={{ fontSize: 12, color: 'gray' }}
-              // right={(props) => <IconButton {...props} icon="chevron-right" onPress={() => { navigation.navigate('WorkoutsStudent', { workoutId: item.id }) }} />}
-              />
-              <Card.Content style={{ display: 'flex', gap: 16, justifyContent: 'space-between' }}>
+            isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> :
+              <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginTop: 16 }}>
 
-                <Chip disabled icon={() => (
-                  <Ionicons
-                    name={'grid-outline'}
-                    size={18}
-                    color={theme.colors.primary}
-                    style={{ marginRight: 4 }}
-                  />
+                <Card.Title
+                  title={item?.exerciseId.name || ''}
+                  subtitle={`${item?.sets || ''} ${item?.repetitions || ''} `}
+                  titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                  subtitleStyle={{ fontSize: 12, color: 'gray' }}
+                  right={() =>
+                    <>
+                      {item.observations && item.observations.trim() !== '' && (
+                        <Badge
+                          style={{
+                            backgroundColor: theme.colors.primary,
+                          }}
+                        >
+                          Obs
+                        </Badge>
+                      )}
+                      <IconButton
+                        icon={checkedItems[item.exerciseId.id || ''] ? "checkbox-outline" : 'square-outline'}
+                        iconColor={checkedItems[item.exerciseId.id || ''] ? theme.colors.primary : '#999'}
+                        size={24}
+                        onPress={() => toggleCheckbox(item.exerciseId.id || '')}
+                      />
+                    </>
 
-                )}
-                  style={{
-                    backgroundColor: theme.colors.primaryContainer,
-                    alignSelf: 'flex-start',
-                  }}
-                  textStyle={{
-                    color: theme.colors.primary,
-                  }}>{item.exerciseId.category}</Chip>
+                  }
+                />
 
-              </Card.Content>
+                <Card.Content style={{ display: 'flex', gap: 16, justifyContent: 'space-between' }}>
 
-            </Card>
+
+                  <View style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Ionicons
+                      name={'bed-outline'}
+                      size={18}
+                      color={theme.colors.primary}
+                      style={{ marginRight: 4 }}
+                    />
+                    <Text variant='bodySmall' >{`Descanso: ${item.restTime}`}</Text>
+                  </View>
+
+
+                  <Chip disabled icon={() => (
+                    <Ionicons
+                      name={'grid-outline'}
+                      size={18}
+                      color={theme.colors.primary}
+                      style={{ marginRight: 4 }}
+                    />
+
+                  )}
+                    style={{
+                      backgroundColor: theme.colors.primaryContainer,
+                      alignSelf: 'flex-start',
+                    }}
+                    textStyle={{
+                      color: theme.colors.primary,
+                    }}>{item.exerciseId.category}</Chip>
+                  {showDetails[item.exerciseId.id || ''] && (
+                    <>
+                      <Card mode='outlined' style={{ marginTop: 16 }}>
+                        <View style={{ padding: 16 }}>
+                          <View style={{ display: 'flex', alignItems: 'center' }}>
+                            <Image
+                              source={{ uri: item?.exerciseId?.images?.[0] }}
+                              style={{
+                                width: 200,
+                                height: 200,
+                                borderRadius: 10,
+                                marginBottom: 10,
+                              }}
+                            />
+                            <Text variant='bodySmall'>{item.exerciseId.description}</Text>
+                          </View>
+
+                          {Array.isArray(item.exerciseId.muscleGroup) && item.exerciseId.muscleGroup.length > 0 && (
+                            <View style={{ marginTop: 16 }}>
+                              <Text variant="bodyMedium" style={{ marginBottom: 8, fontWeight: 'bold' }}>
+                                Músculos trabalhados neste exercício:
+                              </Text>
+                              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                                {item.exerciseId.muscleGroup.map((muscle, index) => (
+                                  <Chip
+                                    key={index}
+                                    disabled
+                                    style={{
+                                      backgroundColor: theme.colors.tertiaryContainer,
+                                    }}
+                                    textStyle={{
+                                      color: theme.colors.tertiary,
+                                    }}
+                                  >
+                                    {muscle}
+                                  </Chip>
+                                ))}
+                              </View>
+                            </View>
+                          )}
+
+
+
+
+                        </View>
+                      </Card>
+                      <InfoField
+                        title="Observações"
+                        description={item.observations ? item.observations : "Nenhuma observação"}
+                        style={{ marginTop: 12 }}
+                      /></>
+                  )}
+
+                  <Button
+                    mode='text'
+                    onPress={() => toggleShowDetails(item.exerciseId.id || '')}
+                    style={{
+                      alignSelf: 'flex-start',
+                    }}
+                    icon={showDetails[item.exerciseId.id || ''] ? 'chevron-up' : 'chevron-down'}
+                  >
+                    {showDetails[item.exerciseId.id || ''] ? "Ocultar detalhes" : "Mostrar detalhes"}
+                  </Button>
+                </Card.Content>
+
+              </Card>
           }
         </>
         }
