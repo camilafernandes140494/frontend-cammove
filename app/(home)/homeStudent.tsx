@@ -173,10 +173,7 @@ const HomeStudent = () => {
           padding: 24,
           gap: 12
         }}
-       
       >
-
-
         <View
           style={{
             backgroundColor: '#fff', // muda aqui para a cor que quiser
@@ -217,7 +214,6 @@ const HomeStudent = () => {
       </ScrollView>
 
     </View>
-
   );
 };
 
