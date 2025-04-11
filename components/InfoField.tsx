@@ -6,15 +6,21 @@ import { Text } from 'react-native-paper';
 
 interface InfoFieldProps extends ViewProps {
   title: string;
-  description: string
+  description: string;
+  children?: React.ReactNode;
+
 }
 
-const InfoField = ({ title, description, ...props }: InfoFieldProps) => {
+const InfoField = ({ title, description, children, ...props }: InfoFieldProps) => {
 
 
   return (
     <View style={{ display: 'flex', gap: 10 }} {...props}>
-      <Text variant='bodySmall' style={{ textTransform: 'uppercase' }}>{title}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}>
+        {children}
+
+        <Text variant='bodySmall' style={{ textTransform: 'uppercase' }}>{title}</Text>
+      </View>
       <Text variant='bodyLarge' style={{ fontWeight: 600 }}>{description}</Text>
     </View>
 
