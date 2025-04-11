@@ -26,7 +26,7 @@ const CustomModal = ({ onPress, title, trigger, primaryButtonLabel, children }: 
   return (
     <>
       <Portal >
-        <Modal visible={visibleModal} onDismiss={() => setVisibleModal(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, gap: 16 }}>
+        <Modal visible={visibleModal} onDismiss={() => setVisibleModal(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, gap: 16, marginHorizontal: 16 }}>
           <Text variant="bodyMedium">{title}</Text>
           {children}
           <Button mode="contained-tonal" onPress={() => setVisibleModal(false)}>

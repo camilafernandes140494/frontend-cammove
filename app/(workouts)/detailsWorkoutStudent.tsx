@@ -18,20 +18,22 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Skeleton from '@/components/Skeleton';
 import InfoField from '@/components/InfoField';
+import CongratsConfetti from '@/components/CongratsConfetti ';
 
 export type RootStackParamList = {
   WorkoutsStudent: undefined;
+  EvaluateTraining: undefined;
   CreateWorkout: { workoutId?: string };
 };
 
 const DetailsWorkoutStudent = () => {
-  const [visible, setVisible] = useState(false);
   const { student } = useStudent();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { theme } = useTheme();
   const route = useRoute();
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
   const [showDetails, setShowDetails] = useState<{ [key: string]: boolean }>({});
+  const [showCongrats, setShowCongrats] = useState(false);
 
   const toggleShowDetails = (id: string) => {
     setShowDetails(prev => ({
@@ -60,6 +62,7 @@ const DetailsWorkoutStudent = () => {
       acc[exercise?.exerciseId?.id || ''] = true;
       return acc;
     }, {} as Record<string, boolean>);
+    setShowCongrats(true)
 
     if (allTrue) {
       setCheckedItems(allTrue);
@@ -263,6 +266,12 @@ const DetailsWorkoutStudent = () => {
               display: 'flex',
               padding: 16
             }}>
+            <CongratsConfetti
+              visible={showCongrats}
+              onDismiss={() => { setShowCongrats(false), navigation.navigate('WorkoutsStudent') }}
+              onEvaluate={() =>{setShowCongrats(false),  navigation.navigate('EvaluateTraining')}}
+            />
+
             <Button
               mode='outlined'
               onPress={() => setAllCheckedItems()}
