@@ -269,7 +269,7 @@ const DetailsWorkoutStudent = () => {
             <CongratsConfetti
               visible={showCongrats}
               onDismiss={() => { setShowCongrats(false), navigation.navigate('WorkoutsStudent') }}
-              onEvaluate={() =>{setShowCongrats(false),  navigation.navigate('EvaluateTraining')}}
+              onEvaluate={() => { setShowCongrats(false), navigation.navigate('EvaluateTraining') }}
             />
 
             <Button

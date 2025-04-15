@@ -20,6 +20,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export type RootHomeStackParamList = {
     home: undefined;
+    UserList: undefined;
     StudentProfile: { studentProfileId?: string };
     RegisterUserByTeacher: undefined
 };
@@ -211,7 +212,7 @@ const Home = () => {
                         </Card.Content>
                         <Card.Cover style={{ height: 300, backgroundColor: 'transparent' }} source={require('@/assets/images/student.png')} />
                         <Card.Actions>
-                            <Button onPress={() => setShowStudent(true)}>Ver</Button>
+                            <Button onPress={() => navigation.navigate('UserList')}>Ver</Button>
                             <Button onPress={() => navigation.navigate('RegisterUserByTeacher')}>Adicionar</Button>
                         </Card.Actions>
                     </Card>

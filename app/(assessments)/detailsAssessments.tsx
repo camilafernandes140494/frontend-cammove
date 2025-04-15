@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
 import {
   Text,
@@ -19,18 +19,40 @@ import { useTheme } from '../ThemeContext';
 
 export type RootStackParamList = {
   Assessments: undefined;
-  CreateAssessments: { assessmentsId?: string };
+  CreateAssessments: { assessmentsId?: string, studentId?: string };
 };
 
-const DetailsAssessments = () => {
+type DetailsAssessmentsProps = {
+  route: {
+    params?: {
+      studentId?: string;
+    };
+  };
+};
+
+const DetailsAssessments = ({ route }: DetailsAssessmentsProps) => {
   const [visible, setVisible] = useState(false);
-  const { student } = useStudent();
+  const { student, refetchStudent } = useStudent();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const { theme } = useTheme();
 
   const [isLoadingButtonDelete, setIsLoadingButtonDelete] = useState(false);
   const { user } = useUser();
+  const { studentId } = route.params || {};
+
+
+  const activeStudentId = useMemo(() => {
+    return studentId ?? student?.id ?? '';
+  }, [studentId, student?.id]);
+
+  useEffect(() => {
+    if (!!studentId) {
+      refetchStudent(activeStudentId)
+
+    }
+  }, [activeStudentId])
+
 
   const { data: assessmentsStudent, isLoading, refetch } = useQuery({
     queryKey: ['getAssessmentsByStudentId', student?.id],
@@ -77,7 +99,7 @@ const DetailsAssessments = () => {
               <Button
                 icon="plus"
                 mode='text'
-                onPress={() => navigation.navigate('CreateAssessments', { assessmentsId: student?.id })}
+                onPress={() => navigation.navigate('CreateAssessments', { studentId: activeStudentId })}
               >Nova avaliação
               </Button>
             }
@@ -103,7 +125,7 @@ const DetailsAssessments = () => {
         <Card.Title
           title="Avaliação"
           subtitle={`ID ${item.id}`}
-          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateAssessments', { assessmentsId: item.id }) }} />}
+          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateAssessments', { assessmentsId: item.id, studentId: activeStudentId }) }} />}
         />
         <Card.Actions>
 

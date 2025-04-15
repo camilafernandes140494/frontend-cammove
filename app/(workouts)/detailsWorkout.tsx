@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
 import {
   Text,
@@ -18,12 +18,22 @@ import { useTheme } from '../ThemeContext';
 
 export type RootStackParamList = {
   Workouts: undefined;
-  CreateWorkout: { workoutId?: string };
+  CreateWorkout: { workoutId?: string, studentId?: string };
 };
 
-const DetailsWorkout = () => {
+type DetailsWorkoutProps = {
+  route: {
+    params?: {
+      studentId?: string;
+    };
+  };
+};
+
+const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
   const [visible, setVisible] = useState(false);
-  const { student } = useStudent();
+  const { student, refetchStudent } = useStudent();
+  const { studentId } = route.params || {};
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const { theme } = useTheme();
@@ -31,17 +41,28 @@ const DetailsWorkout = () => {
   const [isLoadingButtonDelete, setIsLoadingButtonDelete] = useState(false);
   const { user } = useUser();
 
-  const { data: workoutsStudent, isLoading, refetch } = useQuery({
-    queryKey: ['getWorkoutsByStudentId', student?.id],
-    queryFn: () => getWorkoutsByStudentId(student?.id || ''),
-    enabled: !!student?.id
-  });
+  const activeStudentId = useMemo(() => {
+    return studentId ?? student?.id ?? '';
+  }, [studentId, student?.id]);
 
+  useEffect(() => {
+    if (!!studentId) {
+      refetchStudent(activeStudentId)
+
+    }
+  }, [activeStudentId])
+
+
+  const { data: workoutsStudent, isLoading, refetch } = useQuery({
+    queryKey: ['getWorkoutsByStudentId', activeStudentId],
+    queryFn: () => getWorkoutsByStudentId(activeStudentId),
+    enabled: !!activeStudentId
+  });
 
   const handleDelete = async (workoutId: string) => {
     setIsLoadingButtonDelete(true);
     try {
-      await deleteWorkoutsByStudentId(workoutId, student?.id || '', user?.id || '');
+      await deleteWorkoutsByStudentId(workoutId, activeStudentId, user?.id || '');
       refetch()
     } catch (error) {
       console.error('Erro ao criar exercício:', error);
@@ -53,7 +74,7 @@ const DetailsWorkout = () => {
   const handleDuplicate = async (workoutId: string) => {
     setIsLoadingButton(true);
     try {
-      await duplicateWorkout(workoutId, student?.id || '', user?.id || '');
+      await duplicateWorkout(workoutId, activeStudentId, user?.id || '');
       refetch()
     } catch (error) {
       console.error('Erro ao criar exercício:', error);
@@ -76,7 +97,7 @@ const DetailsWorkout = () => {
               <Button
                 icon="plus"
                 mode='text'
-                onPress={() => navigation.navigate('CreateWorkout', { workoutId: student?.id })}
+                onPress={() => navigation.navigate('CreateWorkout', { studentId: activeStudentId })}
               >Novo treino
               </Button>
             }
@@ -100,9 +121,9 @@ const DetailsWorkout = () => {
       renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
       >
         <Card.Title
-          title="Treino"
+          title={item.nameWorkout}
           subtitle={`ID ${item.id}`}
-          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item.id }) }} />}
+          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item.id, studentId: activeStudentId }) }} />}
         />
         <Card.Actions>
 

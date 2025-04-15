@@ -8,7 +8,6 @@ import {
   IconButton
 } from 'react-native-paper';
 import FilterInput from '@/components/FilterInput';
-import { useStudent } from '../context/StudentContext';
 import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate, getNextMonth } from '@/common/common';
@@ -19,7 +18,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Assessments = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>({ name: '' });
-  const { refetchStudent } = useStudent();
   const { user } = useUser();
   const [value, setValue] = useState('assessments');
   const { theme } = useTheme();
@@ -57,7 +55,7 @@ const Assessments = ({ navigation }: any) => {
             {value === 'students' && (
               <SelectStudent
                 teacherId={user?.id!}
-                onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('DetailsAssessments' as never) }}
+                onSelect={(student) => { navigation.navigate('DetailsAssessments', { studentId: student.studentId }) }}
                 filterName={params?.name}
               />
             )}
@@ -84,8 +82,7 @@ const Assessments = ({ navigation }: any) => {
                     icon="chevron-right"
                     size={24}
                     onPress={() => {
-                      refetchStudent(item.studentId);
-                      navigation.navigate('CreateAssessments', { assessmentsId: item.workoutId });
+                      navigation.navigate('CreateAssessments', { assessmentsId: item.workoutId, studentId: item.studentId });
                     }}
                   />
                 )}

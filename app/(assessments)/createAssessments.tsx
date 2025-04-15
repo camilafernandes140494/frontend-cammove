@@ -3,7 +3,7 @@ import { FlatList, View } from 'react-native';
 import {
   Text, Appbar, Button
 } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import SelectStudent from '@/components/SelectStudent';
 import { useStudent } from '../context/StudentContext';
 import FilterInput from '@/components/FilterInput';
@@ -13,14 +13,27 @@ import { useTheme } from '../ThemeContext';
 import FormAssessments from '@/components/FormAssessments';
 import { formatDate } from '@/common/common';
 
-const CreateAssessments = () => {
+export type RootStackParamList = {
+  Workouts: undefined;
+  CreateWorkout: { workoutId?: string, studentId?: string };
+};
+
+type CreateAssessmentsProps = {
+  route: {
+    params?: {
+      assessmentsId?: string;
+      studentId?: string
+    };
+  };
+};
+
+const CreateAssessments = ({ route }: CreateAssessmentsProps) => {
   const navigation = useNavigation();
-  const route = useRoute();
   const { user } = useUser();
   const { refetchStudent } = useStudent();
   const [params, setParams] = useState('');
-  const { assessmentsId } = route.params as { assessmentsId: string | undefined };
-  const [newStudent, setNewStudent] = useState(!assessmentsId);
+  const { assessmentsId, studentId } = route.params || {};
+  const [newStudent, setNewStudent] = useState(!studentId);
   const { theme } = useTheme();
   const today = new Date();
   const formattedDate = formatDate(today);
@@ -30,7 +43,7 @@ const CreateAssessments = () => {
         <Appbar.BackAction onPress={() => navigation.navigate('Assessments' as never)} />
         <Appbar.Content title="Cadastrar avaliação" />
       </Appbar.Header>
-      {!newStudent && <StudentCard>
+      {!assessmentsId && <StudentCard>
         {assessmentsId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {assessmentsId}</Text>}
         <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>{`Criado em: ${formattedDate}`}</Text>
       </StudentCard>}

@@ -4,6 +4,7 @@ import { useUser } from '../UserContext';
 import Home from '../(home)/home';
 import StudentProfile from '../(home)/studentProfile';
 import RegisterUserByTeacher from '../(home)/registerUserByTeacher';
+import UserList from '../(home)/UserList';
 
 
 const Stack = createStackNavigator();
@@ -15,6 +16,7 @@ function HomeNavigator() {
         <StudentProvider studentCode={user?.id || ''}>
             <Stack.Navigator>
                 <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+                <Stack.Screen name="UserList" component={UserList} options={{ headerShown: false }} />
                 <Stack.Screen name="StudentProfile" component={StudentProfile} options={{ headerShown: false }} />
                 <Stack.Screen name="RegisterUserByTeacher" component={RegisterUserByTeacher} options={{ headerShown: false }} />
             </Stack.Navigator>

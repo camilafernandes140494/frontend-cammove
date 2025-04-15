@@ -15,7 +15,6 @@ import { checkDateStatus, DateStatus, formatDate, getNextMonth } from '@/common/
 import CustomChip from '@/components/CustomChip';
 import FilterInput from '@/components/FilterInput';
 import { getWorkoutsSummaryResponse } from '@/api/workout/workout.types';
-import { useStudent } from '../context/StudentContext';
 import SelectStudent from '@/components/SelectStudent';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
@@ -24,7 +23,6 @@ const Workouts = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
   const [workoutsSummaryFilter, setWorkoutsSummaryFilter] = useState<getWorkoutsSummaryResponse[]>();
   const [dateStatus, setDateStatus] = useState<DateStatus>('INVALID_DATE');
-  const { refetchStudent } = useStudent();
   const [value, setValue] = useState('workouts');
   const { user } = useUser();
   const { theme } = useTheme();
@@ -34,6 +32,7 @@ const Workouts = ({ navigation }: any) => {
     queryFn: () => getWorkoutsSummary(user?.id!, params),
     enabled: !!user?.id,
   });
+
 
   useEffect(() => {
     if (!workoutsSummary) return;
@@ -102,7 +101,7 @@ const Workouts = ({ navigation }: any) => {
             {value === 'students' && (
               <SelectStudent
                 teacherId={user?.id!}
-                onSelect={(student) => { refetchStudent(student.studentId), navigation.navigate('DetailsWorkout' as never) }}
+                onSelect={(student) => { navigation.navigate('DetailsWorkout', { studentId: student.studentId }) }}
                 filterName={params?.name}
               />
             )}
@@ -120,8 +119,7 @@ const Workouts = ({ navigation }: any) => {
                     icon="chevron-right"
                     size={24}
                     onPress={() => {
-                      refetchStudent(item.studentId);
-                      navigation.navigate('CreateWorkout', { workoutId: item.workoutId });
+                      navigation.navigate('CreateWorkout', { workoutId: item.workoutId, studentId: item.studentId });
                     }}
                   />
                 )}
