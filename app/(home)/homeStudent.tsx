@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Appbar, Avatar, Button, Card, Snackbar, Text } from 'react-native-paper';
+import { Appbar, Avatar, Button, Card, Dialog, Divider, Portal, Snackbar, Text } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
@@ -101,6 +101,7 @@ const HomeStudent = () => {
 
     return { count, message, icon };
   }, [datesArray]);
+  const [visibleConfig, setVisibleConfig] = useState(false);
 
 
   return (
@@ -108,59 +109,63 @@ const HomeStudent = () => {
       <Appbar.Header mode='small'>
         <Appbar.Content title="CamMove" />
         <Appbar.Action icon="bell-outline" onPress={() => { }} />
-      </Appbar.Header>
-      <View style={{ display: 'flex', backgroundColor: theme.colors.secondaryContainer, flexDirection: 'row', alignItems: "center", padding: 16 }}>
-        <Avatar.Text label={getInitials(user?.name || '')} />
+        <Appbar.Action icon="menu" onPress={() => setVisibleConfig(!visibleConfig)} />
+        <Portal>
+          <Dialog visible={visibleConfig} onDismiss={() => setVisibleConfig(false)}>
+            <Dialog.Title style={{ textAlign: 'center' }}>Configurações</Dialog.Title>
+            <Dialog.Content style={{ alignItems: 'flex-start', gap: 16 }}>
 
-        <View style={{ display: 'flex', marginHorizontal: 16 }}>
-          <View style={{ display: 'flex', flexDirection: "row", alignItems: 'center', justifyContent: "space-between", width: '85%', gap: 16 }}>
-            <Text variant="headlineMedium" >
-              Olá, {user?.name}
-            </Text>
-            <Ionicons name={isDarkMode ? "moon-outline" : "sunny-outline"}
-              size={24} onPress={toggleTheme} color={theme.colors.onBackground} />
-          </View>
+              <Button mode="text" icon={isDarkMode ? 'moon-waning-crescent' : 'weather-sunny'} onPress={toggleTheme}>
+                {isDarkMode ? 'Usar tema claro' : 'Usar tema escuro'}
+              </Button>
+              <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
+              <CustomModal
+                onPress={handleSubmit(onSubmit)}
+                title="Editar perfil"
+                trigger={
+                  <Button mode="text" icon="cog-outline">
+                    Editar perfil
+                  </Button>
+                }
+              >
+                <FormField
+                  control={control}
+                  mode="flat"
+                  name="name"
+                  label="Nome"
+                  type="text"
+                />
+              </CustomModal>
 
-          <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+              <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
 
-            <CustomModal
-              onPress={handleSubmit(onSubmit)}
-              title="Editar perfil"
-              trigger={
-                <Button mode="text" icon="cog-outline" >
-                  Editar perfil
-                </Button>
-              }
-            >
-              <FormField
-                control={control}
-                mode="flat"
-                name="name"
-                label="Nome"
-                type="text"
+              <CustomModal
+                onPress={() =>
+                  setUser({
+                    id: null,
+                    name: null,
+                    gender: null,
+                    permission: null,
+                    token: null,
+                  })
+                }
+                title="Tem certeza de que deseja sair? Você precisará fazer login novamente para acessar sua conta."
+                primaryButtonLabel="Sair"
+                trigger={
+                  <Button mode="text" icon="logout">
+                    Sair
+                  </Button>
+                }
               />
-            </CustomModal>
-
-            <CustomModal
-              onPress={() => setUser({
-                id: null,
-                name: null,
-                gender: null,
-                permission: null,
-                token: null
-              })}
-              title="Tem certeza de que deseja sair? Você precisará fazer login novamente para acessar sua conta."
-              primaryButtonLabel="Sair"
-              trigger={
-                <Button mode="text" icon="logout" >
-                  Sair
-                </Button>
-              }
-            />
-
-          </View>
-        </View>
-
+            </Dialog.Content>
+          </Dialog>
+        </Portal>
+      </Appbar.Header>
+      <View style={{ display: 'flex', backgroundColor: theme.colors.secondaryContainer, flexDirection: 'row', alignItems: "center", padding: 16, gap: 16 }}>
+        <Avatar.Text label={getInitials(user?.name || '')} />
+        <Text variant="headlineMedium" >
+          Olá, {user?.name}
+        </Text>
       </View>
 
 

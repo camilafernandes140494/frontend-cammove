@@ -241,7 +241,15 @@ const DetailsWorkoutStudent = () => {
                         title="Observações"
                         description={item.observations ? item.observations : "Nenhuma observação"}
                         style={{ marginTop: 12 }}
-                      /></>
+                      // propsTitle={{
+                      //   style: { color: theme.colors.onPrimary }
+                      // }}
+                      // propsDescription={{
+                      //   style: { color: theme.colors.onPrimary }
+                      // }}
+                      />
+
+                    </>
                   )}
 
                   <Button
