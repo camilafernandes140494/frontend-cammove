@@ -13,7 +13,6 @@ import { patchUser } from '@/api/users/users.api';
 import { useTheme } from '../ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useStudent } from '../context/StudentContext';
 import { getRelationship } from '@/api/relationships/relationships.api';
 import { useQuery } from '@tanstack/react-query';
 
@@ -29,9 +28,11 @@ const Home = () => {
     const [visible, setVisible] = useState(false);
     const { theme, toggleTheme, isDarkMode } = useTheme();
     const [rating, setRating] = useState(0);
-    const [showStudent, setShowStudent] = useState(false);
+    const [visibleConfig, setVisibleConfig] = useState(false);
+
     const navigation = useNavigation<NavigationProp<RootHomeStackParamList>>();
-    const { refetchStudent } = useStudent();
+    type IoniconName = keyof typeof Ionicons.glyphMap;
+
 
     const modalSchema = z.object({
         name: z.string().min(1, "Obrigatório"),
@@ -69,9 +70,7 @@ const Home = () => {
         }
     }
 
-    type IoniconName = keyof typeof Ionicons.glyphMap;
 
-    const [visibleConfig, setVisibleConfig] = useState(false);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -116,6 +115,7 @@ const Home = () => {
                                         gender: null,
                                         permission: null,
                                         token: null,
+                                        status: null
                                     })
                                 }
                                 title="Tem certeza de que deseja sair? Você precisará fazer login novamente para acessar sua conta."

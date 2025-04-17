@@ -39,7 +39,7 @@ const Login = () => {
             const userCredential = await postLogin(values);
             const user = await getUserById(userCredential.user_id);
 
-            setUser({ id: userCredential.user_id, token: userCredential.uid, });
+            setUser({ id: userCredential.user_id, token: userCredential.uid, status: user.status });
             login({ id: userCredential.user_id, token: userCredential.uid, name: user.name, gender: user.gender, permission: user.permission })
             navigation.navigate('Home' as never);
         } catch (error) {

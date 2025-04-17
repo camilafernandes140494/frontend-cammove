@@ -25,16 +25,14 @@ const WorkoutsStudent = ({ navigation }: any) => {
     enabled: !!user?.id
   });
 
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <Appbar.Header >
-        <Appbar.BackAction onPress={() => navigation.navigate('AssessmentsStudent')} />
+      <Appbar.Header mode='small' >
         <Appbar.Content title="Meus treinos" />
       </Appbar.Header>
       <FlatList
         data={workoutsStudent}
-        keyExtractor={(item) => `${item}`}
+        keyExtractor={(item) => `${item.id}`}
         refreshing={isLoading || isFetching}
         onRefresh={refetch}
         renderItem={({ item }) => <>

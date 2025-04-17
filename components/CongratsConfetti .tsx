@@ -8,6 +8,7 @@ interface CongratsConfettiProps {
   visible: boolean;
   onDismiss: VoidFunction;
   onEvaluate: VoidFunction;
+
 }
 
 const CongratsConfetti = ({ visible, onDismiss, onEvaluate }: CongratsConfettiProps) => {

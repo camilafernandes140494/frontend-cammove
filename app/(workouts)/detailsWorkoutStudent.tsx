@@ -9,7 +9,7 @@ import {
 } from 'react-native-paper';
 import { useStudent } from '../context/StudentContext';
 import { getWorkoutByStudentIdAndWorkoutId } from '@/api/workout/workout.api';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import StudentCard from '@/components/StudentCard';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../ThemeContext';
@@ -19,10 +19,14 @@ import { ptBR } from 'date-fns/locale';
 import Skeleton from '@/components/Skeleton';
 import InfoField from '@/components/InfoField';
 import CongratsConfetti from '@/components/CongratsConfetti ';
+import { getReviewById } from '@/api/reviews/reviews.api';
+import { useUser } from '../UserContext';
+import { useMyTeacher } from '../context/MyTeacherContext';
+import { logTrainingDay } from '@/api/workoutsDay/workoutsDay.api';
 
 export type RootStackParamList = {
   WorkoutsStudent: undefined;
-  EvaluateTraining: undefined;
+  ReviewsStudent: { workoutId?: string };
   CreateWorkout: { workoutId?: string };
 };
 
@@ -34,6 +38,11 @@ const DetailsWorkoutStudent = () => {
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
   const [showDetails, setShowDetails] = useState<{ [key: string]: boolean }>({});
   const [showCongrats, setShowCongrats] = useState(false);
+  const { user } = useUser();
+  const { teacher } = useMyTeacher()
+
+
+
 
   const toggleShowDetails = (id: string) => {
     setShowDetails(prev => ({
@@ -50,6 +59,12 @@ const DetailsWorkoutStudent = () => {
   };
 
   const { workoutId } = route.params as { workoutId: string | undefined };
+
+  const { data: review } = useQuery({
+    queryKey: ['getReviewById', user?.id, teacher?.teacherId, workoutId],
+    queryFn: () => getReviewById(teacher?.teacherId || '', workoutId || '', user?.id || ''),
+    enabled: !!user?.id,
+  });
 
   const { data: workoutByStudent, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
@@ -69,6 +84,11 @@ const DetailsWorkoutStudent = () => {
     }
   };
 
+  const mutation = useMutation({
+    mutationFn: async () => {
+      await logTrainingDay(user?.id || '',);
+    }
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -76,24 +96,37 @@ const DetailsWorkoutStudent = () => {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.navigate('WorkoutsStudent')} />
           <Appbar.Content title={workoutByStudent?.nameWorkout} />
-
         </Appbar.Header>
         <StudentCard>
 
           {workoutId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {workoutId}</Text>}
-          <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', marginLeft: 16, marginTop: 16 }}>
-            <Ionicons
-              name={'calendar'}
-              size={18}
-              color={theme.colors.primary}
-            />
-            {workoutByStudent?.createdAt ? (
-              <Text>
-                {format(new Date(workoutByStudent.createdAt), "dd 'de' MMMM 'de' yyyy", {
-                  locale: ptBR,
-                })}
-              </Text>
-            ) : null}
+          <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+
+            <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', marginLeft: 16, marginTop: 16 }}>
+              <Ionicons
+                name={'calendar'}
+                size={18}
+                color={theme.colors.primary}
+              />
+              {workoutByStudent?.createdAt ? (
+                <Text>
+                  {format(new Date(workoutByStudent.createdAt), "dd 'de' MMMM 'de' yyyy", {
+                    locale: ptBR,
+                  })}
+                </Text>
+              ) : null}
+
+            </View>
+            {review?.review && <Button
+              mode='elevated'
+              icon={'star'}
+              style={{
+                alignSelf: 'flex-start',
+                marginRight: 16
+              }} onPress={() => navigation.navigate('ReviewsStudent', { workoutId: workoutId })}>
+              Ver avaliação
+            </Button>}
+
           </View>
         </StudentCard>
       </>
@@ -262,6 +295,7 @@ const DetailsWorkoutStudent = () => {
                   >
                     {showDetails[item.exerciseId.id || ''] ? "Ocultar detalhes" : "Mostrar detalhes"}
                   </Button>
+
                 </Card.Content>
 
               </Card>
@@ -277,19 +311,20 @@ const DetailsWorkoutStudent = () => {
             <CongratsConfetti
               visible={showCongrats}
               onDismiss={() => { setShowCongrats(false), navigation.navigate('WorkoutsStudent') }}
-              onEvaluate={() => { setShowCongrats(false), navigation.navigate('EvaluateTraining') }}
+              onEvaluate={() => { setShowCongrats(false), navigation.navigate('ReviewsStudent', { workoutId: workoutId }) }}
             />
-
-            <Button
+            {!isLoading && <Button
               mode='outlined'
-              onPress={() => setAllCheckedItems()}
+              onPress={() => { mutation.mutate(), setAllCheckedItems() }}
+              disabled={mutation.isPending}
               style={{
                 marginTop: 16,
                 width: "100%"
               }}
             >
               Finalizar treino
-            </Button>
+            </Button>}
+
           </View>}
         ListEmptyComponent={
           isLoading ? (

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { Appbar, Avatar, Button, Card, Dialog, Divider, Portal, Snackbar, Text } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
@@ -11,11 +11,10 @@ import { useForm } from 'react-hook-form';
 import * as z from "zod";
 import { patchUser } from '@/api/users/users.api';
 import { useTheme } from '../ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useStudent } from '../context/StudentContext';
 import { Calendar } from "react-native-calendars";
-import { isAfter, subDays, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
+import { getTrainingDays } from '@/api/workoutsDay/workoutsDay.api';
 
 export type RootHomeStackParamList = {
   home: undefined;
@@ -27,11 +26,9 @@ const HomeStudent = () => {
   const { user, setUser } = useUser();
   const [visible, setVisible] = useState(false);
   const { theme, toggleTheme, isDarkMode } = useTheme();
-  const [rating, setRating] = useState(0);
-  const [showStudent, setShowStudent] = useState(false);
-  const navigation = useNavigation<NavigationProp<RootHomeStackParamList>>();
-  const { refetchStudent } = useStudent();
+  const [visibleConfig, setVisibleConfig] = useState(false);
 
+  console.log(user)
   const modalSchema = z.object({
     name: z.string().min(1, "Obrigatório"),
   });
@@ -63,9 +60,14 @@ const HomeStudent = () => {
     }
   }
 
-  type IoniconName = keyof typeof Ionicons.glyphMap;
-  const datesArray = ['2025-04-04', '2025-04-10', '2025-04-15'];
-  const markedDates = datesArray.reduce((acc, date) => {
+
+  const { data: datesArray, refetch, isLoading, isFetching } = useQuery({
+    queryKey: ['getTrainingDays', user?.id],
+    queryFn: () => getTrainingDays(user?.id!,),
+    enabled: !!user?.id
+  });
+
+  const markedDates = datesArray?.reduce((acc, date) => {
     acc[date] = {
       marked: true,
       dotColor: 'green',
@@ -77,10 +79,22 @@ const HomeStudent = () => {
 
 
   const { count, message, icon } = useMemo(() => {
-    const oneWeekAgo = subDays(new Date(), 7);
-    const count = datesArray.filter(date =>
-      isAfter(parseISO(date), oneWeekAgo)
-    ).length;
+    if (!datesArray) return { count: 0, message: '', icon: 'emoticon-neutral-outline' };
+
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    // Extrai apenas os dias únicos do mês atual
+    const uniqueWorkoutDays = new Set(
+      datesArray
+        .map(dateStr => parseISO(dateStr))
+        .filter(date =>
+          date.getMonth() === currentMonth && date.getFullYear() === currentYear
+        )
+        .map(date => date.getDate()) // pegando só o dia para contar os únicos
+    );
+
+    const count = uniqueWorkoutDays.size;
 
     let message = '';
     let icon = 'emoticon-happy-outline';
@@ -88,10 +102,14 @@ const HomeStudent = () => {
     if (count >= 3) {
       message = 'Incrível! Você está se superando! 💥';
       icon = 'fire';
-    } else if (count === 2) {
+    } else if (count >= 15) {
       message = 'Muito bem! Continue nesse ritmo! 🙌';
       icon = 'emoticon-excited-outline';
-    } else if (count === 1) {
+    } else if (count <= 6) {
+      message = 'Você começou, e isso é o mais importante! 💪';
+      icon = 'star-outline';
+    }
+    else if (count === 1) {
       message = 'Você começou, e isso é o mais importante! 💪';
       icon = 'star-outline';
     } else {
@@ -101,7 +119,7 @@ const HomeStudent = () => {
 
     return { count, message, icon };
   }, [datesArray]);
-  const [visibleConfig, setVisibleConfig] = useState(false);
+
 
 
   return (
@@ -168,8 +186,6 @@ const HomeStudent = () => {
         </Text>
       </View>
 
-
-
       <ScrollView
         style={{ flex: 1, }}
         contentContainerStyle={{
@@ -178,10 +194,28 @@ const HomeStudent = () => {
           padding: 24,
           gap: 12
         }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading || isFetching}
+            onRefresh={refetch}
+          />
+        }
       >
+        {user?.status && <Card style={{ backgroundColor: theme.colors.onErrorContainer }}>
+          <Card.Title
+            title="Aluno Inativo"
+            subtitle="Entre em contato com o professor."
+            titleStyle={{ color: theme.colors.errorContainer, fontWeight: 'bold' }}
+            subtitleStyle={{ color: theme.colors.errorContainer }}
+            left={(props) => (
+              <Avatar.Icon {...props} icon="alert-circle" color={theme.colors.errorContainer} style={{ backgroundColor: theme.colors.onErrorContainer }} />
+            )}
+          />
+        </Card>}
+
         <View
           style={{
-            backgroundColor: '#fff', // muda aqui para a cor que quiser
+            backgroundColor: '#fff',
             borderRadius: 12,
             padding: 10,
             elevation: 3,
@@ -208,7 +242,7 @@ const HomeStudent = () => {
             <Avatar.Icon size={40} icon={icon} style={{ marginRight: 12 }} />
             <View style={{ flex: 1 }}>
               <Text variant="titleMedium" style={{ marginBottom: 4 }}>
-                Você treinou {count} {count === 1 ? 'vez' : 'vezes'} na última semana
+                Você treinou {count} {count === 1 ? 'vez' : 'vezes'} no último mês
               </Text>
               <Text variant="bodyMedium">{message}</Text>
             </View>
