@@ -5,6 +5,7 @@ import WorkoutsNavigator from './WorkoutsNavigator';
 import HomeNavigator from './HomeNavigator';
 import AssessmentsNavigator from './AssessmentsNavigator';
 import { useTheme } from '../ThemeContext';
+import ScheduleNavigator from './ScheduleNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,6 +47,13 @@ function TabsTeacher() {
         tabBarLabel: "Exercícios",
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="barbell" size={size} color={color} />
+        ),
+      }} />
+      <Tab.Screen name="ScheduleScreen" component={ScheduleNavigator} options={{
+        headerShown: false,
+        tabBarLabel: "Agenda",
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name="calendar-outline" size={size} color={color} />
         ),
       }} />
 

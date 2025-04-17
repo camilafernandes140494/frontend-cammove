@@ -18,7 +18,7 @@ const Exercises = ({ navigation }: any) => {
 
     const [params, setParams] = useState<{ name: string }>();
 
-    const { data: exercises, isLoading, refetch } = useQuery({
+    const { data: exercises, isLoading, refetch, isFetching } = useQuery({
         queryKey: ['getExercises', params],
         queryFn: () => getExercises(params),
         enabled: true
@@ -49,6 +49,8 @@ const Exercises = ({ navigation }: any) => {
 
             <FlatList
                 data={exercises}
+                refreshing={isLoading || isFetching}
+                onRefresh={refetch}
                 ListHeaderComponent={<View style={{ padding: 16 }}>
                     <Searchbar
                         placeholder="Pesquisar exercício"

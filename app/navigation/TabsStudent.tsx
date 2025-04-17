@@ -45,7 +45,7 @@ function TabsStudent() {
         }} />
         <Tab.Screen name="ExercisesScreen" component={ExercisesNavigator} options={{
           headerShown: false,
-          tabBarLabel: "Agendamentos",
+          tabBarLabel: "Agenda",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
