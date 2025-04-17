@@ -37,6 +37,22 @@ export const getRelationship = async (
   }
 };
 
+export const getMyTeacher = async (
+  studentId: string,
+  params?: getRelationshipFilter,
+) => {
+  try {
+    const response = await api.get<Relationship>(
+      `/relationships/students/${studentId}/teacher`,
+      { params },
+    );
+    return response.data; // Retorna os dados da resposta
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
 export const getStatusRelationships = async (
   teacherId: string,
   studentId: string,
