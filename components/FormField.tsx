@@ -1,20 +1,22 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { TextInput, Switch, HelperText, Button, Menu, Text, RadioButton, Checkbox, TextInputProps, Chip } from "react-native-paper";
+import { TextInput, Switch, HelperText, Button, Menu, Text, RadioButton, Checkbox, TextInputProps, Chip, ButtonProps } from "react-native-paper";
 import { Controller } from "react-hook-form";
 import { useTheme } from "@/app/ThemeContext";
-import { maskDateInput } from "@/common/common";
+import { maskDateInput, maskTimeInput } from "@/common/common";
+import { Calendar } from "react-native-calendars";
 
 interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
   control: any;
   name: string;
-  label: string;
-  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip' | 'birthDate' | 'number';
+  label?: string;
+  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip' | "chip-multi" | 'birthDate' | 'number' | 'calendar' | 'time';
   options?: any[];
   getLabel?: (option: any) => string;
+  buttonProps?: Partial<ButtonProps>;
 }
 
-export function FormField({ control, name, label, type = "text", options, getLabel, ...textInputProps }: FormFieldProps) {
+export function FormField({ control, name, label, type = "text", options, getLabel, buttonProps, ...textInputProps }: FormFieldProps) {
   const [menuVisible, setMenuVisible] = useState(false);
   const { theme } = useTheme();
 
@@ -24,7 +26,7 @@ export function FormField({ control, name, label, type = "text", options, getLab
       name={name}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View style={{ marginBottom: 10 }}>
-          {(type === "text" || type === "birthDate" || type === 'number') && (
+          {(type === "text" || type === "birthDate" || type === 'number' || type === 'time') && (
             <TextInput
               label={label}
               value={value?.toString() || ''}
@@ -33,8 +35,11 @@ export function FormField({ control, name, label, type = "text", options, getLab
 
                 if (type === "birthDate") {
                   newValue = maskDateInput(text);
-                } else if (type === "number") {
-
+                }
+                else if (type === "time") {
+                  newValue = maskTimeInput(text);
+                }
+                else if (type === "number") {
                   newValue = Number(text);
                 } else {
                   newValue = text;
@@ -65,6 +70,7 @@ export function FormField({ control, name, label, type = "text", options, getLab
                 <Button
                   mode="outlined"
                   style={{ borderWidth: error ? 2 : 1, borderColor: error ? theme.colors.error : undefined }}
+                  {...buttonProps}
                   textColor={error ? theme.colors.error : undefined}
                   onPress={() => setMenuVisible(true)}>
                   {value ? getLabel?.(value) || label : label}
@@ -119,6 +125,74 @@ export function FormField({ control, name, label, type = "text", options, getLab
                 </Chip>
               ))}
             </View>
+          )}
+
+          {type === "calendar" && (
+            <>
+              <Text style={{ margin: 10, color: theme.colors.primary, }}>{label}</Text>
+              <View
+                style={{
+                  backgroundColor: '#fff',
+                  borderRadius: 12,
+                  padding: 10,
+                  elevation: 3,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  shadowOffset: { width: 0, height: 2 },
+                }}
+              >
+
+                <Calendar
+                  markedDates={
+                    (value || []).reduce((acc: any, date: string) => {
+                      acc[date] = { selected: true, selectedColor: theme.colors.primary };
+                      return acc;
+                    }, {})
+                  }
+                  onDayPress={(day: any) => {
+                    const selectedDate = day.dateString;
+                    let updatedDates = [...(value || [])];
+
+                    if (updatedDates.includes(selectedDate)) {
+                      updatedDates = updatedDates.filter((d) => d !== selectedDate); // desmarca
+                    } else {
+                      updatedDates.push(selectedDate); // marca
+                    }
+
+                    onChange(updatedDates);
+                  }}
+                  monthFormat={'MMMM yyyy'}
+                />
+              </View>
+            </>
+
+          )}
+
+          {type === "chip-multi" && options && (<>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 20 }}>
+              {options.map((option, index) => {
+                const isSelected = Array.isArray(value) && value.includes(option.value);
+                return (
+                  <Chip
+                    key={index}
+                    selected={isSelected}
+                    onPress={() => {
+                      let updatedValue = Array.isArray(value) ? [...value] : [];
+                      if (isSelected) {
+                        updatedValue = updatedValue.filter((val) => val !== option.value);
+                      } else {
+                        updatedValue.push(option.value);
+                      }
+                      onChange(updatedValue);
+                    }}
+                  >
+                    {option.label}
+                  </Chip>
+                );
+              })}
+            </View>
+          </>
           )}
 
           {error && <HelperText type="error">{error.message}</HelperText>}

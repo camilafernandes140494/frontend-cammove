@@ -23,6 +23,20 @@ export const maskDateInput = (text: string) => {
     return formatted;
 };
 
+export function maskTimeInput(value: string): string {
+    const numeric = value.replace(/\D/g, '');
+
+    if (numeric.length === 0) return '';
+
+    if (numeric.length <= 2) return numeric;
+
+    let hours = numeric.slice(0, 2);
+    let minutes = numeric.slice(2, 4);
+
+    return `${hours}:${minutes}`;
+}
+
+
 export function getNextMonth(dateString: string): string {
     const date = new Date(dateString);
     date.setMonth(date.getMonth() + 1);
