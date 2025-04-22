@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
-import { Appbar, Button, Text } from 'react-native-paper';
+import { Appbar, Button, SegmentedButtons, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
@@ -11,6 +11,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { getScheduleById, patchSchedule, postSchedule } from '@/api/schedules/schedules.api';
 import { SchedulesData } from '@/api/schedules/schedules.types';
 import { FormField } from '@/components/FormField';
+import SelectStudent from '@/components/SelectStudent';
+import { getRelationship } from '@/api/relationships/relationships.api';
 
 type CreateWorkoutProps = {
   route: {
@@ -27,6 +29,7 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
   const { schedulesId } = route.params || {};
   const { theme } = useTheme();
   const [visible, setVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState('details');
 
 
   const { data: scheduleById, isLoading, isFetching, refetch } = useQuery({
@@ -48,6 +51,7 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
     ).optional(),
     available: z.boolean(),
     customTime: z.string(),
+    studentLimit: z.number().min(1, "Informe ao menos 1 aluno").optional(),
   });
 
   const timeOptions = useMemo(() => [
@@ -90,7 +94,8 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
       description: scheduleById?.description || '',
       students: scheduleById?.students || [],
       available: scheduleById?.available || false,
-      customTime: customOnly[0] || ''
+      customTime: customOnly[0] || '',
+      studentLimit: scheduleById?.studentLimit || 1,
     };
   }, [scheduleById, timeOptionValues]);
 
@@ -138,6 +143,13 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
   };
   const selectedTime = watch("time");
 
+  const { data: students } = useQuery({
+    queryKey: ['getRelationship', user?.id,],
+    queryFn: () => getRelationship(user?.id!),
+    enabled: !!user?.id
+  });
+
+
   return (
     <>
       <Appbar.Header>
@@ -158,32 +170,67 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
             keyExtractor={() => 'header'}
             renderItem={() =>
               <View>
-                <Text variant="titleSmall" style={{ marginBottom: 8 }}>Informações do agendamento</Text>
-
-                <FormField control={control} name="name" label="Nome" type="text" />
-                <FormField control={control} name="description" label="Descrição" type="text" multiline numberOfLines={5} />
-                <FormField control={control} name="available" label="Disponível" type="switch" />
-
-                <FormField
-                  control={control}
-                  name="date"
-                  label="Datas disponíveis"
-                  type="calendar"
+                <SegmentedButtons
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  buttons={[
+                    {
+                      value: 'details',
+                      label: 'Detalhes',
+                      icon: 'calendar-text',
+                    },
+                    {
+                      value: 'students',
+                      label: 'Participantes',
+                      icon: 'account-group-outline',
+                    },
+                  ]}
+                  style={{ padding: 24 }}
                 />
-                <Text>Horários disponíveis</Text>
+                {activeTab === 'details' && <>
+                  <FormField control={control} name="name" label="Nome" type="text" />
+                  <FormField control={control} name="description" label="Descrição" type="text" multiline numberOfLines={5} />
 
-                <FormField
-                  control={control}
-                  name="time"
-                  type="chip-multi"
-                  options={timeOptions}
-                />
-                {selectedTime.includes("Personalizado") && (
-                  <FormField control={control} name="customTime" label="Horário personalizado" type="time" keyboardType="numeric" />
-                )}
-                <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
-                  Enviar
-                </Button>
+                  <FormField
+                    control={control}
+                    name="studentLimit"
+                    label="Limite de alunos"
+                    type="number"
+                    keyboardType="numeric"
+                  />
+
+                  <FormField
+                    control={control}
+                    name="date"
+                    label="Datas disponíveis"
+                    type="calendar"
+                  />
+                  <Text>Horários disponíveis</Text>
+
+                  <FormField
+                    control={control}
+                    name="time"
+                    type="chip-multi"
+                    options={timeOptions}
+                  />
+                  {selectedTime.includes("Personalizado") && (
+                    <FormField control={control} name="customTime" label="Horário personalizado" type="time" keyboardType="numeric" />
+                  )}
+                  <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
+                    Enviar
+                  </Button>
+                </>}
+                {activeTab === 'students' && <>
+                  <SelectStudent
+                    teacherId={user?.id!}
+                    onSelect={(student) => console.log(student)}
+                  // filterName={params?.name}
+                  />
+
+                  <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
+                    Enviar
+                  </Button>
+                </>}
               </View>
             }
           />
