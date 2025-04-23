@@ -1,9 +1,9 @@
 import { useTheme } from '@/app/ThemeContext';
 import React, { useState, useMemo } from 'react';
-import { Chip } from 'react-native-paper';
+import { Chip, ChipProps } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-interface CustomChipProps {
+interface CustomChipProps extends Omit<ChipProps, 'children'> {
   label: string;
   icon?: keyof typeof MaterialCommunityIcons.glyphMap;
   color: 'primary' | 'secondary' | 'tertiary' | 'error' | 'warning';
@@ -11,7 +11,7 @@ interface CustomChipProps {
   onSelect?: (selected: boolean) => void;
 }
 
-const CustomChip: React.FC<CustomChipProps> = ({ label, color, outlined = false, icon, onSelect }) => {
+const CustomChip: React.FC<CustomChipProps> = ({ label, color, outlined = false, icon, onSelect, ...props }) => {
   const { theme } = useTheme();
   const [selected, setSelected] = useState(false);
 
@@ -29,6 +29,7 @@ const CustomChip: React.FC<CustomChipProps> = ({ label, color, outlined = false,
     <Chip
       mode={outlined ? 'outlined' : 'flat'}
       textStyle={{ color: colorText }}
+      {...props}
       icon={(props) =>
         icon ? <MaterialCommunityIcons {...props} name={icon} size={20} color={colorText} /> : null
       } style={{
@@ -36,6 +37,7 @@ const CustomChip: React.FC<CustomChipProps> = ({ label, color, outlined = false,
         borderColor: outlined ? chipColor : 'transparent',
         borderWidth: outlined ? 1 : 0,
         marginVertical: 4,
+        ...(props.style && typeof props.style === 'object' ? props.style : {})
       }}
       onPress={handleSelect}
     >
