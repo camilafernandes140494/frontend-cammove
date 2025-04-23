@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
-import { Appbar, Button, SegmentedButtons, Text } from 'react-native-paper';
+import { Appbar, Button, Chip, Menu, SegmentedButtons, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
@@ -11,8 +11,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { getScheduleById, patchSchedule, postSchedule } from '@/api/schedules/schedules.api';
 import { SchedulesData } from '@/api/schedules/schedules.types';
 import { FormField } from '@/components/FormField';
-import SelectStudent from '@/components/SelectStudent';
 import { getRelationship } from '@/api/relationships/relationships.api';
+import { Student } from '@/api/relationships/relationships.types';
 
 type CreateWorkoutProps = {
   route: {
@@ -107,7 +107,7 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
     }
   }, [scheduleById,]);
 
-  const { control, handleSubmit, watch, reset, getValues } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, watch, reset, getValues, setValue } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValuesById
   });
@@ -142,12 +142,6 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
     mutation.mutate({ ...data, time: updatedTime });
   };
   const selectedTime = watch("time");
-
-  const { data: students } = useQuery({
-    queryKey: ['getRelationship', user?.id,],
-    queryFn: () => getRelationship(user?.id!),
-    enabled: !!user?.id
-  });
 
 
   return (
@@ -185,11 +179,11 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
                       icon: 'account-group-outline',
                     },
                   ]}
-                  style={{ padding: 24 }}
+                  style={{ paddingHorizontal: 24, marginBottom: 16 }}
                 />
                 {activeTab === 'details' && <>
                   <FormField control={control} name="name" label="Nome" type="text" />
-                  <FormField control={control} name="description" label="Descrição" type="text" multiline numberOfLines={5} />
+                  <FormField control={control} name="description" label="Descrição" type="text" />
 
                   <FormField
                     control={control}
@@ -205,7 +199,7 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
                     label="Datas disponíveis"
                     type="calendar"
                   />
-                  <Text>Horários disponíveis</Text>
+                  <Text style={{ color: theme.colors.primary, }}>Horários disponíveis</Text>
 
                   <FormField
                     control={control}
@@ -221,10 +215,23 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
                   </Button>
                 </>}
                 {activeTab === 'students' && <>
-                  <SelectStudent
-                    teacherId={user?.id!}
-                    onSelect={(student) => console.log(student)}
-                  // filterName={params?.name}
+                  {(getValues().students?.length || 0) > (getValues().studentLimit || 1) && (
+                    <Chip icon="information" style={{ marginVertical: 16, padding: 12 }} c>
+                      Ultrapassou o limite de alunos
+                    </Chip>
+                  )}
+
+
+                  <FormField
+                    control={control}
+                    name="students"
+                    type="custom"
+                    customRender={({ value, onChange }) => (
+                      <CustomComponent
+                        value={value}
+                        onChange={onChange}
+                      />
+                    )}
                   />
 
                   <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
@@ -242,3 +249,74 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
 };
 
 export default CreateSchedules;
+
+interface CustomComponentProps {
+  value: Partial<Student>[];
+  onChange: (val: Partial<Student>[]) => void;
+}
+
+export const CustomComponent = ({ value = [], onChange }: CustomComponentProps) => {
+  const { user } = useUser();
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const { data } = useQuery({
+    queryKey: ["getRelationship", user?.id,],
+    queryFn: () => getRelationship(user?.id!, { status: "ACTIVE" }),
+    enabled: !!user?.id,
+  });
+
+  const students: Student[] = data?.students ?? [];
+
+  const handleSelect = (student: Partial<Student>) => {
+    if (!value.some(s => s.studentId === student.studentId)) {
+      onChange([...value, student]);
+    }
+    setMenuVisible(false);
+  };
+
+  const handleRemove = (studentId: string) => {
+    onChange(value.filter(s => s.studentId !== studentId));
+  };
+
+  return (
+    <View style={{ marginBottom: 10 }}>
+      <Menu
+        visible={menuVisible}
+        onDismiss={() => setMenuVisible(false)}
+        style={{ width: "90%" }}
+        anchor={
+          <Button mode="outlined" onPress={() => setMenuVisible(true)} style={{ marginBottom: 12 }}>
+            Selecionar aluno(a)
+          </Button>
+        }
+      >
+        {students.length > 0 ? (
+          students.map((student) => (
+            <Menu.Item
+              key={student.studentId}
+              title={student.studentName}
+              onPress={() => handleSelect(student)}
+            />
+          ))
+        ) : (
+          <Menu.Item title="Nenhum aluno encontrado" disabled />
+        )}
+      </Menu>
+
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 8,
+          marginTop: 10,
+        }}
+      >
+        {value.map((student) => (
+          <Chip key={student.studentId} onClose={() => handleRemove(student.studentId!)}>
+            {student.studentName || 'Aluno'}
+          </Chip>
+        ))}
+      </View>
+    </View>
+  );
+};

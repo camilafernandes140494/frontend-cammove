@@ -18,4 +18,5 @@ export type Relationship = {
 
 export type getRelationshipFilter = {
   status: string | null;
+  name?: string;
 };

@@ -10,13 +10,18 @@ interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
   control: any;
   name: string;
   label?: string;
-  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip' | "chip-multi" | 'birthDate' | 'number' | 'calendar' | 'time';
+  type?: "text" | "switch" | "select" | "radio" | "checkbox" | 'chip' | "chip-multi" | 'birthDate' | 'number' | 'calendar' | 'time' | 'custom';
   options?: any[];
   getLabel?: (option: any) => string;
   buttonProps?: Partial<ButtonProps>;
+  customRender?: (field: {
+    value: any;
+    onChange: (val: any) => void;
+    onBlur: () => void;
+  }, fieldState: { error?: any }) => React.ReactNode;
 }
 
-export function FormField({ control, name, label, type = "text", options, getLabel, buttonProps, ...textInputProps }: FormFieldProps) {
+export function FormField({ control, name, label, type = "text", options, getLabel, buttonProps, customRender, ...textInputProps }: FormFieldProps) {
   const [menuVisible, setMenuVisible] = useState(false);
   const { theme } = useTheme();
 
@@ -24,7 +29,7 @@ export function FormField({ control, name, label, type = "text", options, getLab
     <Controller
       control={control}
       name={name}
-      render={({ field: { onChange, value }, fieldState: { error } }) => (
+      render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
         <View style={{ marginBottom: 10 }}>
           {(type === "text" || type === "birthDate" || type === 'number' || type === 'time') && (
             <TextInput
@@ -112,7 +117,6 @@ export function FormField({ control, name, label, type = "text", options, getLab
             </View>
           )}
 
-
           {type === "chip" && options && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 20 }}>
               {options.map((option, index) => (
@@ -193,6 +197,12 @@ export function FormField({ control, name, label, type = "text", options, getLab
               })}
             </View>
           </>
+          )}
+
+          {type === "custom" && customRender && (
+            <>
+              {customRender({ value, onChange, onBlur }, { error })}
+            </>
           )}
 
           {error && <HelperText type="error">{error.message}</HelperText>}
