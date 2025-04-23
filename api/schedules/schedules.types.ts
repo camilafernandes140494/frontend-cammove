@@ -15,3 +15,7 @@ export type SchedulesData = {
   studentLimit: number;
   id: string;
 };
+
+export type SchedulesDateData = {
+  dates: string[];
+};
