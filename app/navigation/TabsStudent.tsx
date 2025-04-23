@@ -1,11 +1,11 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import ExercisesNavigator from './ExercisesNavigator';
 import { useTheme } from '../ThemeContext';
 import HomeStudentNavigator from './HomeStudentNavigator';
 import AssessmentsStudentNavigator from './AssessmentsStudentNavigator';
 import WorkoutsNavigatorStudent from './WorkoutsNavigatorStudent';
 import { MyTeacherProvider } from '../context/MyTeacherContext';
+import SchedulesNavigatorStudent from './ScheduleNavigatorStudent';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,7 +43,7 @@ function TabsStudent() {
             <Ionicons name="fitness" size={size} color={color} />
           ),
         }} />
-        <Tab.Screen name="ExercisesScreen" component={ExercisesNavigator} options={{
+        <Tab.Screen name="ScheduleScreen" component={SchedulesNavigatorStudent} options={{
           headerShown: false,
           tabBarLabel: "Agenda",
           tabBarIcon: ({ color, size }) => (

@@ -62,7 +62,7 @@ const Assessments = ({ navigation }: any) => {
           </View>
         }
         ListEmptyComponent={
-          value === 'assessments' ? <View style={{ alignItems: 'center', padding: 40 }}>
+          value === 'assessments' ? isLoading || isFetching ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
               Nenhum item encontrado.
@@ -70,6 +70,7 @@ const Assessments = ({ navigation }: any) => {
             <Button onPress={() => refetch()} >Tentar novamente</Button>
           </View> : <></>
         }
+
         renderItem={({ item }) => <>
           {
             isLoading && isFetching && value === 'assessments' ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : value === 'assessments' && <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginBottom: 16 }}>

@@ -28,6 +28,7 @@ const HomeStudent = () => {
   const { theme, toggleTheme, isDarkMode } = useTheme();
   const [visibleConfig, setVisibleConfig] = useState(false);
 
+
   console.log(user)
   const modalSchema = z.object({
     name: z.string().min(1, "Obrigatório"),
@@ -228,14 +229,18 @@ const HomeStudent = () => {
           <Calendar
             markedDates={markedDates}
             monthFormat={'MMMM yyyy'}
-          // enableSwipeMonths={true}
 
           />
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <View style={{ width: 12, height: 12, backgroundColor: theme.colors.card.purple.border.default, borderRadius: 6, marginRight: 6 }} />
+            <Text style={{ color: theme.colors.card.purple.text.primary }}>Agendamentos</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <View style={{ width: 12, height: 12, backgroundColor: 'green', borderRadius: 6, marginRight: 6 }} />
+            <Text style={{ color: theme.colors.card.purple.text.primary }}>Treinos realizados</Text>
+          </View>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <View style={{ width: 12, height: 12, backgroundColor: 'green', borderRadius: 6, marginRight: 6 }} />
-          <Text>Treinos realizados</Text>
-        </View>
+
 
         <Card style={{ marginVertical: 16, padding: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>

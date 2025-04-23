@@ -13,6 +13,7 @@ import { SchedulesData } from '@/api/schedules/schedules.types';
 import { FormField } from '@/components/FormField';
 import { getRelationship } from '@/api/relationships/relationships.api';
 import { Student } from '@/api/relationships/relationships.types';
+import CustomChip from '@/components/CustomChip';
 
 type CreateWorkoutProps = {
   route: {
@@ -142,8 +143,34 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
     mutation.mutate({ ...data, time: updatedTime });
   };
   const selectedTime = watch("time");
+  const studentsSelected = watch("students") ?? [];
+
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const { data } = useQuery({
+    queryKey: ["getRelationship", user?.id,],
+    queryFn: () => getRelationship(user?.id!, { status: "ACTIVE" }),
+    enabled: !!user?.id,
+  });
+
+  const students: Student[] = data?.students ?? [];
 
 
+  const handleSelect = (student: Partial<Student>) => {
+    if (student.studentId && student.studentName) {
+      if (!studentsSelected?.some(s => s.studentId === student.studentId)) {
+        setValue('students', [...studentsSelected, {
+          studentId: student.studentId,
+          studentName: student.studentName,
+        }]);
+      }
+      setMenuVisible(false);
+    }
+  };
+
+  const handleRemove = (studentId: string) => {
+    setValue('students', studentsSelected?.filter(s => s.studentId !== studentId));
+  };
   return (
     <>
       <Appbar.Header>
@@ -216,21 +243,53 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
                 </>}
                 {activeTab === 'students' && <>
                   {(getValues().students?.length || 0) > (getValues().studentLimit || 1) && (
-                    <Chip icon="information" style={{ marginVertical: 16, padding: 12 }} c>
-                      Ultrapassou o limite de alunos
-                    </Chip>
+                    <CustomChip color="error" label={`Ultrapassou o limite | Máx. ${getValues().studentLimit || 1} aluno(s)`} icon="information" style={{ marginVertical: 12, padding: 10, borderRadius: 20 }} disabled />
                   )}
-
 
                   <FormField
                     control={control}
                     name="students"
                     type="custom"
                     customRender={({ value, onChange }) => (
-                      <CustomComponent
-                        value={value}
-                        onChange={onChange}
-                      />
+                      <View style={{ marginBottom: 10 }}>
+                        <Menu
+                          visible={menuVisible}
+                          onDismiss={() => setMenuVisible(false)}
+                          style={{ width: "90%" }}
+                          anchor={
+                            <Button mode="outlined" onPress={() => setMenuVisible(true)} style={{ marginBottom: 12 }}>
+                              Selecionar aluno(a)
+                            </Button>
+                          }
+                        >
+                          {students.length > 0 ? (
+                            students.map((student) => (
+                              <Menu.Item
+                                key={student.studentId}
+                                title={student.studentName}
+                                onPress={() => handleSelect(student)}
+                              />
+                            ))
+                          ) : (
+                            <Menu.Item title="Nenhum aluno encontrado" disabled />
+                          )}
+                        </Menu>
+
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            flexWrap: "wrap",
+                            gap: 8,
+                            marginTop: 10,
+                          }}
+                        >
+                          {studentsSelected?.map((student) => (
+                            <Chip key={student.studentId} onClose={() => handleRemove(student.studentId!)}>
+                              {student.studentName || 'Aluno'}
+                            </Chip>
+                          ))}
+                        </View>
+                      </View>
                     )}
                   />
 
@@ -249,74 +308,3 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
 };
 
 export default CreateSchedules;
-
-interface CustomComponentProps {
-  value: Partial<Student>[];
-  onChange: (val: Partial<Student>[]) => void;
-}
-
-export const CustomComponent = ({ value = [], onChange }: CustomComponentProps) => {
-  const { user } = useUser();
-  const [menuVisible, setMenuVisible] = useState(false);
-
-  const { data } = useQuery({
-    queryKey: ["getRelationship", user?.id,],
-    queryFn: () => getRelationship(user?.id!, { status: "ACTIVE" }),
-    enabled: !!user?.id,
-  });
-
-  const students: Student[] = data?.students ?? [];
-
-  const handleSelect = (student: Partial<Student>) => {
-    if (!value.some(s => s.studentId === student.studentId)) {
-      onChange([...value, student]);
-    }
-    setMenuVisible(false);
-  };
-
-  const handleRemove = (studentId: string) => {
-    onChange(value.filter(s => s.studentId !== studentId));
-  };
-
-  return (
-    <View style={{ marginBottom: 10 }}>
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
-        style={{ width: "90%" }}
-        anchor={
-          <Button mode="outlined" onPress={() => setMenuVisible(true)} style={{ marginBottom: 12 }}>
-            Selecionar aluno(a)
-          </Button>
-        }
-      >
-        {students.length > 0 ? (
-          students.map((student) => (
-            <Menu.Item
-              key={student.studentId}
-              title={student.studentName}
-              onPress={() => handleSelect(student)}
-            />
-          ))
-        ) : (
-          <Menu.Item title="Nenhum aluno encontrado" disabled />
-        )}
-      </Menu>
-
-      <View
-        style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          gap: 8,
-          marginTop: 10,
-        }}
-      >
-        {value.map((student) => (
-          <Chip key={student.studentId} onClose={() => handleRemove(student.studentId!)}>
-            {student.studentName || 'Aluno'}
-          </Chip>
-        ))}
-      </View>
-    </View>
-  );
-};

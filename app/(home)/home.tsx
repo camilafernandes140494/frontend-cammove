@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Snackbar, Text } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
@@ -15,6 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { getRelationship } from '@/api/relationships/relationships.api';
 import { useQuery } from '@tanstack/react-query';
+import { Calendar } from 'react-native-calendars';
+import { getScheduleDates } from '@/api/schedules/schedules.api';
 
 export type RootHomeStackParamList = {
     home: undefined;
@@ -71,6 +73,21 @@ const Home = () => {
     }
 
 
+    const { data: scheduleDates, isLoading, isFetching, refetch } = useQuery({
+        queryKey: ['getScheduleDates'],
+        queryFn: () => getScheduleDates(user?.id!),
+        enabled: !!user?.id,
+    });
+
+    const markedDates = scheduleDates?.dates.reduce((acc, date) => {
+        acc[date] = {
+            marked: true,
+            dotColor: theme.colors.card.purple.border.default,
+            selected: true,
+            selectedColor: theme.colors.card.purple.border.default
+        };
+        return acc;
+    }, {} as Record<string, any>);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -150,6 +167,12 @@ const Home = () => {
                     padding: 24,
                     gap: 24
                 }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isLoading || isFetching}
+                        onRefresh={refetch}
+                    />
+                }
             >
 
                 <View
@@ -198,7 +221,27 @@ const Home = () => {
                         </View>
                     ))}
                 </View>
-
+                <View
+                    style={{
+                        backgroundColor: '#fff',
+                        borderRadius: 12,
+                        padding: 10,
+                        elevation: 3,
+                        shadowColor: '#000',
+                        shadowOpacity: 0.1,
+                        shadowRadius: 4,
+                        shadowOffset: { width: 0, height: 2 },
+                    }}
+                >
+                    <Calendar
+                        markedDates={markedDates}
+                        monthFormat={'MMMM yyyy'}
+                    />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                        <View style={{ width: 12, height: 12, backgroundColor: theme.colors.card.purple.border.default, borderRadius: 6, marginRight: 6 }} />
+                        <Text style={{ color: theme.colors.card.purple.text.primary }}>Agendamentos</Text>
+                    </View>
+                </View>
                 <Card >
                     <Card.Content>
                         <Text variant='titleMedium'>Gerenciar Alunos</Text>

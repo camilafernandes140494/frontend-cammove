@@ -42,8 +42,6 @@ const DetailsWorkoutStudent = () => {
   const { teacher } = useMyTeacher()
 
 
-
-
   const toggleShowDetails = (id: string) => {
     setShowDetails(prev => ({
       ...prev,

@@ -10,39 +10,28 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
-import { deleteScheduleById, getSchedule } from '@/api/schedules/schedules.api';
+import { getSchedule } from '@/api/schedules/schedules.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import CustomModal from '@/components/CustomModal';
 import { formatDate } from '@/common/common';
+import { useMyTeacher } from '../context/MyTeacherContext';
 
-const Schedules = ({ navigation }: any) => {
+const SchedulesStudent = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
   const { user } = useUser();
   const { theme } = useTheme();
+  const { teacher } = useMyTeacher()
 
   const { data: schedule, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['getSchedule', params],
-    queryFn: () => getSchedule(user?.id!, params),
-    enabled: !!user?.id,
+    queryFn: () => getSchedule(teacher?.teacherId!, params),
+    enabled: !!teacher?.teacherId,
   });
 
-
-  const handleDelete = async (schedulesId: string) => {
-    try {
-      await deleteScheduleById(user?.id!, schedulesId);
-      refetch()
-    } catch (error) {
-      console.error('Erro ao criar exercício:', error);
-    }
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Appbar.Header mode='small'>
         <Appbar.Content title="Agenda" />
-        <Button icon="plus" mode="contained" onPress={() => navigation.navigate('CreateSchedules', { schedulesId: undefined })}>
-          Novo agendamento
-        </Button>
       </Appbar.Header>
 
       <FlatList
@@ -130,41 +119,14 @@ const Schedules = ({ navigation }: any) => {
                       : '-'}
                   </Text>
                 </View>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 12,
-                  }}
-                >
-                  <Ionicons
-                    name={'people'}
-                    size={18}
-                    color={theme.colors.primary}
-                  />
 
-                  <Text
-                    variant="bodyMedium"
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={{ fontSize: 14, flexShrink: 1 }}
-                  >
-                    {item?.students && item.students.length > 0
-                      ? item.students.map((s) => s.studentName).join(', ')
-                      : '-'}
-                  </Text>
-                </View>
 
               </Card.Content>
               <Card.Actions>
-                <CustomModal
-                  onPress={() => handleDelete(item?.id || '')}
-                  title='Tem certeza que deseja deletar esse agendamento?'
-                  primaryButtonLabel='Deletar' />
+
                 <Button
                   mode='contained-tonal'
-                  onPress={() => navigation.navigate('CreateSchedules', { schedulesId: item.id })}
+                  onPress={() => navigation.navigate('RegisterSchedules', { schedulesId: item.id })}
                 > Detalhes</Button>
 
               </Card.Actions>
@@ -178,4 +140,4 @@ const Schedules = ({ navigation }: any) => {
   );
 };
 
-export default Schedules;
+export default SchedulesStudent;
