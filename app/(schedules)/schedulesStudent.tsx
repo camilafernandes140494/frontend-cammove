@@ -60,28 +60,33 @@ const SchedulesStudent = ({ navigation }: any) => {
                   subtitle={item.description}
                   titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
                   subtitleStyle={{ fontSize: 12, color: 'gray' }}
-                  right={() => <Chip
-                    icon={() => (
-                      <Ionicons
-                        name={item.students?.length ? 'people' : 'person-add-outline'}
-                        size={18}
-                        color={item.students?.length ? '#1565C0' : '#2E7D32'}
-                        style={{ marginRight: 4 }}
-                      />
-                    )}
-                    style={{
-                      backgroundColor: item.students?.length ? '#BBDEFB' : '#C8E6C9',
-                      alignSelf: 'flex-start',
-                      marginRight: 16
-                    }}
-                    textStyle={{
-                      color: item.students?.length ? '#1565C0' : '#2E7D32',
-                    }}
-                  >
-                    {item.students?.length
-                      ? `${item.students?.length || 0} aluno${item.students?.length || 0 > 1 ? 's' : ''} inscrito${item.students?.length || 0 > 1 ? 's' : ''}`
-                      : 'Vagas disponíveis'}
-                  </Chip>}
+                  right={() => (
+                    !isUserSubscribed ? (
+                      <Chip
+                        icon={() => (
+                          <Ionicons
+                            name={item.students?.length ? 'people' : 'person-add-outline'}
+                            size={18}
+                            color={item.students?.length ? '#1565C0' : '#2E7D32'}
+                            style={{ marginRight: 4 }}
+                          />
+                        )}
+                        style={{
+                          backgroundColor: item.students?.length ? '#BBDEFB' : '#C8E6C9',
+                          alignSelf: 'flex-start',
+                          marginRight: 16
+                        }}
+                        textStyle={{
+                          color: item.students?.length ? '#1565C0' : '#2E7D32',
+                        }}
+                      >
+                        {item.students?.length
+                          ? `${item.students.length} aluno${item.students.length > 1 ? 's' : ''} inscrit${item.students.length > 1 ? 'os' : 'o'}`
+                          : 'Vagas disponíveis'}
+                      </Chip>
+                    ) : null
+                  )}
+
                 />
                 <Card.Content style={{ gap: 6 }}>
 

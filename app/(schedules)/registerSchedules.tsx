@@ -14,6 +14,7 @@ import { useMyTeacher } from '../context/MyTeacherContext';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import CustomChip from '@/components/CustomChip';
 
 type CreateWorkoutProps = {
   route: {
@@ -77,7 +78,7 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
     }
   }, [scheduleById,]);
 
-  const { control, handleSubmit, reset, } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValuesById
   });
@@ -134,11 +135,10 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
             keyExtractor={() => 'header'}
             renderItem={() =>
               <Card>
-                <View style={{ padding: 16, gap: 16 }}>
+
+                <View style={{ padding: 16, }}>
                   <Card.Title title={scheduleById?.name} subtitle={scheduleById?.description} />
-                  <Card.Content>
-
-
+                  <Card.Content style={{ padding: 16, gap: 16 }}>
                     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                       <Ionicons
                         name={'time'}
@@ -158,7 +158,7 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
                           : '-'}
                       </Text>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, }}>
                       <Ionicons name="calendar" size={18} color={theme.colors.primary} />
                       <View style={{ flex: 1 }}>
                         {scheduleById?.date && scheduleById.date.length > 0 ? (
@@ -172,13 +172,14 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
                         )}
                       </View>
                     </View>
-
-
-
+                    {(scheduleById?.students?.length || 0) > (scheduleById?.studentLimit || 1) && (
+                      <CustomChip color="error" label={'Capacidade da turma atingida'} icon="information" style={{ marginVertical: 12, padding: 10, borderRadius: 20 }} disabled />
+                    )}
+                    <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
+                      {buttonLabel}
+                    </Button>
                   </Card.Content>
-                  <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
-                    {buttonLabel}
-                  </Button>
+
                 </View>
 
               </Card>
