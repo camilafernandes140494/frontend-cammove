@@ -1,6 +1,10 @@
 // File: api.js
 import api from '../axios';
-import { SchedulesData, SchedulesDateData } from './schedules.types';
+import {
+  SchedulesData,
+  SchedulesDateData,
+  SchedulesStudentDateData,
+} from './schedules.types';
 
 export const postSchedule = async (
   teacherId: string,
@@ -52,6 +56,21 @@ export const getScheduleDates = async (teacherId: string) => {
   try {
     const response = await api.get<SchedulesDateData>(
       `/schedules/teachers/${teacherId}/dates`,
+    );
+    return response.data; // Retorna os dados da resposta
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
+export const getScheduleDatesByStudent = async (
+  teacherId: string,
+  studentId: string,
+) => {
+  try {
+    const response = await api.get<SchedulesStudentDateData[]>(
+      `/schedules/teachers/${teacherId}/students/${studentId}/dates`,
     );
     return response.data; // Retorna os dados da resposta
   } catch (error) {

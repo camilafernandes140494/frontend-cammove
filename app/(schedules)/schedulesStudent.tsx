@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import {
   Button,
   Text,
@@ -12,8 +12,8 @@ import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
 import { getSchedule } from '@/api/schedules/schedules.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { formatDate } from '@/common/common';
 import { useMyTeacher } from '../context/MyTeacherContext';
+import Skeleton from '@/components/Skeleton';
 
 const SchedulesStudent = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
@@ -40,16 +40,6 @@ const SchedulesStudent = ({ navigation }: any) => {
         keyboardShouldPersistTaps="handled"
         refreshing={isLoading || isFetching}
         onRefresh={refetch}
-        ListEmptyComponent={
-          isLoading || isFetching ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> :
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
-              <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-                Nenhum item encontrado.
-              </Text>
-              <Button onPress={() => refetch()} >Tentar novamente</Button>
-            </View>
-        }
         renderItem={({ item }) => {
           const isUserSubscribed = item?.students?.some(itemData => itemData.studentId === user?.id)
           return <>
@@ -122,7 +112,7 @@ const SchedulesStudent = ({ navigation }: any) => {
                       style={{ fontSize: 14, flexShrink: 1 }}
                     >
                       {item?.date && item.date.length > 0
-                        ? item.date.map((s) => formatDate(s)).join(', ')
+                        ? item.date.map((s) => (s)).join(', ')
                         : '-'}
                     </Text>
                   </View>
@@ -142,7 +132,30 @@ const SchedulesStudent = ({ navigation }: any) => {
           </>
         }
         }
-
+        ListEmptyComponent={
+          isLoading || isFetching ? (
+            <>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  style={{
+                    width: '90%',
+                    height: 100,
+                    borderRadius: 4,
+                    marginVertical: 8,
+                    alignSelf: 'center',
+                  }}
+                />
+              ))}
+            </>
+          ) : <View style={{ alignItems: 'center', padding: 40 }}>
+            <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
+            <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
+              Nenhum dado encontrado.
+            </Text>
+            <Button onPress={() => refetch()} >Tentar novamente</Button>
+          </View>
+        }
       />
     </View>
   );

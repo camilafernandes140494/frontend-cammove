@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import {
   Button,
   Text,
@@ -14,6 +14,7 @@ import { deleteScheduleById, getSchedule } from '@/api/schedules/schedules.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import CustomModal from '@/components/CustomModal';
 import { formatDate } from '@/common/common';
+import Skeleton from '@/components/Skeleton';
 
 const Schedules = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
@@ -51,16 +52,6 @@ const Schedules = ({ navigation }: any) => {
         keyboardShouldPersistTaps="handled"
         refreshing={isLoading || isFetching}
         onRefresh={refetch}
-        ListEmptyComponent={
-          isLoading || isFetching ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> :
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
-              <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-                Nenhum item encontrado.
-              </Text>
-              <Button onPress={() => refetch()} >Tentar novamente</Button>
-            </View>
-        }
         renderItem={({ item }) => <>
           {
             <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginBottom: 16 }}>
@@ -172,7 +163,30 @@ const Schedules = ({ navigation }: any) => {
           }
         </>
         }
-
+        ListEmptyComponent={
+          isLoading || isFetching ? (
+            <>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  style={{
+                    width: '90%',
+                    height: 100,
+                    borderRadius: 4,
+                    marginVertical: 8,
+                    alignSelf: 'center',
+                  }}
+                />
+              ))}
+            </>
+          ) : <View style={{ alignItems: 'center', padding: 40 }}>
+            <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
+            <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
+              Nenhum dado encontrado.
+            </Text>
+            <Button onPress={() => refetch()} >Tentar novamente</Button>
+          </View>
+        }
       />
     </View>
   );

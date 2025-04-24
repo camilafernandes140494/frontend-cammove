@@ -134,10 +134,10 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
             data={[{}]}
             keyExtractor={() => 'header'}
             renderItem={() =>
-              <Card>
+              <Card mode='outlined'>
 
                 <View style={{ padding: 16, }}>
-                  <Card.Title title={scheduleById?.name} subtitle={scheduleById?.description} />
+                  <Card.Title title={scheduleById?.name} subtitle={scheduleById?.description} titleStyle={{ fontSize: 24, fontWeight: 'bold' }} />
                   <Card.Content style={{ padding: 16, gap: 16 }}>
                     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                       <Ionicons

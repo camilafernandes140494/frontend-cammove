@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Snackbar, Text } from 'react-native-paper';
+import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Snackbar, Text, Modal } from 'react-native-paper';
 import { useUser } from '../UserContext';
-import { getInitials } from '@/common/common';
+import { formatDate, getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
 import { FormField } from '@/components/FormField';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getTrainingDays } from '@/api/workoutsDay/workoutsDay.api';
 import { useMyTeacher } from '../context/MyTeacherContext';
 import { Linking } from 'react-native';
+import { getScheduleDatesByStudent } from '@/api/schedules/schedules.api';
+import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';
+import { Ionicons } from '@expo/vector-icons';
 
 export type RootHomeStackParamList = {
   home: undefined;
@@ -30,6 +33,8 @@ const HomeStudent = () => {
   const { theme, toggleTheme, isDarkMode } = useTheme();
   const [visibleConfig, setVisibleConfig] = useState(false);
   const { teacher } = useMyTeacher()
+  const [selectedDate, setSelectedDate] = useState<SchedulesStudentDateData>();
+  const [modalVisible, setModalVisible] = useState(false);
 
   const { data: teacherData, isLoading: isLoadingTeacherData } = useQuery({
     queryKey: ['teacherData', teacher?.teacherId],
@@ -37,7 +42,8 @@ const HomeStudent = () => {
     enabled: !!teacher?.teacherId,
   });
 
-  console.log(teacherData, 'teacherData')
+
+
   const modalSchema = z.object({
     name: z.string().min(1, "Obrigatório"),
   });
@@ -69,33 +75,66 @@ const HomeStudent = () => {
     }
   }
 
-
-  const { data: datesArray, refetch, isLoading, isFetching } = useQuery({
-    queryKey: ['getTrainingDays', user?.id],
-    queryFn: () => getTrainingDays(user?.id!,),
-    enabled: !!user?.id
+  const { data: scheduleDates,
+    refetch: scheduleDatesRefetch,
+    isLoading: scheduleDatesIsLoading,
+    isFetching: scheduleDatesIsFetching
+  } = useQuery({
+    queryKey: ['getScheduleDatesByStudent', teacher?.teacherId, user?.id],
+    queryFn: () => getScheduleDatesByStudent(teacher?.teacherId!, user?.id!),
+    enabled: !!teacher?.teacherId && !!user?.id,
   });
 
-  const markedDates = datesArray?.reduce((acc, date) => {
-    acc[date] = {
-      marked: true,
-      dotColor: 'green',
-      selected: true,
-      selectedColor: 'green',
-    };
-    return acc;
-  }, {} as Record<string, any>);
+  const {
+    data: trainingDates,
+    refetch: trainingDatesRefetch,
+    isLoading: trainingDatesIsLoading,
+    isFetching: trainingDatesIsFetching } = useQuery({
+      queryKey: ['getTrainingDays', user?.id],
+      queryFn: () => getTrainingDays(user?.id!,),
+      enabled: !!user?.id
+    });
 
+  const markedDates = {
+    ...(trainingDates?.reduce((acc, date) => {
+      acc[date] = {
+        marked: true,
+        dotColor: theme.colors.card.feedback.button,
+        selected: true,
+        selectedColor: theme.colors.card.feedback.button,
+      };
+      return acc;
+    }, {} as Record<string, any>)),
+
+    ...(scheduleDates?.reduce((acc, date) => {
+      acc[date.date] = {
+        marked: true,
+        dotColor: theme.colors.card.purple.border.default,
+        selected: true,
+        selectedColor: theme.colors.card.purple.border.default,
+      };
+      return acc;
+    }, {} as Record<string, any>)),
+  };
+
+
+
+  const handleDayPress = (day: { dateString: string }) => {
+    const selectedDate = scheduleDates?.find((schedule) => schedule.date === day.dateString);
+    if (selectedDate) {
+      setSelectedDate(selectedDate);
+      setModalVisible(true);
+    }
+  };
 
   const { count, message, icon } = useMemo(() => {
-    if (!datesArray) return { count: 0, message: '', icon: 'emoticon-neutral-outline' };
+    if (!trainingDates) return { count: 0, message: '', icon: 'emoticon-neutral-outline' };
 
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
-    // Extrai apenas os dias únicos do mês atual
     const uniqueWorkoutDays = new Set(
-      datesArray
+      trainingDates
         .map(dateStr => parseISO(dateStr))
         .filter(date =>
           date.getMonth() === currentMonth && date.getFullYear() === currentYear
@@ -127,7 +166,7 @@ const HomeStudent = () => {
     }
 
     return { count, message, icon };
-  }, [datesArray]);
+  }, [trainingDates]);
 
 
 
@@ -205,8 +244,11 @@ const HomeStudent = () => {
         }}
         refreshControl={
           <RefreshControl
-            refreshing={isLoading || isFetching}
-            onRefresh={refetch}
+            refreshing={trainingDatesIsLoading || trainingDatesIsFetching || scheduleDatesIsLoading || scheduleDatesIsFetching}
+            onRefresh={() => {
+              trainingDatesRefetch();
+              scheduleDatesRefetch();
+            }}
           />
         }
       >
@@ -272,15 +314,77 @@ const HomeStudent = () => {
           <Calendar
             markedDates={markedDates}
             monthFormat={'MMMM yyyy'}
-
+            onDayPress={handleDayPress}
           />
+          <Portal>
+            <Modal
+              visible={modalVisible}
+              onDismiss={() => setModalVisible(false)}
+            >
+              <View style={{ backgroundColor: theme.colors.background, padding: 20, borderRadius: 10, margin: 30 }}>
+                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <View>
+                    <Text variant='headlineSmall'>
+                      {selectedDate?.name}
+                    </Text>
+                    <Text variant='bodySmall'>
+                      {selectedDate?.description}
+                    </Text>
+                  </View>
+                  <IconButton
+                    icon="close"
+                    size={20}
+                    onPress={() => setModalVisible(false)}
+                  />
+                </View>
+
+                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                  <Ionicons
+                    name={'time'}
+                    size={18}
+                    color={theme.colors.primary}
+                  />
+                  <Text
+                    variant="bodyMedium"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={{ fontSize: 14, flexShrink: 1 }}
+                  >
+                    {selectedDate?.time && selectedDate.time.length > 0
+                      ? selectedDate.time
+                        .filter((t) => t !== 'Personalizado')
+                        .join(', ')
+                      : '-'}
+                  </Text>
+                </View>
+                <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', }}>
+                  <Ionicons
+                    name={'calendar'}
+                    size={18}
+                    color={theme.colors.primary}
+                  />
+                  <Text
+                    variant="bodyMedium"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={{ fontSize: 14, flexShrink: 1 }}
+                  >
+                    {formatDate(selectedDate?.date || '')}
+                  </Text>
+                </View>
+
+              </View>
+            </Modal>
+          </Portal>
+
+
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
             <View style={{ width: 12, height: 12, backgroundColor: theme.colors.card.purple.border.default, borderRadius: 6, marginRight: 6 }} />
             <Text style={{ color: theme.colors.card.purple.text.primary }}>Agendamentos</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-            <View style={{ width: 12, height: 12, backgroundColor: 'green', borderRadius: 6, marginRight: 6 }} />
-            <Text style={{ color: theme.colors.card.purple.text.primary }}>Treinos realizados</Text>
+            <View style={{ width: 12, height: 12, backgroundColor: theme.colors.card.feedback.button, borderRadius: 6, marginRight: 6 }} />
+            <Text style={{ color: theme.colors.card.feedback.text.primary }}>Treinos realizados</Text>
           </View>
         </View>
 

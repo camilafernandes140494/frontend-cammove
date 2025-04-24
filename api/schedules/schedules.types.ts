@@ -19,3 +19,10 @@ export type SchedulesData = {
 export type SchedulesDateData = {
   dates: string[];
 };
+
+export type SchedulesStudentDateData = {
+  date: string;          
+  description: string;  
+  name: string;         
+  time: string[];  
+};
