@@ -12,7 +12,7 @@ import { getScheduleById, patchSchedule } from '@/api/schedules/schedules.api';
 import { SchedulesData } from '@/api/schedules/schedules.types';
 import { useMyTeacher } from '../context/MyTeacherContext';
 import { Ionicons } from '@expo/vector-icons';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import CustomChip from '@/components/CustomChip';
 
@@ -164,12 +164,13 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
                         {scheduleById?.date && scheduleById.date.length > 0 ? (
                           scheduleById.date.map((date, index) => (
                             <Text key={index} variant="bodyMedium" style={{ fontSize: 14, marginBottom: 2 }}>
-                              {format(new Date(date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                              {format(parse(date, 'yyyy-MM-dd', new Date()), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                             </Text>
                           ))
                         ) : (
                           <Text variant="bodyMedium" style={{ fontSize: 14 }}>-</Text>
                         )}
+
                       </View>
                     </View>
                     {(scheduleById?.students?.length || 0) > (scheduleById?.studentLimit || 1) && (

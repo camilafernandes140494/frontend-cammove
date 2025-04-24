@@ -14,6 +14,8 @@ import { getSchedule } from '@/api/schedules/schedules.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useMyTeacher } from '../context/MyTeacherContext';
 import Skeleton from '@/components/Skeleton';
+import { format, parse } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const SchedulesStudent = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
@@ -112,8 +114,11 @@ const SchedulesStudent = ({ navigation }: any) => {
                       style={{ fontSize: 14, flexShrink: 1 }}
                     >
                       {item?.date && item.date.length > 0
-                        ? item.date.map((s) => (s)).join(', ')
+                        ? item.date.map((s) =>
+                          format(parse(s, 'yyyy-MM-dd', new Date()), "dd/MM/yyyy", { locale: ptBR })
+                        ).join(', ')
                         : '-'}
+
                     </Text>
                   </View>
 

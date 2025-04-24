@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Snackbar, Text, Modal } from 'react-native-paper';
 import { useUser } from '../UserContext';
-import { formatDate, getInitials } from '@/common/common';
+import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
 import { FormField } from '@/components/FormField';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +12,7 @@ import * as z from "zod";
 import { getUserById, patchUser } from '@/api/users/users.api';
 import { useTheme } from '../ThemeContext';
 import { Calendar } from "react-native-calendars";
-import { parseISO } from 'date-fns';
+import { format, parse, parseISO } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { getTrainingDays } from '@/api/workoutsDay/workoutsDay.api';
 import { useMyTeacher } from '../context/MyTeacherContext';
@@ -20,6 +20,8 @@ import { Linking } from 'react-native';
 import { getScheduleDatesByStudent } from '@/api/schedules/schedules.api';
 import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';
 import { Ionicons } from '@expo/vector-icons';
+import { ptBR } from 'date-fns/locale';
+
 
 export type RootHomeStackParamList = {
   home: undefined;
@@ -35,6 +37,8 @@ const HomeStudent = () => {
   const { teacher } = useMyTeacher()
   const [selectedDate, setSelectedDate] = useState<SchedulesStudentDateData>();
   const [modalVisible, setModalVisible] = useState(false);
+
+
 
   const { data: teacherData, isLoading: isLoadingTeacherData } = useQuery({
     queryKey: ['teacherData', teacher?.teacherId],
@@ -369,8 +373,11 @@ const HomeStudent = () => {
                     ellipsizeMode="tail"
                     style={{ fontSize: 14, flexShrink: 1 }}
                   >
-                    {formatDate(selectedDate?.date || '')}
+                    {selectedDate?.date
+                      ? format(parse(selectedDate.date, 'yyyy-MM-dd', new Date()), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                      : ''}
                   </Text>
+
                 </View>
 
               </View>
