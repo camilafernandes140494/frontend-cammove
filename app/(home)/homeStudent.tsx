@@ -35,7 +35,7 @@ const HomeStudent = () => {
   const { theme, toggleTheme, isDarkMode } = useTheme();
   const [visibleConfig, setVisibleConfig] = useState(false);
   const { teacher } = useMyTeacher()
-  const [selectedDate, setSelectedDate] = useState<SchedulesStudentDateData>();
+  const [selectedDate, setSelectedDate] = useState<SchedulesStudentDateData[]>();
   const [modalVisible, setModalVisible] = useState(false);
 
 
@@ -124,9 +124,13 @@ const HomeStudent = () => {
 
 
   const handleDayPress = (day: { dateString: string }) => {
-    const selectedDate = scheduleDates?.find((schedule) => schedule.date === day.dateString);
-    if (selectedDate) {
-      setSelectedDate(selectedDate);
+    const selectedDates = scheduleDates?.filter(
+      (schedule) => schedule.date === day.dateString
+    );
+
+    if (selectedDates && selectedDates.length > 0) {
+      console.log(selectedDates);
+      setSelectedDate(selectedDates); // agora é uma lista
       setModalVisible(true);
     }
   };
@@ -324,62 +328,109 @@ const HomeStudent = () => {
             <Modal
               visible={modalVisible}
               onDismiss={() => setModalVisible(false)}
+              contentContainerStyle={{ paddingHorizontal: 0 }} // opcional
             >
-              <View style={{ backgroundColor: theme.colors.background, padding: 20, borderRadius: 10, margin: 30 }}>
-                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                  <View>
-                    <Text variant='headlineSmall'>
-                      {selectedDate?.name}
-                    </Text>
-                    <Text variant='bodySmall'>
-                      {selectedDate?.description}
-                    </Text>
-                  </View>
-                  <IconButton
-                    icon="close"
-                    size={20}
-                    onPress={() => setModalVisible(false)}
-                  />
-                </View>
+              <View
+                style={{
+                  backgroundColor: theme.colors.background,
+                  padding: 20,
+                  borderRadius: 10,
+                  margin: 30,
+                }}
+              >
+                <ScrollView>
+                  {selectedDate?.map((item, index) => (
+                    <View key={index}>
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          marginBottom: 16
+                        }}
+                      >
+                        <View>
+                          <Text variant='titleLarge'>
+                            {item?.name}
+                          </Text>
+                          <Text variant='bodySmall'>
+                            {item?.description}
+                          </Text>
+                        </View>
+                        {index === 0 && (
+                          <IconButton
+                            icon="close"
+                            size={20}
+                            onPress={() => setModalVisible(false)}
+                          />
+                        )}
+                      </View>
 
-                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                  <Ionicons
-                    name={'time'}
-                    size={18}
-                    color={theme.colors.primary}
-                  />
-                  <Text
-                    variant="bodyMedium"
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={{ fontSize: 14, flexShrink: 1 }}
-                  >
-                    {selectedDate?.time && selectedDate.time.length > 0
-                      ? selectedDate.time
-                        .filter((t) => t !== 'Personalizado')
-                        .join(', ')
-                      : '-'}
-                  </Text>
-                </View>
-                <View style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', }}>
-                  <Ionicons
-                    name={'calendar'}
-                    size={18}
-                    color={theme.colors.primary}
-                  />
-                  <Text
-                    variant="bodyMedium"
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={{ fontSize: 14, flexShrink: 1 }}
-                  >
-                    {selectedDate?.date
-                      ? format(parse(selectedDate.date, 'yyyy-MM-dd', new Date()), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                      : ''}
-                  </Text>
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 12,
+                          marginBottom: 10
+                        }}
+                      >
+                        <Ionicons
+                          name={'time'}
+                          size={18}
+                          color={theme.colors.primary}
+                        />
+                        <Text
+                          variant="bodyMedium"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={{ fontSize: 14, flexShrink: 1 }}
+                        >
+                          {item?.time && item.time.length > 0
+                            ? item.time.filter((t) => t !== 'Personalizado').join(', ')
+                            : '-'}
+                        </Text>
+                      </View>
 
-                </View>
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          gap: 12,
+                          alignItems: 'center'
+                        }}
+                      >
+                        <Ionicons
+                          name={'calendar'}
+                          size={18}
+                          color={theme.colors.primary}
+                        />
+                        <Text
+                          variant="bodyMedium"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={{ fontSize: 14, flexShrink: 1 }}
+                        >
+                          {item?.date
+                            ? format(parse(item.date, 'yyyy-MM-dd', new Date()), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                            : ''}
+                        </Text>
+                      </View>
 
+                      {index + 1 < selectedDate.length && (
+                        <Divider
+                          style={{
+                            width: '100%',
+                            marginVertical: 16,
+                            backgroundColor: theme.colors.outlineVariant,
+                            height: 2
+                          }}
+                        />
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
               </View>
             </Modal>
           </Portal>

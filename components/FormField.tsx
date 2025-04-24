@@ -24,6 +24,7 @@ interface FormFieldProps extends Omit<TextInputProps, "onChange" | "value"> {
 export function FormField({ control, name, label, type = "text", options, getLabel, buttonProps, customRender, ...textInputProps }: FormFieldProps) {
   const [menuVisible, setMenuVisible] = useState(false);
   const { theme } = useTheme();
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <Controller
@@ -167,6 +168,7 @@ export function FormField({ control, name, label, type = "text", options, getLab
                     onChange(updatedDates);
                   }}
                   monthFormat={'MMMM yyyy'}
+                  minDate={today}
                 />
               </View>
             </>

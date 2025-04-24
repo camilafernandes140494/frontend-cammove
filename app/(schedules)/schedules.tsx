@@ -13,8 +13,9 @@ import { useTheme } from '../ThemeContext';
 import { deleteScheduleById, getSchedule } from '@/api/schedules/schedules.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import CustomModal from '@/components/CustomModal';
-import { formatDate } from '@/common/common';
 import Skeleton from '@/components/Skeleton';
+import { format, parse } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const Schedules = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
@@ -117,7 +118,9 @@ const Schedules = ({ navigation }: any) => {
                     style={{ fontSize: 14, flexShrink: 1 }}
                   >
                     {item?.date && item.date.length > 0
-                      ? item.date.map((s) => formatDate(s)).join(', ')
+                      ? item.date.map((s) =>
+                        format(parse(s, 'yyyy-MM-dd', new Date()), "dd/MM/yyyy", { locale: ptBR })
+                      ).join(', ')
                       : '-'}
                   </Text>
                 </View>
