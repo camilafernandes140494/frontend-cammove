@@ -53,6 +53,22 @@ export const getReviewById = async (
   }
 };
 
+export const getReviewsByTeacher = async (
+  teacherId: string,
+  params?: Record<string, string>,
+) => {
+  try {
+    const response = await api.get<Partial<ReviewData>[]>(
+      `/reviews/teachers/${teacherId}/reviews`,
+      { params },
+    );
+    return response.data; // Retorna os dados da resposta
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw error; // Propaga o erro para quem chamar a função
+  }
+};
+
 export const getReview = async (params?: Record<string, string>) => {
   try {
     const response = await api.get<ReviewData[]>(`/reviews`, { params });

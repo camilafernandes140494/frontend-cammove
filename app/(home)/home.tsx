@@ -17,6 +17,8 @@ import { getRelationship } from '@/api/relationships/relationships.api';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar } from 'react-native-calendars';
 import { getScheduleDates } from '@/api/schedules/schedules.api';
+import { getReviewsByTeacher } from '@/api/reviews/reviews.api';
+import Skeleton from '@/components/Skeleton';
 
 export type RootHomeStackParamList = {
     home: undefined;
@@ -47,7 +49,7 @@ const Home = () => {
         },
     });
 
-    const { data: students } = useQuery({
+    const { data: students, refetch: studentsRefetch } = useQuery({
         queryKey: ['getRelationship', user?.id],
         queryFn: () => getRelationship(user?.id!,),
         enabled: !!user?.id
@@ -88,6 +90,33 @@ const Home = () => {
         };
         return acc;
     }, {} as Record<string, any>);
+
+
+    const { data: reviewsByTeacher, refetch: reviewsByTeacherRefetch, isLoading: reviewsByTeacherIsLoading, isFetching: reviewsByTeacherIsFetching } = useQuery({
+        queryKey: ['reviewsByTeacher', user?.id],
+        queryFn: () => getReviewsByTeacher(user?.id || '', { limit: '7' }),
+        enabled: !!user?.id,
+    });
+
+    const averageNote = reviewsByTeacher && reviewsByTeacher.length > 0
+        ? reviewsByTeacher.reduce((sum, review) => sum + Number(review.reviewNote), 0) / reviewsByTeacher.length
+        : 0;
+
+    const maxNoteFromApi = 3;
+    const starsToDisplay = 5;
+
+    const normalizedNote = (averageNote / maxNoteFromApi) * starsToDisplay;
+    const roundedNote = Math.ceil(normalizedNote);
+
+    function getStarType(index: number) {
+        const position = index + 1;
+
+        if (position <= roundedNote) {
+            return "star"; // cheia
+        } else {
+            return "star-outline"; // vazia
+        }
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -170,7 +199,7 @@ const Home = () => {
                 refreshControl={
                     <RefreshControl
                         refreshing={isLoading || isFetching}
-                        onRefresh={refetch}
+                        onRefresh={() => { refetch(), reviewsByTeacherRefetch(), studentsRefetch() }}
                     />
                 }
             >
@@ -253,7 +282,8 @@ const Home = () => {
                     </Card.Actions>
                 </Card>
 
-                <View style={{ backgroundColor: theme.colors.card.feedback.background, borderRadius: 16 }}>
+
+                {reviewsByTeacherIsLoading || reviewsByTeacherIsFetching ? <Skeleton style={{ height: 200, borderRadius: 16 }} /> : <View style={{ backgroundColor: theme.colors.card.feedback.background, borderRadius: 16 }}>
                     <Card.Title
                         title="Feedbacks dos treinos"
                         subtitle="Resultado dos últimos 7 dias"
@@ -263,25 +293,23 @@ const Home = () => {
                     />
                     <Divider bold={true} style={{ marginVertical: 8, marginHorizontal: 16, backgroundColor: theme.colors.card.feedback.button }} />
                     <View style={{ display: 'flex', alignItems: 'center', margin: 16 }}>
-                        <Text variant="displayMedium" style={{ color: theme.colors.card.feedback.text.primary }}>4.5</Text>
+                        <Text variant="displayMedium" style={{ color: theme.colors.card.feedback.text.primary }}>{normalizedNote.toFixed(1)}</Text>
 
                         <View style={{ flexDirection: "row", justifyContent: "center" }}>
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <IconButton
                                     key={star}
-                                    icon={star <= rating ? "star" : "star-outline"}
+                                    icon={getStarType(star)}
                                     iconColor={theme.colors.card.feedback.text.primary}
                                     size={24}
-                                    onPress={() => setRating(star)}
                                 />
                             ))}
                         </View>
                         <Text variant="bodySmall" style={{ color: theme.colors.card.feedback.text.primary }}>Nível de satisfação</Text>
                     </View>
 
+                </View>}
 
-
-                </View>
 
 
             </ScrollView>
