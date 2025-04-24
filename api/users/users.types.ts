@@ -10,6 +10,7 @@ export type PostUser = {
   image: string;
   email: string;
   status: STATUS;
+  phone: string;
 };
 
 export type Users = {
@@ -18,6 +19,7 @@ export type Users = {
   gender: string;
   birthDate: string;
   email: string;
+  phone: string;
   permission: PERMISSION;
   createdAt: string;
   updatedAt: string;

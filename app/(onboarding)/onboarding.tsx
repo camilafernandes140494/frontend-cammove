@@ -8,7 +8,7 @@ import { getUserById, patchUser, postUser } from '@/api/users/users.api';
 import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
 import UserForm from '@/components/UserForm';
-import { GENDER, PERMISSION } from '@/api/users/users.types';
+import { PERMISSION, PostUser } from '@/api/users/users.types';
 import Skeleton from '@/components/Skeleton';
 import { postEmail } from '@/api/email/email.api';
 import { useRoute } from '@react-navigation/native';
@@ -74,15 +74,7 @@ const Onboarding = () => {
         // },
     ];
 
-    const handleLogin = async (values: {
-        name: string;
-        gender: GENDER;
-        birthDate: string;
-        permission: PERMISSION;
-        image: string,
-        email: string
-    }) => {
-        console.log(values)
+    const handleLogin = async (values: Partial<PostUser>) => {
         try {
             if (!userById) {
                 await postUser(user?.id!, values);

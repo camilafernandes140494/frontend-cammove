@@ -27,6 +27,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         name: z.string().nonempty("Obrigatório"),
         birthDate: z.string().nonempty("Obrigatório"),
         gender: z.string().nonempty("Obrigatório"),
+        phone: z.string().nonempty("Obrigatório"),
     });
 
     const { control, handleSubmit, } = useForm<z.infer<typeof schema>>({
@@ -34,7 +35,8 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         defaultValues: {
             name: '',
             birthDate: '',
-            gender: 'PREFER_NOT_TO_SAY'
+            gender: 'PREFER_NOT_TO_SAY',
+            phone: ''
         },
     });
 
@@ -69,6 +71,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                         label="Qual é o seu nome?"
                         type="text"
                     />
+
                     <FormField
                         control={control}
                         mode="flat"
@@ -92,6 +95,14 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                             { label: 'Outro', value: 'OTHER' },
                             { label: 'Prefiro não me identificar', value: 'PREFER_NOT_TO_SAY' },
                         ]}
+                    />
+                    <FormField
+                        control={control}
+                        mode="flat"
+                        left={<TextInput.Icon icon="phone" />}
+                        name="phone"
+                        label="Qual é o seu celular?"
+                        type="text"
                     />
                     <Button mode="contained" onPress={handleSubmit(handleFormSubmit)}>
                         Salvar

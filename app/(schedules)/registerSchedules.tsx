@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
-import { Appbar, Button } from 'react-native-paper';
+import { FlatList, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
+import { Appbar, Button, Card, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
@@ -8,8 +8,12 @@ import * as z from "zod";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getScheduleById, patchSchedule, postSchedule } from '@/api/schedules/schedules.api';
+import { getScheduleById, patchSchedule } from '@/api/schedules/schedules.api';
 import { SchedulesData } from '@/api/schedules/schedules.types';
+import { useMyTeacher } from '../context/MyTeacherContext';
+import { Ionicons } from '@expo/vector-icons';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type CreateWorkoutProps = {
   route: {
@@ -26,11 +30,12 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
   const { schedulesId } = route.params || {};
   const { theme } = useTheme();
   const [visible, setVisible] = useState(false);
+  const { teacher } = useMyTeacher()
 
   const { data: scheduleById, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['getScheduleById', user?.id, schedulesId],
-    queryFn: () => getScheduleById(user?.id!, schedulesId!),
-    enabled: !!user?.id && !!schedulesId,
+    queryKey: ['getScheduleById', teacher?.teacherId, schedulesId],
+    queryFn: () => getScheduleById(teacher?.teacherId!, schedulesId!),
+    enabled: !!teacher?.teacherId && !!schedulesId,
   });
 
   const schema = z.object({
@@ -49,11 +54,8 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
     studentLimit: z.number().min(1, "Informe ao menos 1 aluno").optional(),
   });
 
-
-
   const defaultValuesById = useMemo(() => {
     const originalTime = scheduleById?.time || [];
-
 
     return {
       time: originalTime.includes("Personalizado") ? ["Personalizado"] : originalTime,
@@ -75,7 +77,7 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
     }
   }, [scheduleById,]);
 
-  const { control, handleSubmit, watch, reset, getValues, setValue } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, reset, } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValuesById
   });
@@ -83,31 +85,32 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: Partial<SchedulesData>) => {
-      if (!schedulesId) {
-        return await postSchedule(user?.id || '', data);
-      } else {
-        return await patchSchedule(user?.id || '', schedulesId, data);
+      if (schedulesId) {
+        return await patchSchedule(teacher?.teacherId || '', schedulesId, data);
       }
     },
     onSuccess: () => {
-      navigation.navigate('Schedules' as never);
+      navigation.navigate('SchedulesStudent' as never);
     },
     onError: () => {
       setVisible(true);
     }
   });
 
-  const onSubmit = async (data: Partial<SchedulesData>) => {
-    const values = getValues();
-    let updatedTime = [...(values.time || [])];
+  const isUserSubscribed = scheduleById?.students?.some(item => item.studentId === user?.id);
+  const buttonLabel = isUserSubscribed ? 'Cancelar inscrição' : 'Quero me inscrever';
 
-    if (updatedTime.includes("Personalizado")) {
-      if (values.customTime) {
-        updatedTime.push(values.customTime);
-      }
-    }
+  const onSubmit = async () => {
+    const currentStudents = scheduleById?.students ?? [];
 
-    mutation.mutate({ ...data, time: updatedTime });
+    const updatedStudents = isUserSubscribed
+      ? currentStudents.filter(student => student.studentId !== user?.id)
+      : [...currentStudents, { studentId: user?.id || '', studentName: user?.name || '' }];
+
+    mutation.mutate({
+      ...scheduleById,
+      students: updatedStudents,
+    });
   };
 
 
@@ -130,12 +133,55 @@ const RegisterSchedules = ({ route }: CreateWorkoutProps) => {
             data={[{}]}
             keyExtractor={() => 'header'}
             renderItem={() =>
-              <>
+              <Card>
+                <View style={{ padding: 16, gap: 16 }}>
+                  <Card.Title title={scheduleById?.name} subtitle={scheduleById?.description} />
+                  <Card.Content>
 
-                <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
-                  Inscrever-se
-                </Button>
-              </>
+
+                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <Ionicons
+                        name={'time'}
+                        size={18}
+                        color={theme.colors.primary}
+                      />
+                      <Text
+                        variant="bodyMedium"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ fontSize: 14, flexShrink: 1 }}
+                      >
+                        {scheduleById?.time && scheduleById.time.length > 0
+                          ? scheduleById.time
+                            .filter((t) => t !== 'Personalizado')
+                            .join(', ')
+                          : '-'}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <Ionicons name="calendar" size={18} color={theme.colors.primary} />
+                      <View style={{ flex: 1 }}>
+                        {scheduleById?.date && scheduleById.date.length > 0 ? (
+                          scheduleById.date.map((date, index) => (
+                            <Text key={index} variant="bodyMedium" style={{ fontSize: 14, marginBottom: 2 }}>
+                              {format(new Date(date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                            </Text>
+                          ))
+                        ) : (
+                          <Text variant="bodyMedium" style={{ fontSize: 14 }}>-</Text>
+                        )}
+                      </View>
+                    </View>
+
+
+
+                  </Card.Content>
+                  <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
+                    {buttonLabel}
+                  </Button>
+                </View>
+
+              </Card>
             }
           />
         </TouchableWithoutFeedback>

@@ -38,6 +38,7 @@ const RegisterUserByTeacher = () => {
     permission: z.string().nonempty("Obrigatório"),
     birthDate: z.string().nonempty("Obrigatório"),
     image: z.string(),
+    phone: z.string(),
   });
 
   const { control, handleSubmit, } = useForm<z.infer<typeof schema>>({
@@ -49,7 +50,8 @@ const RegisterUserByTeacher = () => {
       permission: 'STUDENT',
       password: '123456',
       birthDate: '',
-      image: ''
+      image: '',
+      phone: ''
     },
   });
 
@@ -61,7 +63,8 @@ const RegisterUserByTeacher = () => {
     password: string;
     permission: string;
     birthDate: string;
-    image: string
+    image: string;
+    phone: string
   }
 
   const onSubmit = async (values: UserFormValues) => {
@@ -86,6 +89,7 @@ const RegisterUserByTeacher = () => {
         permission: values.permission as PERMISSION,
         image: values.image,
         email: values.email,
+        phone: values.phone,
       });
 
       queryClient.invalidateQueries({ queryKey: ['getRelationship'] }),
@@ -182,6 +186,14 @@ const RegisterUserByTeacher = () => {
                 { label: 'Outro', value: 'OTHER' },
                 { label: 'Prefiro não me identificar', value: 'PREFER_NOT_TO_SAY' },
               ]}
+            />
+            <FormField
+              control={control}
+              mode="flat"
+              left={<TextInput.Icon icon="phone" />}
+              name="phone"
+              label="Qual é o seu celular?"
+              type="text"
             />
             <Button mode="contained" onPress={handleSubmit(onSubmit)}>
               Enviar

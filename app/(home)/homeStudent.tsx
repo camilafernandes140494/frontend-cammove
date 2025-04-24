@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { Appbar, Avatar, Button, Card, Dialog, Divider, Portal, Snackbar, Text } from 'react-native-paper';
+import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Snackbar, Text } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
@@ -9,12 +9,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
 import * as z from "zod";
-import { patchUser } from '@/api/users/users.api';
+import { getUserById, patchUser } from '@/api/users/users.api';
 import { useTheme } from '../ThemeContext';
 import { Calendar } from "react-native-calendars";
 import { parseISO } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { getTrainingDays } from '@/api/workoutsDay/workoutsDay.api';
+import { useMyTeacher } from '../context/MyTeacherContext';
+import { Linking } from 'react-native';
 
 export type RootHomeStackParamList = {
   home: undefined;
@@ -27,9 +29,15 @@ const HomeStudent = () => {
   const [visible, setVisible] = useState(false);
   const { theme, toggleTheme, isDarkMode } = useTheme();
   const [visibleConfig, setVisibleConfig] = useState(false);
+  const { teacher } = useMyTeacher()
 
+  const { data: teacherData, isLoading: isLoadingTeacherData } = useQuery({
+    queryKey: ['teacherData', teacher?.teacherId],
+    queryFn: () => getUserById(teacher?.teacherId || ''),
+    enabled: !!teacher?.teacherId,
+  });
 
-  console.log(user)
+  console.log(teacherData, 'teacherData')
   const modalSchema = z.object({
     name: z.string().min(1, "Obrigatório"),
   });
@@ -202,6 +210,41 @@ const HomeStudent = () => {
           />
         }
       >
+
+
+        <Card>
+          <Card.Title
+            title={teacherData?.name}
+            titleStyle={{ fontWeight: 'bold', fontSize: 18 }}
+            subtitle="Treinador responsável"
+            left={(props) => (
+              <Avatar.Image
+                {...props}
+                size={48}
+                source={
+                  teacherData?.gender
+                    ? require('@/assets/images/teacher-girl.png')
+                    : require('@/assets/images/teacher-man.png')
+                }
+              />
+            )}
+            right={(props) => (
+              <IconButton
+                {...props}
+                icon="whatsapp"
+                iconColor="#25D366"
+                onPress={() => {
+                  const phone = teacherData?.phone?.replace(/\D/g, '');
+                  if (phone) {
+                    Linking.openURL(`https://wa.me/${phone}`);
+                  }
+                }}
+              />
+            )}
+          />
+        </Card>
+
+
         {user?.status && <Card style={{ backgroundColor: theme.colors.onErrorContainer }}>
           <Card.Title
             title="Aluno Inativo"
