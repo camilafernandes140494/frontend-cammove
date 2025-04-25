@@ -68,6 +68,8 @@ const Exercises = ({ navigation }: any) => {
                     <Card.Title
                         title={item.name}
                         subtitle={item.muscleGroup?.join(", ")}
+                        titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                        subtitleStyle={{ fontSize: 12, color: 'gray' }}
                         left={(props) => <Avatar.Icon {...props} icon="dumbbell" />}
 
                     />

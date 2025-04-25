@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import {
   Text, Appbar, Button
@@ -37,6 +37,9 @@ const CreateAssessments = ({ route }: CreateAssessmentsProps) => {
   const { theme } = useTheme();
   const today = new Date();
   const formattedDate = formatDate(today);
+
+  useEffect(() => { studentId && refetchStudent(studentId) }, [studentId])
+
   return (
     <>
       <Appbar.Header>

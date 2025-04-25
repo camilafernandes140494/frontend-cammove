@@ -120,7 +120,7 @@ const Onboarding = () => {
             }}
         >
             {!user?.id && isLoading ? (
-                <Skeleton style={{ width: '90%', height: 500, borderRadius: 20 }} />
+                <Skeleton style={{ width: '90%', height: 100, borderRadius: 20 }} />
             ) : (
                 <View style={{ marginTop: 50, }}>
                     {!user?.permission ? (

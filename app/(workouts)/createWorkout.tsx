@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import {
     Text, Appbar, Button
@@ -11,6 +11,7 @@ import { useUser } from '../UserContext';
 import FormWorkout from '@/components/FormWorkout';
 import StudentCard from '@/components/StudentCard';
 import { useTheme } from '../ThemeContext';
+import Skeleton from '@/components/Skeleton';
 
 type CreateWorkoutProps = {
     route: {
@@ -25,12 +26,13 @@ type CreateWorkoutProps = {
 const CreateWorkout = ({ route }: CreateWorkoutProps) => {
     const navigation = useNavigation();
     const { user } = useUser();
-    const { refetchStudent } = useStudent();
+    const { refetchStudent, isLoading } = useStudent();
     const [params, setParams] = useState('');
     const { workoutId, studentId } = route.params || {};
     const [newStudent, setNewStudent] = useState(!studentId);
     const { theme } = useTheme();
 
+    useEffect(() => { studentId && refetchStudent(studentId) }, [studentId])
     return (
         <>
             <Appbar.Header>
@@ -42,11 +44,11 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
             </StudentCard>}
             <FlatList
                 style={{ flex: 1, backgroundColor: theme.colors.background }}
-
                 data={[{}]}
                 keyExtractor={() => 'header'}
                 renderItem={() =>
                     <>
+
                         {newStudent ? <View style={{ margin: 20 }}>
                             <Text variant="titleMedium">Escolha um aluno(a)</Text>
                             <FilterInput placeholder="Pesquisar aluno(a)" onChange={setParams} />
@@ -64,13 +66,26 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
                         </View>
                             :
                             <>
-                                <FormWorkout workoutId={workoutId} />
+                                {isLoading ?
+                                    <View
+                                        style={{ alignItems: "center", gap: 16, marginTop: 16 }}>
+                                        <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} />
+                                        <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} />
+                                        <Skeleton style={{ width: '90%', height: 150, borderRadius: 20 }} />
+                                        <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} />
+                                    </View>
+                                    : <FormWorkout workoutId={workoutId} />}
+
                             </>
                         }
+
+
                     </>
 
                 }
+
             />
+
         </>
 
     );

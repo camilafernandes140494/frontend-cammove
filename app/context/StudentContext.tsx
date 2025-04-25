@@ -5,15 +5,16 @@ import { Users } from '@/api/users/users.types';
 
 type StudentContextType = {
   student: Users | undefined;
+  isLoading: boolean;
   refetchStudent: (id: string) => void;
 };
 
 const StudentContext = createContext<StudentContextType | undefined>(undefined);
 
-export const StudentProvider = ({ children, studentCode: initialStudentCode }: { children: ReactNode; studentCode: string }) => {
+export const StudentProvider = ({ children, studentCode: initialStudentCode }: { children: ReactNode; studentCode: string, }) => {
   const [studentCode, setStudentCode] = useState(initialStudentCode);
 
-  const { data: student } = useQuery({
+  const { data: student, isLoading: isLoadingStudent, isFetching: isFetchingStudent } = useQuery({
     queryKey: ['student', studentCode],
     queryFn: () => getUserById(studentCode),
     enabled: !!studentCode,
@@ -23,8 +24,10 @@ export const StudentProvider = ({ children, studentCode: initialStudentCode }: {
     setStudentCode(newStudentCode);
   };
 
+  let isLoading = isLoadingStudent || isFetchingStudent
+
   return (
-    <StudentContext.Provider value={{ student, refetchStudent }}>
+    <StudentContext.Provider value={{ student, refetchStudent, isLoading }}>
       {children}
     </StudentContext.Provider>
   );

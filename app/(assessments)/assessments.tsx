@@ -40,6 +40,8 @@ const Assessments = ({ navigation }: any) => {
       <FlatList
         data={value === 'students' ? [] : assessmentsSummary}
         keyExtractor={(item) => `${item.studentName}-${item.id}`}
+        refreshing={isLoading || isFetching}
+        onRefresh={refetch}
         ListHeaderComponent={
           <View style={{ padding: 16 }}>
             <SegmentedButtons
@@ -83,7 +85,7 @@ const Assessments = ({ navigation }: any) => {
                     icon="chevron-right"
                     size={24}
                     onPress={() => {
-                      navigation.navigate('CreateAssessments', { assessmentsId: item.workoutId, studentId: item.studentId });
+                      navigation.navigate('CreateAssessments', { assessmentsId: item.assessmentsId, studentId: item.studentId });
                     }}
                   />
                 )}

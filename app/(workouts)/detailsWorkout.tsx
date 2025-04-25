@@ -4,7 +4,8 @@ import {
   Text,
   Snackbar, Appbar,
   Card, IconButton,
-  Button
+  Button,
+  Chip
 } from 'react-native-paper';
 import { useStudent } from '../context/StudentContext';
 import { deleteWorkoutsByStudentId, duplicateWorkout, getWorkoutsByStudentId } from '@/api/workout/workout.api';
@@ -15,6 +16,7 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useUser } from '../UserContext';
 import CustomModal from '@/components/CustomModal';
 import { useTheme } from '../ThemeContext';
+import { format } from 'date-fns';
 
 export type RootStackParamList = {
   Workouts: undefined;
@@ -88,20 +90,17 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       ListHeaderComponent={
         <>
-          <Appbar.Header>
+          <Appbar.Header mode='small'>
             <Appbar.BackAction onPress={() => navigation.navigate('Workouts')} />
             <Appbar.Content title="Treinos" />
+            <Button
+              icon="plus"
+              mode='contained'
+              onPress={() => navigation.navigate('CreateWorkout', { studentId: activeStudentId })}
+            >Novo treino
+            </Button>
           </Appbar.Header>
-          <StudentCard
-            children={
-              <Button
-                icon="plus"
-                mode='text'
-                onPress={() => navigation.navigate('CreateWorkout', { studentId: activeStudentId })}
-              >Novo treino
-              </Button>
-            }
-          />
+          <StudentCard />
 
           <Snackbar
             visible={visible}
@@ -123,9 +122,19 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
         <Card.Title
           title={item.nameWorkout}
           subtitle={`ID ${item.id}`}
+          titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+          subtitleStyle={{ fontSize: 12, color: 'gray' }}
           right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item.id, studentId: activeStudentId }) }} />}
         />
+        <Card.Content>
+          <Chip
+            style={{ alignSelf: 'flex-start' }}
+            icon='calendar'>
+            {format(item?.createdAt, "dd/MM/yyyy")}
+          </Chip>
+        </Card.Content>
         <Card.Actions>
+
 
           <CustomModal
             onPress={() => handleDelete(item.id)}

@@ -118,7 +118,12 @@ const Reviews = ({ navigation }: ReviewsStudentProps) => {
                     mode='outlined'
                     theme={{ colors: { outline: colorReview(item?.reviewNote || 0)?.text } }}
                     compact
-                    onPress={() => { }}
+                    onPress={() => {
+                      navigation.navigate('WorkoutsScreen', {
+                        screen: 'CreateWorkout',
+                        params: { workoutId: item.workoutId, studentId: item?.student?.studentId },
+                      });
+                    }}
                     textColor={colorReview(item?.reviewNote || 0)?.text}
                     style={{
                       alignSelf: 'flex-start',

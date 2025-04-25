@@ -6,6 +6,7 @@ import StudentProfile from '../(home)/studentProfile';
 import RegisterUserByTeacher from '../(home)/registerUserByTeacher';
 import UserList from '../(home)/UserList';
 import Reviews from '../(reviews)/review';
+import CreateWorkout from '../(workouts)/createWorkout';
 
 
 const Stack = createStackNavigator();
@@ -21,6 +22,8 @@ function HomeNavigator() {
                 <Stack.Screen name="StudentProfile" component={StudentProfile} options={{ headerShown: false }} />
                 <Stack.Screen name="RegisterUserByTeacher" component={RegisterUserByTeacher} options={{ headerShown: false }} />
                 <Stack.Screen name="Reviews" component={Reviews} options={{ headerShown: false }} />
+                <Stack.Screen name="CreateWorkout" component={CreateWorkout} options={{ headerShown: false }} />
+
             </Stack.Navigator>
         </StudentProvider>
 

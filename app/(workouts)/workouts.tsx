@@ -27,7 +27,7 @@ const Workouts = ({ navigation }: any) => {
   const { user } = useUser();
   const { theme } = useTheme();
 
-  const { data: workoutsSummary, isLoading } = useQuery({
+  const { data: workoutsSummary, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['getRelationship', params],
     queryFn: () => getWorkoutsSummary(user?.id!, params),
     enabled: !!user?.id,
@@ -73,6 +73,8 @@ const Workouts = ({ navigation }: any) => {
         data={value === 'students' ? [] : workoutsSummaryFilter}
         keyExtractor={(item) => `${item.studentName}-${item.id}`}
         keyboardShouldPersistTaps="handled"
+        refreshing={isLoading || isFetching}
+        onRefresh={refetch}
         ListHeaderComponent={
           <View style={{ padding: 16 }}>
             <SegmentedButtons
