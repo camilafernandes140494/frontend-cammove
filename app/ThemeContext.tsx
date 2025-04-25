@@ -37,9 +37,22 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const backgroundCard = {
     card: {
       feedback: {
-        background: '#D4EDDA',
-        text: { primary: '#155724', secondary: "#6C757D" },
-        button: '#218838'
+        background: '#E6F4EA', // verde bem clarinho
+        chipBackground: '#D0ECD9',
+        text: { primary: '#207544', secondary: '#6C757D' }, // verde suave + cinza
+        button: '#34A853' // verde Google, mais moderno
+      },
+      negativeFeedback: {
+        background: '#FDEAEA', // vermelho/rosa bem clarinho
+        chipBackground: '#F8D7DA', // um tom mais forte para o chip
+        text: { primary: '#C62828', secondary: '#6C757D' }, // vermelho suave
+        button: '#E53935' // vermelho um pouco mais forte para ação
+      },
+      neutralFeedback: {
+        background: '#FFF8E1', // amarelo pastel
+        chipBackground: '#FFECB3',
+        text: { primary: '#A67C00', secondary: '#6C757D' }, // dourado queimado
+        button: '#FBC02D' // amarelo vibrante, mas sem exagero
       },
       blue: {
         background: {
