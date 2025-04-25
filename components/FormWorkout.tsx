@@ -134,7 +134,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       data={[{}]}
       keyExtractor={() => 'FormWorkout'}
       renderItem={() => <>
-        <View style={{ padding: 20 }}>
+        <View style={{ padding: 20, }}>
           <FormField control={control} name="nameWorkout" label="Nome do treino" type="text" />
 
           {selectedType.value !== "" && selectedType.value !== "Personalizado" &&

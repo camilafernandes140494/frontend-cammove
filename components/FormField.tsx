@@ -80,6 +80,7 @@ export function FormField({ control, name, label, type = "text", options, getLab
                   textColor={error ? theme.colors.error : undefined}
                   onPress={() => setMenuVisible(true)}>
                   {value ? getLabel?.(value) || label : label}
+
                 </Button>
               }
             >

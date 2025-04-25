@@ -75,7 +75,7 @@ const ExerciseModal = ({ onSave, exercise }: ExerciseModalProps) => {
   return (
     <>
       <Portal>
-        <Modal visible={visibleModal} onDismiss={hideModal} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20 }}>
+        <Modal visible={visibleModal} onDismiss={hideModal} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, marginHorizontal: 16 }}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
@@ -111,7 +111,9 @@ const ExerciseModal = ({ onSave, exercise }: ExerciseModalProps) => {
               <FormField control={control} name="sets" label="Número de séries" type="text" />
               <FormField control={control} name="restTime" label="Tempo de descanso" type="text" />
               <FormField control={control} name="observations" label="Observações (opcional)" type="text" />
-
+              <Button mode="outlined" theme={{ colors: { outline: theme.colors.primary } }} onPress={hideModal} style={{ marginBottom: 16 }} >
+                Cancelar
+              </Button>
               <Button mode="contained" onPress={handleSubmit(addExercise)}>
                 Salvar
               </Button>
@@ -119,7 +121,8 @@ const ExerciseModal = ({ onSave, exercise }: ExerciseModalProps) => {
           </KeyboardAvoidingView>
         </Modal>
 
-      </Portal>
+      </Portal >
+
       <Button icon={exercise ? undefined : "plus"} mode="text" style={{ marginVertical: 16 }} onPress={showModal}>
         {exercise ? "Editar" : "Adicionar Exercício"}
       </Button>
