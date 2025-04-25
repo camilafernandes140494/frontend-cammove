@@ -272,7 +272,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     setValue('bodyMeasurements.imc', imcDescription)
   }, [imcDescription])
   const assessmentMutation = useMutation({
-    mutationFn: async (data: AssessmentData) => {
+    mutationFn: async (data: Partial<AssessmentData>) => {
       if (assessmentsId) {
         await patchAssessments(assessmentsId, user?.id || '', student?.id || '', data);
       } else {
@@ -292,7 +292,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     }
   });
 
-  const onSubmit = (data: AssessmentData) => {
+  const onSubmit = (data: Partial<AssessmentData>) => {
     const dataToSend = {
       ...data,
       posture: {

@@ -4,7 +4,7 @@ import { AssessmentData, BasicAssessmentItem } from './assessments.types';
 export const postAssessments = async (
   teacherId: string,
   studentId: string,
-  params: AssessmentData,
+  params: Partial<AssessmentData>,
 ) => {
   try {
     const response = await api.post(
