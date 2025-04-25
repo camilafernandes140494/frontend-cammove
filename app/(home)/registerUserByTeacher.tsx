@@ -174,6 +174,14 @@ const RegisterUserByTeacher = () => {
               maxLength={10}
               keyboardType="numeric"
             />
+            <FormField
+              control={control}
+              mode="flat"
+              left={<TextInput.Icon icon="phone" />}
+              name="phone"
+              label="Qual é o seu celular?"
+              type="text"
+            />
             <Text variant='titleMedium' >Escolha o gênero com o qual seu aluno se identifica</Text>
             <FormField
               control={control}
@@ -187,14 +195,7 @@ const RegisterUserByTeacher = () => {
                 { label: 'Prefiro não me identificar', value: 'PREFER_NOT_TO_SAY' },
               ]}
             />
-            <FormField
-              control={control}
-              mode="flat"
-              left={<TextInput.Icon icon="phone" />}
-              name="phone"
-              label="Qual é o seu celular?"
-              type="text"
-            />
+
             <Button mode="contained" onPress={handleSubmit(onSubmit)}>
               Enviar
             </Button>

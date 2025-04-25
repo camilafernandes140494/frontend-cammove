@@ -55,11 +55,10 @@ const CreateUser = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.primary, }}>
       <View
         style={{
           flex: 1,
-          backgroundColor: theme.colors.primary,
           justifyContent: 'center',
           alignItems: 'center',
           paddingBottom: 20,

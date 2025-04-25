@@ -34,6 +34,9 @@ const CardProfile = ({ color = 'purple', description, title, image, status, onSt
                 <Button
                     mode="contained"
                     onPress={() => onStatus(status)}
+                    labelStyle={{
+                        color: theme.colors.card[color].button.text,
+                    }}
                     style={{
                         backgroundColor: theme.colors.card[color].button.background,
                     }}>

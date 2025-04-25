@@ -48,7 +48,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
 
 
     return (
-        <View style={{ padding: 20 }}>
+        <View style={{ padding: 16 }}>
             <Snackbar
                 visible={visible}
                 onDismiss={() => setVisible(false)}
@@ -61,7 +61,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
             </Snackbar>
 
             {!showListTeacher &&
-                <Card style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: 20 }}>
+                <Card style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 16 }}>
 
                     <FormField
                         control={control}
@@ -82,7 +82,14 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                         maxLength={10}
                         keyboardType="numeric"
                     />
-
+                    <FormField
+                        control={control}
+                        mode="flat"
+                        left={<TextInput.Icon icon="phone" />}
+                        name="phone"
+                        label="Qual é o seu celular?"
+                        type="text"
+                    />
                     <Text variant='titleMedium' >Escolha o gênero com o qual se identifica</Text>
                     <FormField
                         control={control}
@@ -96,14 +103,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                             { label: 'Prefiro não me identificar', value: 'PREFER_NOT_TO_SAY' },
                         ]}
                     />
-                    <FormField
-                        control={control}
-                        mode="flat"
-                        left={<TextInput.Icon icon="phone" />}
-                        name="phone"
-                        label="Qual é o seu celular?"
-                        type="text"
-                    />
+
                     <Button mode="contained" onPress={handleSubmit(handleFormSubmit)}>
                         Salvar
                     </Button>
