@@ -25,6 +25,7 @@ export type RootHomeStackParamList = {
     UserList: undefined;
     StudentProfile: { studentProfileId?: string };
     RegisterUserByTeacher: undefined
+    Reviews: undefined
 };
 
 const Home = () => {
@@ -93,31 +94,31 @@ const Home = () => {
 
 
     const { data: reviewsByTeacher, refetch: reviewsByTeacherRefetch, isLoading: reviewsByTeacherIsLoading, isFetching: reviewsByTeacherIsFetching } = useQuery({
-        queryKey: ['reviewsByTeacher', user?.id],
+        queryKey: ['reviewsByTeacherWithLimit', user?.id],
         queryFn: () => getReviewsByTeacher(user?.id || '', { limit: '7' }),
         enabled: !!user?.id,
     });
 
-    const averageNote = reviewsByTeacher && reviewsByTeacher.length > 0
-        ? reviewsByTeacher.reduce((sum, review) => sum + Number(review.reviewNote), 0) / reviewsByTeacher.length
+    const firstSevenReviews = reviewsByTeacher?.slice(0, 7) || [];
+
+    const averageNote = firstSevenReviews.length > 0
+        ? firstSevenReviews.reduce((sum, review) => sum + Number(review.reviewNote), 0) / firstSevenReviews.length
         : 0;
 
-    const maxNoteFromApi = 3;
+    const maxNoteFromApi = 5; // Atualize aqui se o reviewNote agora vai até 5
     const starsToDisplay = 5;
 
     const normalizedNote = (averageNote / maxNoteFromApi) * starsToDisplay;
-    const roundedNote = Math.ceil(normalizedNote);
 
     function getStarType(index: number) {
-        const position = index + 1;
-
-        if (position <= roundedNote) {
-            return "star"; // cheia
+        if (index <= normalizedNote) {
+            return "star";
         } else {
-            return "star-outline"; // vazia
+            return "star-outline";
         }
     }
 
+    console.log(reviewsByTeacher)
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Appbar.Header mode='small'>
@@ -289,14 +290,14 @@ const Home = () => {
                         subtitle="Resultado dos últimos 7 dias"
                         titleStyle={{ color: theme.colors.card.feedback.text.primary }}
                         subtitleStyle={{ color: theme.colors.card.feedback.text.secondary }}
-                        right={() => <Button textColor={theme.colors.card.feedback.button} onPress={() => { }} >Ver mais</Button>}
+                        right={() => <Button textColor={theme.colors.card.feedback.button} onPress={() => navigation.navigate('Reviews')} >Ver mais</Button>}
                     />
                     <Divider bold={true} style={{ marginVertical: 8, marginHorizontal: 16, backgroundColor: theme.colors.card.feedback.button }} />
                     <View style={{ display: 'flex', alignItems: 'center', margin: 16 }}>
                         <Text variant="displayMedium" style={{ color: theme.colors.card.feedback.text.primary }}>{normalizedNote.toFixed(1)}</Text>
 
                         <View style={{ flexDirection: "row", justifyContent: "center" }}>
-                            {[1, 2, 3, 4, 5].map((star) => (
+                            {[1, 2, 3, 4, 5].map((star, index) => (
                                 <IconButton
                                     key={star}
                                     icon={getStarType(star)}

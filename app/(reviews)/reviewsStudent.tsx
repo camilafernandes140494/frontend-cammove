@@ -45,15 +45,37 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
   };
 
   const evaluations = [
-    { label: 'Muito bom', icon: 'fire', message: 'Excelente treino! Me senti muito bem durante e depois.' },
-    { label: 'Bom', icon: 'thumb-up', message: 'O treino foi bom, mas poderia ter sido mais desafiador.' },
-    { label: 'Ruim', icon: 'thumb-down', message: 'Não gostei do treino. Precisa de melhorias.' },
+    {
+      label: 'Excelente',
+      icon: 'emoticon-happy',
+      message: 'Treino incrível! Superou minhas expectativas.',
+    },
+    {
+      label: 'Muito bom',
+      icon: 'fire',
+      message: 'Excelente treino! Me senti muito bem durante e depois.',
+    },
+    {
+      label: 'Bom',
+      icon: 'thumb-up',
+      message: 'O treino foi bom, mas poderia ter sido mais desafiador.',
+    },
+    {
+      label: 'Regular',
+      icon: 'alert',
+      message: 'Achei o treino mediano, pode melhorar em alguns pontos.',
+    },
+    {
+      label: 'Ruim',
+      icon: 'thumb-down',
+      message: 'Não gostei do treino. Precisa de melhorias.',
+    },
   ];
 
 
   const schema = z.object({
     review: z.string(),
-    reviewDescription: z.string().optional(),
+    reviewFeedback: z.string().optional(),
   });
 
 
@@ -61,7 +83,7 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
     resolver: zodResolver(schema),
     defaultValues: {
       review: '',
-      reviewDescription: ""
+      reviewFeedback: ''
     },
   });
 
@@ -69,7 +91,7 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
     if (review) {
       reset({
         review: review?.review || '',
-        reviewDescription: review?.reviewDescription || '',
+        reviewFeedback: review?.reviewFeedback || '',
       });
       setSelectedEvaluation(review?.review || '')
     }
@@ -77,15 +99,27 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: Partial<ReviewData>) => {
-      const { review, reviewDescription } = data;
-      const reviewNote = review === 'Muito bom' ? '3' : review === 'Bom' ? '2' : '1'
+      const { review, reviewFeedback } = data;
+      const reviewNote =
+        review === 'Excelente' ? '5' :
+          review === 'Muito bom' ? '4' :
+            review === 'Bom' ? '3' :
+              review === 'Regular' ? '2' : '1';
+
+      const reviewDescriptionData =
+        review === 'Excelente' ? evaluations[0]?.message :
+          review === 'Muito bom' ? evaluations[1]?.message :
+            review === 'Bom' ? evaluations[2]?.message :
+              review === 'Regular' ? evaluations[3]?.message : evaluations[4]?.message;
+
       const reviewData = {
         teacherId: teacher?.teacherId || '',
-        studentId: user?.id || '',
+        student: { studentId: user?.id || '', name: user?.name || '' },
         workoutId: workoutId,
         review: review,
-        reviewNote: reviewNote,
-        reviewDescription: reviewDescription,
+        reviewDescription: reviewDescriptionData,
+        reviewNote: Number(reviewNote),
+        reviewFeedback: reviewFeedback,
       }
       await postReview(teacher?.teacherId || '', user?.id || '', reviewData);
 
@@ -140,7 +174,7 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
             />
           ))}
         </View>
-        <FormField control={control} name="reviewDescription" label="Quer deixar um feedback?  (opcional)" type="text" multiline
+        <FormField control={control} name="reviewFeedback" label="Quer deixar um feedback?  (opcional)" type="text" multiline
           numberOfLines={5} />
         <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
           Enviar
