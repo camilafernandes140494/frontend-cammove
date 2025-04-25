@@ -55,7 +55,7 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
   }, [activeStudentId])
 
 
-  const { data: workoutsStudent, isLoading, refetch } = useQuery({
+  const { data: workoutsStudent, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['getWorkoutsByStudentId', activeStudentId],
     queryFn: () => getWorkoutsByStudentId(activeStudentId),
     enabled: !!activeStudentId
@@ -85,77 +85,79 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
     }
   };
   return (
-    <FlatList
-      style={{ flex: 1, backgroundColor: theme.colors.background }}
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-      ListHeaderComponent={
-        <>
-          <Appbar.Header mode='small'>
-            <Appbar.BackAction onPress={() => navigation.navigate('Workouts')} />
-            <Appbar.Content title="Treinos" />
-            <Button
-              icon="plus"
-              mode='contained'
-              onPress={() => navigation.navigate('CreateWorkout', { studentId: activeStudentId })}
-            >Novo treino
-            </Button>
-          </Appbar.Header>
-          <StudentCard />
+    <>
+      <Appbar.Header mode='small'>
+        <Appbar.BackAction onPress={() => navigation.navigate('Workouts')} />
+        <Appbar.Content title="Treinos" />
+        <Button
+          icon="plus"
+          mode='contained'
+          onPress={() => navigation.navigate('CreateWorkout', { studentId: activeStudentId })}
+        >Novo treino
+        </Button>
+      </Appbar.Header>
+      <StudentCard />
 
-          <Snackbar
-            visible={visible}
-            onDismiss={() => setVisible(false)}
-            action={{
-              label: '',
-              icon: 'close',
-              onPress: () => setVisible(false),
-            }}
-          >
-            <Text>Erro ao cadastrar</Text>
-          </Snackbar>
-        </>
-      }
-      data={workoutsStudent}
-      keyExtractor={(item) => String(item.id)}
-      renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
+      <Snackbar
+        visible={visible}
+        onDismiss={() => setVisible(false)}
+        action={{
+          label: '',
+          icon: 'close',
+          onPress: () => setVisible(false),
+        }}
       >
-        <Card.Title
-          title={item.nameWorkout}
-          subtitle={`ID ${item.id}`}
-          titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
-          subtitleStyle={{ fontSize: 12, color: 'gray' }}
-          right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item.id, studentId: activeStudentId }) }} />}
-        />
-        <Card.Content>
-          <Chip
-            style={{ alignSelf: 'flex-start' }}
-            icon='calendar'>
-            {format(item?.createdAt, "dd/MM/yyyy")}
-          </Chip>
-        </Card.Content>
-        <Card.Actions>
+        <Text>Erro ao cadastrar</Text>
+      </Snackbar>
+
+      <FlatList
+        style={{ flex: 1, backgroundColor: theme.colors.background }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+        data={workoutsStudent}
+        refreshing={isLoading || isFetching}
+        onRefresh={refetch}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
+        >
+          <Card.Title
+            title={item.nameWorkout}
+            subtitle={`ID ${item.id}`}
+            titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+            subtitleStyle={{ fontSize: 12, color: 'gray' }}
+            right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item.id, studentId: activeStudentId }) }} />}
+          />
+          <Card.Content>
+            <Chip
+              style={{ alignSelf: 'flex-start' }}
+              icon='calendar'>
+              {format(item?.createdAt, "dd/MM/yyyy")}
+            </Chip>
+          </Card.Content>
+          <Card.Actions>
 
 
-          <CustomModal
-            onPress={() => handleDelete(item.id)}
-            title='Tem certeza que deseja deletar o treino?'
-            primaryButtonLabel='Deletar' />
-          <CustomModal
-            onPress={() => handleDuplicate(item.id)}
-            title='Tem certeza que deseja duplicar o treino?'
-            primaryButtonLabel="Duplicar"
-            trigger={<Button
-              disabled={isLoadingButton}
-              loading={isLoadingButton}
-              mode='contained'
-            >Duplicar</Button>} />
+            <CustomModal
+              onPress={() => handleDelete(item.id)}
+              title='Tem certeza que deseja deletar o treino?'
+              primaryButtonLabel='Deletar' />
+            <CustomModal
+              onPress={() => handleDuplicate(item.id)}
+              title='Tem certeza que deseja duplicar o treino?'
+              primaryButtonLabel="Duplicar"
+              trigger={<Button
+                disabled={isLoadingButton}
+                loading={isLoadingButton}
+                mode='contained'
+              >Duplicar</Button>} />
 
-        </Card.Actions>
-      </Card>
-      }
-      </>
-      }
-    />
+          </Card.Actions>
+        </Card>
+        }
+        </>
+        }
+      />
+    </>
+
   );
 };
 

@@ -1,7 +1,7 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
-import { calculateAge } from './common';
+import { calculateAge, getGender } from './common';
 import { Users } from '@/api/users/users.types';
 
 pdfMake.vfs = pdfFonts.vfs;
@@ -13,7 +13,7 @@ const GeneratePDFBase64 = async (body?: string, student?: Users): Promise<string
       content: [
         { text: 'Avaliação fisica', fontSize: 16, margin: 10, alignment: 'center', },
         { text: `Aluno(a): ${student?.name}`, fontSize: 12, marginTop: 10, },
-        { text: `Gênero: ${student?.gender} | ${calculateAge(student?.birthDate || '')}`, fontSize: 12, marginBottom: 10, },
+        { text: `Gênero: ${getGender(student?.gender || '')} | ${calculateAge(student?.birthDate || '')}`, fontSize: 12, marginBottom: 10, },
         { text: body ?? '', fontSize: 10, margin: 10, },
       ],
       footer: (currentPage: number, pageCount: number) => [

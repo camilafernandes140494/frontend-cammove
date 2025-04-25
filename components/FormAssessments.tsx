@@ -123,7 +123,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       };
 
       // Chamando a função da API
-      const result = await postEmail(emailData);
+      await postEmail(emailData);
     } catch (error) {
       console.error('Erro ao gerar/enviar PDF:', error);
     }
