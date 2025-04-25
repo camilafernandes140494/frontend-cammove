@@ -11,13 +11,14 @@ import {
 } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { getWorkoutsSummary } from '@/api/workout/workout.api';
-import { checkDateStatus, DateStatus, formatDate, getNextMonth } from '@/common/common';
+import { checkDateStatus, DateStatus, getNextMonth } from '@/common/common';
 import CustomChip from '@/components/CustomChip';
 import FilterInput from '@/components/FilterInput';
 import { getWorkoutsSummaryResponse } from '@/api/workout/workout.types';
 import SelectStudent from '@/components/SelectStudent';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
+import { format } from 'date-fns';
 
 const Workouts = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>();
@@ -113,15 +114,15 @@ const Workouts = ({ navigation }: any) => {
           {
             isLoading && value === 'workouts' ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : value === 'workouts' && <Card style={{ marginHorizontal: 16, borderRadius: 12, elevation: 5, marginBottom: 16 }}>
               <Card.Title
-                title={item.studentName}
-                subtitle={`Criado em: ${formatDate(item.createdAt)}`}
+                title={item?.studentName || ''}
+                subtitle={`Criado em: ${format(item?.createdAt, "dd/MM/yyyy")}`}
                 right={(props) => (
                   <IconButton
                     {...props}
                     icon="chevron-right"
                     size={24}
                     onPress={() => {
-                      navigation.navigate('CreateWorkout', { workoutId: item.workoutId, studentId: item.studentId });
+                      navigation.navigate('CreateWorkout', { workoutId: item?.workoutId || '', studentId: item?.studentId || '' });
                     }}
                   />
                 )}
@@ -133,9 +134,9 @@ const Workouts = ({ navigation }: any) => {
                   Próxima atualização
                 </Text>
                 <Text variant="bodySmall" style={{ fontSize: 16, color: theme.colors.primary, fontWeight: '500', marginBottom: 20 }}>
-                  {getNextMonth(item.createdAt)}
+                  {getNextMonth(item?.createdAt || '')}
                 </Text>
-                <Chip>{item.workoutType}</Chip>
+                <Chip>{item?.workoutType || ''}</Chip>
               </Card.Content>
             </Card>
           }

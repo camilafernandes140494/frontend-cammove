@@ -25,7 +25,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const { user } = useUser();
   const navigation = useNavigation();
 
-  const { data: workoutByStudent, refetch } = useQuery({
+  const { data: workoutByStudent, } = useQuery({
     queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
     queryFn: () => getWorkoutByStudentIdAndWorkoutId(workoutId || '', student?.id || ''),
     enabled: !!workoutId
@@ -55,7 +55,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const { control, handleSubmit, watch, reset } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      type: workoutByStudent?.type ? { label: workoutByStudent?.type, value: workoutByStudent?.type } : {},
+      type: workoutByStudent?.type ? { label: workoutByStudent?.type || '', value: workoutByStudent?.type || '' } : {},
       customType: workoutByStudent?.type || "",
       nameWorkout: workoutByStudent?.nameWorkout || ""
     },
@@ -86,7 +86,6 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       }
     },
     onSuccess: () => {
-      refetch();
       navigation.navigate('Workouts' as never);
     },
     onError: () => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, View } from 'react-native';
 import {
   Text,
   Snackbar, Appbar,
@@ -17,6 +17,7 @@ import { useUser } from '../UserContext';
 import CustomModal from '@/components/CustomModal';
 import { useTheme } from '../ThemeContext';
 import { format } from 'date-fns';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export type RootStackParamList = {
   Workouts: undefined;
@@ -154,6 +155,30 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
         </Card>
         }
         </>
+        }
+        ListEmptyComponent={
+          isLoading || isFetching ? (
+            <>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  style={{
+                    width: '90%',
+                    height: 60,
+                    borderRadius: 4,
+                    marginVertical: 8,
+                    alignSelf: 'center',
+                  }}
+                />
+              ))}
+            </>
+          ) : <View style={{ alignItems: 'center', padding: 40 }}>
+            <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
+            <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
+              Nenhum dado encontrado.
+            </Text>
+            <Button onPress={() => refetch()} >Tentar novamente</Button>
+          </View>
         }
       />
     </>
