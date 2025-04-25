@@ -98,7 +98,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     `, student);
 
       const emailData: PostEmail = {
-        to: ['camilaferna140494@gmail.com'],
+        to: [student?.email || ''],
         subject: ' Sua Avaliação Física – Resultados e Análise',
         body: `Olá ${student?.name} <br><br>
 

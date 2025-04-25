@@ -131,7 +131,6 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
   });
 
   const onSubmit = async (data: Partial<SchedulesData>) => {
-    console.log(data)
     const values = getValues();
     let updatedTime = [...(values.time || [])];
 

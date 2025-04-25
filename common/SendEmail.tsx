@@ -6,7 +6,6 @@ const SendEmail = (
   body: string,
   attachments?: { base64: string; name: string }[]
 ) => {
-  console.log(Mailer, 'MailerMailer')
   return new Promise<void>((resolve, reject) => {
     if (!Mailer) {
       reject(new Error('Mailer não disponível.'));

@@ -129,7 +129,6 @@ const HomeStudent = () => {
     );
 
     if (selectedDates && selectedDates.length > 0) {
-      console.log(selectedDates);
       setSelectedDate(selectedDates); // agora é uma lista
       setModalVisible(true);
     }

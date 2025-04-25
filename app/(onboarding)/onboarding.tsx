@@ -78,11 +78,9 @@ const Onboarding = () => {
         try {
             if (!userById) {
                 await postUser(user?.id!, values);
-                console.log('cadastrou');
                 refetch();
             } else {
                 await patchUser(user?.id!, values);
-                console.log('atualizou');
                 await postEmail({
                     body: `Olá ${values.name}, <br><br>
                 

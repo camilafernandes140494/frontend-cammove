@@ -118,7 +118,6 @@ const Home = () => {
         }
     }
 
-    console.log(reviewsByTeacher)
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Appbar.Header mode='small'>
