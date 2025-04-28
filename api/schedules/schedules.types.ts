@@ -21,8 +21,9 @@ export type SchedulesDateData = {
 };
 
 export type SchedulesStudentDateData = {
-  date: string;          
-  description: string;  
-  name: string;         
-  time: string[];  
+  date: string;
+  description: string;
+  name: string;
+  time: string[];
+  students?: ScheduledStudents[];
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Snackbar, Text } from 'react-native-paper';
+import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Modal, Portal, Snackbar, Text } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
@@ -19,6 +19,9 @@ import { Calendar } from 'react-native-calendars';
 import { getScheduleDates } from '@/api/schedules/schedules.api';
 import { getReviewsByTeacher } from '@/api/reviews/reviews.api';
 import Skeleton from '@/components/Skeleton';
+import { format, parse } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';
 
 export type RootHomeStackParamList = {
     home: undefined;
@@ -32,8 +35,9 @@ const Home = () => {
     const { user, setUser } = useUser();
     const [visible, setVisible] = useState(false);
     const { theme, toggleTheme, isDarkMode } = useTheme();
-    const [rating, setRating] = useState(0);
     const [visibleConfig, setVisibleConfig] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<SchedulesStudentDateData[]>();
 
     const navigation = useNavigation<NavigationProp<RootHomeStackParamList>>();
     type IoniconName = keyof typeof Ionicons.glyphMap;
@@ -82,8 +86,8 @@ const Home = () => {
         enabled: !!user?.id,
     });
 
-    const markedDates = scheduleDates?.dates.reduce((acc, date) => {
-        acc[date] = {
+    const markedDates = scheduleDates?.reduce((acc, date) => {
+        acc[date.date] = {
             marked: true,
             dotColor: theme.colors.card.purple.border.default,
             selected: true,
@@ -118,6 +122,16 @@ const Home = () => {
         }
     }
 
+    const handleDayPress = (day: { dateString: string }) => {
+        const selectedDates = scheduleDates?.filter(
+            (schedule) => schedule.date === day.dateString
+        );
+
+        if (selectedDates && selectedDates.length > 0) {
+            setSelectedDate(selectedDates); // agora é uma lista
+            setModalVisible(true);
+        }
+    };
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Appbar.Header mode='small'>
@@ -265,12 +279,148 @@ const Home = () => {
                     <Calendar
                         markedDates={markedDates}
                         monthFormat={'MMMM yyyy'}
+                        onDayPress={handleDayPress}
                     />
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                         <View style={{ width: 12, height: 12, backgroundColor: theme.colors.card.purple.border.default, borderRadius: 6, marginRight: 6 }} />
                         <Text style={{ color: theme.colors.card.purple.text.primary }}>Agendamentos</Text>
                     </View>
                 </View>
+                <Portal>
+                    <Modal
+                        visible={modalVisible}
+                        onDismiss={() => setModalVisible(false)}
+                        contentContainerStyle={{ paddingHorizontal: 0 }} // opcional
+                    >
+                        <View
+                            style={{
+                                backgroundColor: theme.colors.background,
+                                padding: 20,
+                                borderRadius: 10,
+                                margin: 30,
+                            }}
+                        >
+                            <ScrollView>
+                                {selectedDate?.map((item, index) => (
+                                    <View key={index}>
+                                        <View
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'flex-start',
+                                                marginBottom: 16
+                                            }}
+                                        >
+                                            <View>
+                                                <Text variant='titleLarge'>
+                                                    {item?.name}
+                                                </Text>
+                                                <Text variant='bodySmall'>
+                                                    {item?.description}
+                                                </Text>
+                                            </View>
+                                            {index === 0 && (
+                                                <IconButton
+                                                    icon="close"
+                                                    size={20}
+                                                    onPress={() => setModalVisible(false)}
+                                                />
+                                            )}
+                                        </View>
+
+                                        <View
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                gap: 12,
+                                                marginBottom: 10
+                                            }}
+                                        >
+                                            <Ionicons
+                                                name={'time'}
+                                                size={18}
+                                                color={theme.colors.primary}
+                                            />
+                                            <Text
+                                                variant="bodyMedium"
+                                                numberOfLines={1}
+                                                ellipsizeMode="tail"
+                                                style={{ fontSize: 14, flexShrink: 1 }}
+                                            >
+                                                {item?.time && item.time.length > 0
+                                                    ? item.time.filter((t) => t !== 'Personalizado').join(', ')
+                                                    : '-'}
+                                            </Text>
+                                        </View>
+
+                                        <View
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                gap: 12,
+                                                alignItems: 'center',
+                                                marginBottom: 10
+                                            }}
+                                        >
+                                            <Ionicons
+                                                name={'calendar'}
+                                                size={18}
+                                                color={theme.colors.primary}
+                                            />
+                                            <Text
+                                                variant="bodyMedium"
+                                                numberOfLines={1}
+                                                ellipsizeMode="tail"
+                                                style={{ fontSize: 14, flexShrink: 1 }}
+                                            >
+                                                {item?.date
+                                                    ? format(parse(item.date, 'yyyy-MM-dd', new Date()), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                                                    : ''}
+                                            </Text>
+                                        </View>
+                                        <View
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                gap: 12,
+                                            }}
+                                        >
+                                            <Ionicons
+                                                name={'people'}
+                                                size={18}
+                                                color={theme.colors.primary}
+                                            />
+
+                                            <Text
+                                                variant="bodyMedium"
+                                                numberOfLines={1}
+                                                ellipsizeMode="tail"
+                                                style={{ fontSize: 14, flexShrink: 1 }}
+                                            >
+                                                {item?.students && item.students.length > 0
+                                                    ? item.students.map((s) => s.studentName).join(', ')
+                                                    : '-'}
+                                            </Text>
+                                        </View>
+                                        {index + 1 < selectedDate.length && (
+                                            <Divider
+                                                style={{
+                                                    width: '100%',
+                                                    marginVertical: 16,
+                                                    backgroundColor: theme.colors.outlineVariant,
+                                                    height: 2
+                                                }}
+                                            />
+                                        )}
+                                    </View>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    </Modal>
+                </Portal>
                 <Card >
                     <Card.Content>
                         <Text variant='titleMedium'>Gerenciar Alunos</Text>

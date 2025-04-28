@@ -54,7 +54,7 @@ export const getSchedule = async (
 
 export const getScheduleDates = async (teacherId: string) => {
   try {
-    const response = await api.get<SchedulesDateData>(
+    const response = await api.get<SchedulesStudentDateData[]>(
       `/schedules/teachers/${teacherId}/dates`,
     );
     return response.data; // Retorna os dados da resposta

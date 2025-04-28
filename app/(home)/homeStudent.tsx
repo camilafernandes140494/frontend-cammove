@@ -434,7 +434,6 @@ const HomeStudent = () => {
             </Modal>
           </Portal>
 
-
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
             <View style={{ width: 12, height: 12, backgroundColor: theme.colors.card.purple.border.default, borderRadius: 6, marginRight: 6 }} />
             <Text style={{ color: theme.colors.card.purple.text.primary }}>Agendamentos</Text>
