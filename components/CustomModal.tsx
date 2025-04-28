@@ -8,10 +8,12 @@ interface CustomModalProps {
   title: string
   trigger?: React.ReactNode;
   primaryButtonLabel?: string;
+  cancelButtonLabel?: string;
   children?: React.ReactNode;
+  showPrimaryButton?: boolean
 }
 
-const CustomModal = ({ onPress, title, trigger, primaryButtonLabel, children }: CustomModalProps) => {
+const CustomModal = ({ onPress, title, trigger, primaryButtonLabel = 'Salvar', showPrimaryButton = true, cancelButtonLabel = 'Cancelar', children }: CustomModalProps) => {
   const [visibleModal, setVisibleModal] = useState(false);
   const { theme } = useTheme();
 
@@ -27,14 +29,17 @@ const CustomModal = ({ onPress, title, trigger, primaryButtonLabel, children }: 
     <>
       <Portal >
         <Modal visible={visibleModal} onDismiss={() => setVisibleModal(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, gap: 16, marginHorizontal: 16 }}>
-          <Text variant="bodyMedium">{title}</Text>
+          <Text variant="titleSmall">{title}</Text>
           {children}
           <Button mode="contained-tonal" onPress={() => setVisibleModal(false)}>
-            Cancelar
+            {cancelButtonLabel}
           </Button>
-          <Button mode="contained" onPress={handleDelete}>
-            {primaryButtonLabel ? primaryButtonLabel : 'Salvar'}
-          </Button>
+          {showPrimaryButton &&
+            <Button mode="contained" onPress={handleDelete}>
+              {primaryButtonLabel}
+            </Button>
+          }
+
         </Modal>
 
       </Portal>
