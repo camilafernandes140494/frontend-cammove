@@ -12,6 +12,10 @@ import FormWorkout from '@/components/FormWorkout';
 import StudentCard from '@/components/StudentCard';
 import { useTheme } from '../ThemeContext';
 import Skeleton from '@/components/Skeleton';
+import { useQuery } from '@tanstack/react-query';
+import { getReviewById } from '@/api/reviews/reviews.api';
+import CustomModal from '@/components/CustomModal';
+import CardReview from '@/components/CardReview';
 
 type CreateWorkoutProps = {
     route: {
@@ -33,11 +37,37 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
     const { theme } = useTheme();
 
     useEffect(() => { studentId && refetchStudent(studentId) }, [studentId])
+
+    const { data: review } = useQuery({
+        queryKey: ['getReviewById', user?.id, workoutId],
+        queryFn: () => getReviewById(user?.id || '', workoutId || '', studentId || ''),
+        enabled: !!user?.id,
+    });
+
     return (
         <>
-            <Appbar.Header>
+            <Appbar.Header mode='small'>
                 <Appbar.BackAction onPress={() => navigation.navigate('Workouts' as never)} />
                 <Appbar.Content title="Cadastrar treino" />
+
+                {review?.review && <CustomModal
+                    onPress={() => { }}
+                    title="Avaliação do treino"
+                    showPrimaryButton={false}
+                    cancelButtonLabel={'Fechar'}
+                    trigger={
+                        <Button
+                            mode='elevated'
+                            icon={'star'}
+                        >
+                            Ver avaliação
+                        </Button>
+                    }
+                >
+                    <CardReview reviewData={review!} navigation={navigation} showButtonWorkout={false} />
+                </CustomModal>
+                }
+
             </Appbar.Header>
             {!workoutId && <StudentCard>
                 {workoutId && <Text variant="bodySmall" style={{ marginLeft: 16, color: theme.colors.outline }}>ID: {workoutId}</Text>}
