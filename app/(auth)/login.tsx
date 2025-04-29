@@ -38,9 +38,9 @@ const Login = () => {
         try {
             const userCredential = await postLogin(values);
             const user = await getUserById(userCredential.user_id);
-
-            setUser({ id: userCredential.user_id, token: userCredential.uid, status: user.status });
-            login({ id: userCredential.user_id, token: userCredential.uid, name: user.name, gender: user.gender, permission: user.permission, image: user.image })
+            console.log('...user', user)
+            setUser({ id: userCredential.user_id, token: userCredential.uid, ...user, });
+            login({ id: userCredential.user_id, token: userCredential.uid, ...user })
             navigation.navigate('Home' as never);
         } catch (error) {
             setVisible(true);

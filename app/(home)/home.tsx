@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { RefreshControl, ScrollView, View, Image } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Modal, Portal, Snackbar, Text, } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
-import { FormField } from '@/components/FormField';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
@@ -22,7 +21,6 @@ import Skeleton from '@/components/Skeleton';
 import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';
-import ImageUpload from '@/components/ImageUpload ';
 
 export type RootHomeStackParamList = {
     home: undefined;
@@ -30,6 +28,7 @@ export type RootHomeStackParamList = {
     StudentProfile: { studentProfileId?: string };
     RegisterUserByTeacher: undefined
     Reviews: undefined
+    MyProfile: undefined
 };
 
 const Home = () => {
@@ -85,20 +84,22 @@ const Home = () => {
 
 
     const { data: scheduleDates, isLoading, isFetching, refetch } = useQuery({
-        queryKey: ['getScheduleDates'],
+        queryKey: ['getScheduleDates', user?.id],
         queryFn: () => getScheduleDates(user?.id!),
         enabled: !!user?.id,
     });
 
-    const markedDates = scheduleDates?.reduce((acc, date) => {
-        acc[date.date] = {
-            marked: true,
-            dotColor: theme.colors.card.purple.border.default,
-            selected: true,
-            selectedColor: theme.colors.card.purple.border.default
-        };
-        return acc;
-    }, {} as Record<string, any>);
+    const markedDates = Array.isArray(scheduleDates)
+        ? scheduleDates.reduce((acc, date) => {
+            acc[date.date] = {
+                marked: true,
+                dotColor: theme.colors.card.purple.border.default,
+                selected: true,
+                selectedColor: theme.colors.card.purple.border.default
+            };
+            return acc;
+        }, {} as Record<string, any>)
+        : {};
 
 
     const { data: reviewsByTeacher, refetch: reviewsByTeacherRefetch, isLoading: reviewsByTeacherIsLoading, isFetching: reviewsByTeacherIsFetching } = useQuery({
@@ -152,36 +153,9 @@ const Home = () => {
                                 {isDarkMode ? 'Usar tema claro' : 'Usar tema escuro'}
                             </Button>
                             <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
-                            <CustomModal
-                                onPress={handleSubmit(onSubmit)}
-                                title="Editar perfil"
-                                trigger={
-                                    <Button mode="text" icon="cog-outline">
-                                        Editar perfil
-                                    </Button>
-                                }
-                            >
-                                {user?.image && (
-                                    <Image
-                                        source={{ uri: user?.image }}
-                                        style={{
-                                            width: 200,
-                                            height: 200,
-                                            borderRadius: 10,
-                                            marginBottom: 10,
-                                        }}
-                                    />
-
-                                )}
-                                <ImageUpload onSelect={(url) => { setUser({ ...user, image: url }), setValue('image', url) }} />
-                                <FormField
-                                    control={control}
-                                    mode="flat"
-                                    name="name"
-                                    label="Nome"
-                                    type="text"
-                                />
-                            </CustomModal>
+                            <Button mode="text" icon="cog-outline" onPress={() => { setVisibleConfig(false), navigation.navigate('MyProfile') }}>
+                                Editar perfil
+                            </Button>
 
                             <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
 

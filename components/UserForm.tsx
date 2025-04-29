@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Snackbar, Text, TextInput } from 'react-native-paper';
 import { View } from 'react-native';
-import { useUser } from '@/app/UserContext';
+import { UserType, useUser } from '@/app/UserContext';
 import { GENDER, PostUser } from '@/api/users/users.types';
 import UserList from './UserList';
 import { useNavigation } from '@react-navigation/native';
@@ -9,14 +9,16 @@ import * as z from "zod";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { FormField } from './FormField';
+import ImageUpload from './ImageUpload ';
 
 interface UserFormProps {
-    color?: string;
+    userData?: Partial<UserType> | null;
     onSubmit: (values: Partial<PostUser>) => void;
+    children?: React.ReactNode;
 
 }
 
-const UserForm = ({ onSubmit }: UserFormProps) => {
+const UserForm = ({ onSubmit, userData, children }: UserFormProps) => {
     const [visible, setVisible] = useState(false);
     const [showListTeacher, setShowListTeacher] = useState(false);
     const navigation = useNavigation();
@@ -28,22 +30,26 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
         birthDate: z.string().nonempty("Obrigatório"),
         gender: z.string().nonempty("Obrigatório"),
         phone: z.string().nonempty("Obrigatório"),
+        image: z.string().optional()
     });
 
-    const { control, handleSubmit, } = useForm<z.infer<typeof schema>>({
+    const { control, handleSubmit, setValue } = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
-            name: '',
-            birthDate: '',
-            gender: 'PREFER_NOT_TO_SAY',
-            phone: ''
+            name: userData?.name || '',
+            birthDate: userData?.birthDate || '',
+            gender: userData?.gender || 'PREFER_NOT_TO_SAY',
+            phone: userData?.phone || '',
+            image: userData?.image || '',
         },
     });
 
     const handleFormSubmit = (values: z.infer<typeof schema>) => {
         onSubmit({ ...values, gender: values.gender as GENDER });
-        setUser(values);
-        setShowListTeacher(true);
+        setUser({ ...user, ...values });
+        if (!userData) {
+            setShowListTeacher(true);
+        }
     };
 
 
@@ -62,6 +68,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
 
             {!showListTeacher &&
                 <Card style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 16 }}>
+                    <ImageUpload onSelect={(url) => { setValue('image', url) }} labelButton='Escolher foto de perfil' deletePreviousImage={userData?.image} />
 
                     <FormField
                         control={control}
@@ -103,7 +110,7 @@ const UserForm = ({ onSubmit }: UserFormProps) => {
                             { label: 'Prefiro não me identificar', value: 'PREFER_NOT_TO_SAY' },
                         ]}
                     />
-
+                    {children}
                     <Button mode="contained" onPress={handleSubmit(handleFormSubmit)}>
                         Salvar
                     </Button>

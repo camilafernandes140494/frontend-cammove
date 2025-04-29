@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { Image, View, ActivityIndicator, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Button } from 'react-native-paper';
-import { postFiles } from '@/api/files/files.api';
+import { deleteFiles, postFiles } from '@/api/files/files.api';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 interface ImageUploadProps {
     onSelect: (url: string) => void;
+    labelButton?: string;
+    deletePreviousImage?: string | null
 }
 
-export default function ImageUpload({ onSelect }: ImageUploadProps) {
+export default function ImageUpload({ onSelect, deletePreviousImage, labelButton = 'Escolher imagem' }: ImageUploadProps) {
     const [image, setImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -37,10 +39,13 @@ export default function ImageUpload({ onSelect }: ImageUploadProps) {
         }
     };
 
-
     const handleSave = async (asset: ImagePicker.ImagePickerAsset) => {
         setIsLoading(true);
         try {
+            const deleteImage = deletePreviousImage?.split('/')
+
+            if (deleteImage) { await deleteFiles(deleteImage[3], deleteImage[4]) }
+
             const compressImage = async (uri: string) => {
                 const result = await ImageManipulator.manipulateAsync(
                     uri,
@@ -102,8 +107,11 @@ export default function ImageUpload({ onSelect }: ImageUploadProps) {
 
     return (
         <View >
-            <Button mode="contained" onPress={pickImage}>
-                Escolher imagem
+            <Button mode="contained" onPress={pickImage}
+                style={{
+                    marginBottom: image ? 1 : 10,
+                }}>
+                {labelButton}
             </Button>
 
             {image && (

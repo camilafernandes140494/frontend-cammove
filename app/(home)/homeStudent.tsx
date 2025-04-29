@@ -1,15 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Snackbar, Text, Modal } from 'react-native-paper';
+import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Text, Modal } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
-import { FormField } from '@/components/FormField';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 
-import * as z from "zod";
-import { getUserById, patchUser } from '@/api/users/users.api';
+import { getUserById } from '@/api/users/users.api';
 import { useTheme } from '../ThemeContext';
 import { Calendar } from "react-native-calendars";
 import { format, parse, parseISO } from 'date-fns';
@@ -21,13 +17,14 @@ import { getScheduleDatesByStudent } from '@/api/schedules/schedules.api';
 import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';
 import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
-import ImageUpload from '@/components/ImageUpload ';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 
 export type RootHomeStackParamList = {
   home: undefined;
   StudentProfile: { studentProfileId?: string };
-  RegisterUserByTeacher: undefined
+  RegisterUserByTeacher: undefined;
+  MyProfile: undefined
 };
 
 const HomeStudent = () => {
@@ -38,7 +35,7 @@ const HomeStudent = () => {
   const { teacher } = useMyTeacher()
   const [selectedDate, setSelectedDate] = useState<SchedulesStudentDateData[]>();
   const [modalVisible, setModalVisible] = useState(false);
-
+  const navigation = useNavigation<NavigationProp<RootHomeStackParamList>>();
 
 
   const { data: teacherData, isLoading: isLoadingTeacherData } = useQuery({
@@ -48,37 +45,6 @@ const HomeStudent = () => {
   });
 
 
-
-  const modalSchema = z.object({
-    name: z.string().min(1, "Obrigatório"),
-  });
-
-  const { control, handleSubmit } = useForm<z.infer<typeof modalSchema>>({
-    resolver: zodResolver(modalSchema),
-    defaultValues: {
-      name: user?.name || '',
-    },
-  });
-
-
-  const onSubmit = async (data: any) => {
-    try {
-      await patchUser(user?.id || '', data);
-      setUser({ name: data.name })
-    } catch (error) {
-      <Snackbar
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        action={{
-          label: '',
-          icon: 'close',
-          onPress: () => setVisible(false),
-        }}
-      >
-        <Text>Erro ao atualizar usuário</Text>
-      </Snackbar>
-    }
-  }
 
   const { data: scheduleDates,
     refetch: scheduleDatesRefetch,
@@ -193,25 +159,9 @@ const HomeStudent = () => {
                 {isDarkMode ? 'Usar tema claro' : 'Usar tema escuro'}
               </Button>
               <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
-              <CustomModal
-                onPress={handleSubmit(onSubmit)}
-                title="Editar perfil"
-                trigger={
-                  <Button mode="text" icon="cog-outline">
-                    Editar perfil
-                  </Button>
-                }
-              >
-                <ImageUpload onSelect={(url) => console.log('images', [url])} />
-
-                <FormField
-                  control={control}
-                  mode="flat"
-                  name="name"
-                  label="Nome"
-                  type="text"
-                />
-              </CustomModal>
+              <Button mode="text" icon="cog-outline" onPress={() => { setVisibleConfig(false), navigation.navigate('MyProfile') }}>
+                Editar perfil
+              </Button>
 
               <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
 

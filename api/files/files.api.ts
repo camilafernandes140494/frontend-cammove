@@ -23,3 +23,13 @@ export const getFiles = async (folder: string, fileId: string) => {
     throw error; // Propaga o erro para quem chamar a função
   }
 };
+
+export const deleteFiles = async (folder: string, fileId: string) => {
+  try {
+    const response = await api.delete(`/files/${folder}/${fileId}`);
+    return response.data; // Retorna os dados da resposta
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw error; // Propaga o erro para quem chamar a função
+  }
+};
