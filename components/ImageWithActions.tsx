@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    // backgroundColor: 'white',
   },
   modalBackground: {
     flex: 1,
