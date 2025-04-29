@@ -126,7 +126,8 @@ const StudentProfile = () => {
                       zIndex: 1,
                     }}
                   >
-                    <Avatar.Text size={80} label={getInitials(studentId?.name || '')} />
+                    {studentId?.image ? <Avatar.Image size={80} source={{ uri: studentId.image }} /> : <Avatar.Text label={getInitials(studentId?.name || '')} />}
+
                   </View>
                 </View>
 

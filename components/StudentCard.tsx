@@ -18,7 +18,11 @@ const StudentCard = ({ children }: StudentCardProps) => {
     <Card.Title
       title={`${student?.name}`}
       subtitle={`Gênero: ${getGender(student?.gender || '')} | ${calculateAge(student?.birthDate || '')} anos`}
-      left={(props) => <Avatar.Text {...props} label={getInitials(student?.name || '')} />}
+      left={(props) => {
+        return student?.image
+          ? <Avatar.Image size={80} source={{ uri: student.image }} />
+          : <Avatar.Text {...props} label={getInitials(student?.name || '')} />;
+      }}
     />
     {children}
   </View>;

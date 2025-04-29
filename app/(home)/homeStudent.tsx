@@ -188,7 +188,7 @@ const HomeStudent = () => {
         </Portal>
       </Appbar.Header>
       <View style={{ display: 'flex', backgroundColor: theme.colors.secondaryContainer, flexDirection: 'row', alignItems: "center", padding: 16, gap: 16 }}>
-        <Avatar.Text label={getInitials(user?.name || '')} />
+        {user?.image ? <Avatar.Image size={80} source={{ uri: user.image }} /> : <Avatar.Text label={getInitials(user?.name || '')} />}
         <Text variant="headlineMedium" >
           Olá, {user?.name}
         </Text>
