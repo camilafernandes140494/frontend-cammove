@@ -23,22 +23,23 @@ const Onboarding = () => {
     const {
         data: userById,
         refetch,
-        isError,
         isLoading,
     } = useQuery({
-        queryKey: ['getUserById', user?.id],
+        queryKey: ['getUserById', user?.email],
         queryFn: () => getUserById(user?.id as string),
-        enabled: !!user?.id,
+        enabled: !!user?.email,
     });
-
     useEffect(() => {
-        setUser({
-            name: userById?.name,
-            permission: userById?.permission,
-            gender: userById?.gender,
-            email: userById?.email,
-        });
+        if (userById) {
+            setUser({
+                name: userById.name,
+                permission: userById.permission,
+                gender: userById.gender,
+                email: userById.email,
+            });
+        }
     }, [userById]);
+
 
     type CarouselItem = {
         title: string;
