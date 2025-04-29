@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
 import {
   TextInput,
-  Button,
-  HelperText,
-  Text,
-  Snackbar,
+  Button, Text,
+  Snackbar
 } from 'react-native-paper';
 import { postCreateUser } from '@/api/auth/auth.api';
 import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-
+import { FormField } from '@/components/FormField';
+import { useMutation } from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from "zod";
 
 export type RootOnboardingStackParamList = {
   createUser: undefined;
@@ -26,34 +26,43 @@ const CreateUser = () => {
   const { setUser } = useUser();
   const [showPassword, setShowPassword] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [isLoadingButton, setIsLoadingButton] = useState(false);
 
-  const validationSchema = Yup.object().shape({
-    email: Yup.string()
-      .email('Por favor, insira um email válido')
-      .required('O email é obrigatório'),
-    password: Yup.string()
-      .min(6, 'A senha deve ter pelo menos 6 caracteres')
-      .required('A senha é obrigatória'),
+  const schema = z.object({
+    email: z.string().email('Por favor, insira um email válido').nonempty('O email é obrigatório'),
+    password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres').nonempty('A senha é obrigatória'),
+
   });
 
 
+  const { control, handleSubmit } = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      email: '',
+      password: ''
+    },
+  });
 
+  type CreateUserInput = { email: string; password: string };
+  type CreateUserOutput = { uid: string }; // ajuste conforme retorno real
 
-  const handleLogin = async (values: { email: string; password: string }) => {
-    setIsLoadingButton(true)
-    try {
-      const userCredential = await postCreateUser(values);
-      setUser({ id: userCredential.uid });
-      navigation.navigate('Onboarding', { email: values.email });
-
-    } catch (error) {
+  const mutation = useMutation<CreateUserOutput, Error, CreateUserInput>({
+    mutationFn: async (values) => {
+      return await postCreateUser(values);
+    },
+    onSuccess: (data, variables) => {
+      setUser({ id: data.uid });
+      navigation.navigate('Onboarding', { email: variables.email });
+    },
+    onError: (error) => {
       console.error('Erro ao criar usuário:', error);
-    } finally {
-      setIsLoadingButton(false)
+      setVisible(true);
     }
-  };
+  });
 
+
+  const onSubmit = async (data: any) => {
+    mutation.mutate(data);
+  };
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.primary, }}>
       <View
@@ -97,78 +106,42 @@ const CreateUser = () => {
         >
           <Text>Erro ao cadastrar</Text>
         </Snackbar>
-        <Formik
-          initialValues={{ email: '', password: '' }}
-          validationSchema={validationSchema}
-          onSubmit={handleLogin}
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 5,
+          }}
         >
-          {({
-            handleSubmit,
-            handleChange,
-            handleBlur,
-            values,
-            errors,
-            touched,
-          }) => (
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 5,
-              }}
-            >
-              <TextInput
-                mode="flat"
-                label="E-mail"
-                value={values.email}
-                onChangeText={handleChange('email')}
-                onBlur={handleBlur('email')}
-                style={{
-                  backgroundColor: theme.background,
-                }}
-                error={touched.email && Boolean(errors.email)}
+          <FormField control={control} mode="flat" name="email" label="E-mail" type="text" style={{
+            backgroundColor: theme.background,
+          }} />
+          <FormField control={control} mode="flat" name="password" label="Senha" type="text"
+            secureTextEntry={!showPassword}
+            style={{
+              backgroundColor: theme.background,
+            }}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? 'eye-off' : 'eye'}
+                onPress={() => setShowPassword(!showPassword)}
               />
-              {touched.email && errors.email && (
-                <HelperText type="error">{errors.email}</HelperText>
-              )}
-              <TextInput
-                mode="flat"
-                label="Senha"
-                value={values.password}
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-                secureTextEntry={!showPassword}
-                right={
-                  <TextInput.Icon
-                    icon={showPassword ? 'eye-off' : 'eye'}
-                    onPress={() => setShowPassword(!showPassword)}
-                  />
-                }
-                style={{
-                  backgroundColor: theme.background,
-                }}
-                error={touched.password && Boolean(errors.password)}
-              />
-              {touched.password && errors.password && (
-                <HelperText type="error">{errors.password}</HelperText>
-              )}
+            } />
+          <Button
+            mode="contained"
+            onPress={handleSubmit(onSubmit)}
+            loading={mutation.isPending}
+            disabled={mutation.isPending}
+            style={{
+              borderRadius: 10,
+              marginVertical: 20,
+            }}
+            contentStyle={{ height: 50 }}
+          >
+            Cadastre-se
+          </Button>
+        </View>
 
-              <Button
-                mode="contained"
-                onPress={handleSubmit as any}
-                loading={isLoadingButton}
-                disabled={isLoadingButton}
-                style={{
-                  borderRadius: 10,
-                  marginVertical: 20,
-                }}
-                contentStyle={{ height: 50 }}
-              >
-                Cadastre-se
-              </Button>
-            </View>
-          )}
-        </Formik>
       </View>
     </View>
   );
