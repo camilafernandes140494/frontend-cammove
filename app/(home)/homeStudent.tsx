@@ -21,6 +21,7 @@ import { getScheduleDatesByStudent } from '@/api/schedules/schedules.api';
 import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';
 import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
+import ImageUpload from '@/components/ImageUpload ';
 
 
 export type RootHomeStackParamList = {
@@ -201,6 +202,8 @@ const HomeStudent = () => {
                   </Button>
                 }
               >
+                <ImageUpload onSelect={(url) => console.log('images', [url])} />
+
                 <FormField
                   control={control}
                   mode="flat"

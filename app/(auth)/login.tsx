@@ -40,7 +40,7 @@ const Login = () => {
             const user = await getUserById(userCredential.user_id);
 
             setUser({ id: userCredential.user_id, token: userCredential.uid, status: user.status });
-            login({ id: userCredential.user_id, token: userCredential.uid, name: user.name, gender: user.gender, permission: user.permission })
+            login({ id: userCredential.user_id, token: userCredential.uid, name: user.name, gender: user.gender, permission: user.permission, image: user.image })
             navigation.navigate('Home' as never);
         } catch (error) {
             setVisible(true);

@@ -24,5 +24,6 @@ export type Users = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  image: string;
   status: STATUS;
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
-import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Modal, Portal, Snackbar, Text } from 'react-native-paper';
+import { RefreshControl, ScrollView, View, Image } from 'react-native';
+import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Modal, Portal, Snackbar, Text, } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
@@ -22,6 +22,7 @@ import Skeleton from '@/components/Skeleton';
 import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';
+import ImageUpload from '@/components/ImageUpload ';
 
 export type RootHomeStackParamList = {
     home: undefined;
@@ -45,12 +46,14 @@ const Home = () => {
 
     const modalSchema = z.object({
         name: z.string().min(1, "Obrigatório"),
+        image: z.string().optional()
     });
 
-    const { control, handleSubmit } = useForm<z.infer<typeof modalSchema>>({
+    const { control, handleSubmit, setValue } = useForm<z.infer<typeof modalSchema>>({
         resolver: zodResolver(modalSchema),
         defaultValues: {
             name: user?.name || '',
+            image: user?.image || '',
         },
     });
 
@@ -63,6 +66,7 @@ const Home = () => {
     const onSubmit = async (data: any) => {
         try {
             await patchUser(user?.id || '', data);
+
             setUser({ name: data.name })
         } catch (error) {
             <Snackbar
@@ -132,6 +136,7 @@ const Home = () => {
             setModalVisible(true);
         }
     };
+
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Appbar.Header mode='small'>
@@ -156,6 +161,19 @@ const Home = () => {
                                     </Button>
                                 }
                             >
+                                {user?.image && (
+                                    <Image
+                                        source={{ uri: user?.image }}
+                                        style={{
+                                            width: 200,
+                                            height: 200,
+                                            borderRadius: 10,
+                                            marginBottom: 10,
+                                        }}
+                                    />
+
+                                )}
+                                <ImageUpload onSelect={(url) => { setUser({ ...user, image: url }), setValue('image', url) }} />
                                 <FormField
                                     control={control}
                                     mode="flat"
@@ -194,7 +212,9 @@ const Home = () => {
 
             </Appbar.Header>
             <View style={{ display: 'flex', backgroundColor: theme.colors.secondaryContainer, flexDirection: 'row', alignItems: "center", padding: 16, gap: 16 }}>
-                <Avatar.Text label={getInitials(user?.name || '')} />
+
+                {user?.image ? <Avatar.Image size={80} source={{ uri: user.image }} /> : <Avatar.Text label={getInitials(user?.name || '')} />}
+
                 <Text variant="headlineMedium" >
                     Olá, {user?.name}
                 </Text>

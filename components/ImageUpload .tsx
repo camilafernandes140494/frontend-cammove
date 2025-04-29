@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Image, View, ActivityIndicator, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { postUpload } from '@/api/exercise/exercise.api';
 import { Button } from 'react-native-paper';
+import { postFiles } from '@/api/files/files.api';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 interface ImageUploadProps {
-    onSelect: (url: string) => void
+    onSelect: (url: string) => void;
 }
+
 export default function ImageUpload({ onSelect }: ImageUploadProps) {
     const [image, setImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -15,53 +17,92 @@ export default function ImageUpload({ onSelect }: ImageUploadProps) {
     const pickImage = async () => {
         setError(null); // Limpa erros anteriores
 
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images', 'videos'],
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (permissionResult.granted === false) {
+            setError('Permissão para acessar imagens foi negada.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images, // correto para pegar imagens
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
         });
 
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
-            await handleSave(result.assets[0].uri);
+            const selectedAsset = result.assets[0];
+            setImage(selectedAsset.uri);
+            await handleSave(selectedAsset);
         }
     };
 
-    const handleSave = async (selectedImage: string) => {
-        setIsLoading(true);
 
+    const handleSave = async (asset: ImagePicker.ImagePickerAsset) => {
+        setIsLoading(true);
         try {
-            const response = await fetch(selectedImage);
-            const blob = await response.blob();
+            const compressImage = async (uri: string) => {
+                const result = await ImageManipulator.manipulateAsync(
+                    uri,
+                    [],
+                    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+                );
+                return result.uri;
+            };
+
+            const getMimeType = (filename: string) => {
+                const extension = filename.split('.').pop()?.toLowerCase();
+                switch (extension) {
+                    case 'jpg':
+                    case 'jpeg':
+                        return 'image/jpeg';
+                    case 'png':
+                        return 'image/png';
+                    case 'webp':
+                        return 'image/webp';
+                    default:
+                        return 'application/octet-stream';
+                }
+            };
+
+            // Comprimir imagem
+            const compressedUri = await compressImage(asset.uri);
+
+            const file = {
+                uri: compressedUri,
+                name: asset.fileName || `photo_${Date.now()}.jpg`,
+                type: getMimeType(asset.fileName || ''),
+            } as any;
 
             const formData = new FormData();
-            formData.append('file', {
-                uri: selectedImage,
-                name: 'uploaded-file.jpg',
-                type: blob.type
-            } as any);
-            formData.append('folder', 'exercises');
+            formData.append('file', file);
 
-            const url = await postUpload(formData);
-            onSelect(url.url)
+            const uploadResult = await postFiles('users', formData);
+            console.log('Upload feito com sucesso:', uploadResult);
+
+            // A resposta vem com o 'key' e 'url'
+            const { key, url } = uploadResult;
+
+            // Exemplo de como usar a URL assinada
+            console.log('URL da imagem:', url);  // Aqui você pode usar a URL para exibir a imagem ou fazer outra coisa
+
+            // Passar o `key` para o método `onSelect`, caso precise do path do arquivo
+            onSelect(url);
 
         } catch (error) {
-            console.error('Erro ao fazer upload:', error);
-            setError('Erro ao enviar imagem, tente novamente.');
+            console.error('Erro ao fazer upload ou buscar o arquivo:', error);
+            setError('Erro ao enviar imagem.');
         } finally {
             setIsLoading(false);
         }
     };
 
+
+
+
     return (
-        <View style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-        }}>
-            <Button mode="contained" onPress={pickImage} >
+        <View >
+            <Button mode="contained" onPress={pickImage}>
                 Escolher imagem
             </Button>
 
@@ -70,21 +111,27 @@ export default function ImageUpload({ onSelect }: ImageUploadProps) {
                     marginTop: 20,
                     alignItems: 'center',
                 }}>
-                    <Image source={{ uri: image }} style={{
-                        width: 200,
-                        height: 200,
-                        borderRadius: 10,
-                        marginBottom: 10,
-                    }} />
+                    <Image
+                        source={{ uri: image }}
+                        style={{
+                            width: 200,
+                            height: 200,
+                            borderRadius: 10,
+                            marginBottom: 10,
+                        }}
+                    />
                     {isLoading && <ActivityIndicator animating={true} size="large" />}
                 </View>
             )}
 
-            {error && <Text style={{
-                color: 'red',
-                marginTop: 10,
-            }}>{error}</Text>}
+            {error && (
+                <Text style={{
+                    color: 'red',
+                    marginTop: 10,
+                }}>
+                    {error}
+                </Text>
+            )}
         </View>
     );
 }
-
