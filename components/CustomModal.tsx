@@ -1,6 +1,6 @@
 import { useTheme } from "@/app/ThemeContext";
 import React, { useState } from "react";
-import { Button, IconButton, Modal, Portal, Text } from "react-native-paper";
+import { Button, Dialog, IconButton, Modal, Portal, Text } from "react-native-paper";
 import { Switch } from 'react-native-paper';
 
 interface CustomModalProps {
@@ -28,18 +28,17 @@ const CustomModal = ({ onPress, title, trigger, primaryButtonLabel = 'Salvar', s
   return (
     <>
       <Portal >
-        <Modal visible={visibleModal} onDismiss={() => setVisibleModal(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, gap: 16, marginHorizontal: 16 }}>
-          <Text variant="titleSmall">{title}</Text>
+        <Modal visible={visibleModal} onDismiss={() => setVisibleModal(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, gap: 16, marginHorizontal: 16, borderRadius: 24 }}>
+          <Text variant="titleMedium">{title}</Text>
           {children}
-          <Button mode="contained-tonal" onPress={() => setVisibleModal(false)}>
-            {cancelButtonLabel}
-          </Button>
-          {showPrimaryButton &&
-            <Button mode="contained" onPress={handleDelete}>
-              {primaryButtonLabel}
+            <Button mode="contained-tonal" onPress={() => setVisibleModal(false)}>
+              {cancelButtonLabel}
             </Button>
-          }
-
+            {showPrimaryButton &&
+              <Button mode="contained" onPress={handleDelete}>
+                {primaryButtonLabel}
+              </Button>
+            }
         </Modal>
 
       </Portal>

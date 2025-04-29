@@ -1,61 +1,36 @@
-import React, { useState } from 'react';
-import { View, FlatList } from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, ScrollView } from 'react-native';
 import {
-    TextInput,
-    Button,
-    HelperText,
-    Text,
-    Snackbar,
-    Chip,
-    List,
-    Appbar,
-    ActivityIndicator,
+    Button, Text,
+    Snackbar, Appbar,
+    ActivityIndicator
 } from 'react-native-paper';
 import { useTheme } from '../ThemeContext';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getExerciseById, patchExercise, postExercise } from '@/api/exercise/exercise.api';
 import { Exercise } from '@/api/exercise/exercise.types';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import ImageUpload from '@/components/ImageUpload ';
+import { FormField } from '@/components/FormField';
+
+import * as z from "zod";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ImageWithActions } from '@/components/ImageWithActions';
 
 const CreateExercise = () => {
     const { theme } = useTheme();
     const navigation = useNavigation();
     const [visible, setVisible] = useState(false);
-    const [isLoadingButton, setIsLoadingButton] = useState(false);
-    const [expanded, setExpanded] = useState(false);
     const route = useRoute();
     const { exerciseId } = route.params as { exerciseId: string | undefined };
 
-    const { data: exerciseById, isLoading } = useQuery({
+    const { data: exerciseById, isLoading, refetch } = useQuery({
         queryKey: ['getExerciseById', exerciseId],
         queryFn: () => getExerciseById(exerciseId || ''),
         enabled: !!exerciseId
     });
 
-    const validationSchema = Yup.object().shape({
-        name: Yup.string().required('O nome é obrigatório'),
-        description: Yup.string().required('A descrição é obrigatória'),
-        category: Yup.string().required('A categoria é obrigatória'),
-    });
-
-    const createExercise = async (values: Exercise) => {
-        setIsLoadingButton(true);
-        try {
-            if (!exerciseId) {
-                await postExercise(values);
-            } else {
-                await patchExercise(exerciseId, values);
-            }
-            navigation.navigate('Exercises' as never)
-        } catch (error) {
-            setVisible(true);
-        } finally {
-            setIsLoadingButton(false);
-        }
-    };
 
     const muscleGroup = [
         "Peito",
@@ -113,138 +88,154 @@ const CreateExercise = () => {
         "Treino para Atletas"
     ];
 
-    return (
-        <FlatList
-            style={{ flex: 1, backgroundColor: theme.colors.background }}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-            ListHeaderComponent={
-                <>
-                    <Appbar.Header>
-                        <Appbar.BackAction onPress={() => navigation.goBack()} />
-                        <Appbar.Content title="Cadastrar exercício" />
-                    </Appbar.Header>
-                    <Snackbar
-                        visible={visible}
-                        onDismiss={() => setVisible(false)}
-                        action={{
-                            label: '',
-                            icon: 'close',
-                            onPress: () => setVisible(false),
-                        }}
-                    >
-                        <Text>Erro ao cadastrar</Text>
-                    </Snackbar>
-                </>
-            }
-            data={[{}]}
-            keyExtractor={() => exerciseById?.id || 'header'}  // Usar id ou um identificador único
-            renderItem={() => <>{
-                isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : <Formik
-                    initialValues={{
-                        name: exerciseById?.name || '',
-                        description: exerciseById?.description || '',
-                        muscleGroup: exerciseById?.muscleGroup || [] as string[],
-                        category: exerciseById?.category || '',
-                        images: exerciseById?.images || []
-                    }}
-                    validationSchema={validationSchema}
-                    onSubmit={createExercise}
-                >
-                    {({ handleSubmit, handleChange, handleBlur, values, errors, touched, setFieldValue }) => (
-                        <View style={{ paddingHorizontal: 16, paddingTop: 10, gap: 16 }}>
-                            <ImageUpload onSelect={(url) => setFieldValue('images', [url])} />
-                            <TextInput
-                                mode="flat"
-                                label="Nome"
-                                value={values.name}
-                                onChangeText={handleChange('name')}
-                                onBlur={handleBlur('name')}
-                                style={{ backgroundColor: theme.background }}
-                                error={touched.name && Boolean(errors.name)}
-                            />
-                            {touched.name && errors.name && (
-                                <HelperText type="error">{errors.name}</HelperText>
-                            )}
 
-                            <TextInput
-                                mode="outlined"
-                                label="Descrição"
-                                value={values.description}
-                                onChangeText={handleChange('description')}
-                                onBlur={handleBlur('description')}
+    const schema = z.object({
+        name: z.string().nonempty('O nome é obrigatório'),
+        description: z.string().nonempty('A descrição é obrigatória'),
+        categoryData: z
+            .object({
+                label: z.string(),
+                value: z.string(),
+            })
+            .refine(value => value !== undefined, { message: "Obrigatório" }),
+        images: z.array(z.string()),
+        muscleGroup: z.array(z.string()),
+    });
+
+
+    const { control, handleSubmit, reset, setValue } = useForm<z.infer<typeof schema>>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            name: exerciseById?.name || '',
+            description: exerciseById?.description || "",
+            categoryData: {},
+            images: exerciseById?.images || [],
+            muscleGroup: exerciseById?.muscleGroup || [],
+        },
+    });
+
+    useEffect(() => {
+        if (exerciseById) {
+            reset({ ...exerciseById, categoryData: { label: exerciseById.category, value: exerciseById.category } });
+        }
+    }, [exerciseById, reset]);
+
+
+    const mutation = useMutation({
+        mutationFn: async (values: Exercise) => {
+            if (!exerciseId) {
+                await postExercise(values);
+            } else {
+                await patchExercise(exerciseId, values);
+            }
+        },
+        onSuccess: () => {
+            navigation.navigate('Exercises' as never)
+        },
+        onError: () => {
+            setVisible(true);
+        }
+    });
+
+    const onSubmit = async (data: any) => {
+        mutation.mutate({ ...data, images: [...(exerciseById?.images || []), ...(data.images || [])], category: data.categoryData.value });
+    };
+
+    const muscleGroupChip = muscleGroup?.map(item => ({
+        label: item,
+        value: item,
+    }));
+
+    const workoutCategoriesSelect = workoutCategories?.map(item => ({
+        label: item,
+        value: item,
+    }));
+
+    return (
+        <>
+            <Appbar.Header>
+                <Appbar.BackAction onPress={() => navigation.goBack()} />
+                <Appbar.Content title="Cadastrar exercício" />
+            </Appbar.Header>
+            <Snackbar
+                visible={visible}
+                onDismiss={() => setVisible(false)}
+                action={{
+                    label: '',
+                    icon: 'close',
+                    onPress: () => setVisible(false),
+                }}
+            >
+                <Text>Erro ao cadastrar</Text>
+            </Snackbar>
+            <FlatList
+                style={{ flex: 1, backgroundColor: theme.colors.background }}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+                data={[{}]}
+                keyExtractor={() => exerciseById?.id || 'header'}  // Usar id ou um identificador único
+                renderItem={() => <>
+                    {isLoading ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> :
+                        <View style={{ padding: 20, }}>
+                            <ImageUpload onSelect={(url) => setValue('images', url)} storageFolder='exercises' />
+                            {(exerciseById?.images?.length || 0) > 0 && (
+                                <ScrollView
+                                    horizontal
+                                    style={{ marginTop: 20 }}
+                                    contentContainerStyle={{ alignItems: 'center' }}
+                                >
+                                    {exerciseById?.images?.map((uri, index) => (
+                                        <ImageWithActions
+                                            key={index}
+                                            uri={uri}
+                                            onDelete={async () => {
+                                                const updated = exerciseById?.images?.filter((uriImage) => uriImage !== uri);
+                                                await patchExercise(exerciseId!, { ...exerciseById, images: updated });
+                                                setValue('images', updated || []);
+                                                refetch()
+                                            }}
+                                        />
+
+                                    ))}
+                                </ScrollView>
+                            )}
+                            <FormField control={control} name="name" label="Nome" type="text" />
+                            <FormField control={control} name="description" label="Descrição" type="text"
                                 multiline
                                 numberOfLines={10}
-                                textAlignVertical="top"
-                                error={touched.description && Boolean(errors.description)}
+                                textAlignVertical="top" />
+                            <FormField
+                                control={control}
+                                name="categoryData"
+                                label="Categoria"
+                                type="select"
+                                getLabel={(option) => option.label}
+                                options={workoutCategoriesSelect}
                             />
-                            {touched.description && errors.description && (
-                                <HelperText type="error">{errors.description}</HelperText>
-                            )}
-
-                            {values.category && <Text variant="titleMedium" >Categoria</Text>}
-
-                            <List.Accordion
-                                title={values?.category || "Escolha uma categoria"}
-                                expanded={expanded}
-                                onPress={() => setExpanded(!expanded)}
-                            >
-                                {workoutCategories?.map((workout, index) => (
-                                    <List.Item
-                                        key={index}
-                                        style={{ backgroundColor: theme.colors.onPrimary }}
-                                        title={workout}
-                                        onPress={() => {
-                                            setExpanded(false);
-                                            setFieldValue('category', workout);
-                                        }} />
-                                ))}
-                            </List.Accordion>
-
-                            <Text variant="titleMedium" >Grupos musculares</Text>
-
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', padding: 10, gap: 10 }}>
-                                {muscleGroup.map((item, index) => <Chip
-                                    key={index}
-                                    icon={values.muscleGroup.includes(item) ? 'check' : undefined}
-                                    mode='outlined'
-                                    onPress={() => {
-                                        const newMuscleGroup = [...values.muscleGroup];
-                                        if (newMuscleGroup.includes(item)) {
-                                            const index = newMuscleGroup.indexOf(item);
-                                            newMuscleGroup.splice(index, 1);
-                                        } else {
-                                            newMuscleGroup.push(item);
-                                        }
-                                        setFieldValue('muscleGroup', newMuscleGroup);
-                                    }}
-                                    selected={values.muscleGroup.includes(item)}
-                                    style={{ marginVertical: 5 }}
-                                >
-                                    {item}
-                                </Chip>)}
-
-                            </View>
-
+                            <FormField
+                                control={control}
+                                name="muscleGroup"
+                                type="chip-multi"
+                                options={muscleGroupChip}
+                            />
                             <Button
                                 mode="contained"
-                                onPress={handleSubmit as any}
-                                loading={isLoadingButton}
-                                disabled={isLoadingButton}
+                                onPress={handleSubmit(onSubmit)}
+                                loading={mutation.isPending}
+                                disabled={mutation.isPending}
                                 style={{
-                                    borderRadius: 10,
+                                    borderRadius: 24,
                                     marginVertical: 20,
                                 }}
-                                contentStyle={{ height: 50 }}
                             >
                                 Salvar
                             </Button>
                         </View>
-                    )}
-                </Formik>
-            }
-            </>
-            }
-        />
+                    }
+                </>
+                }
+            />
+        </>
+
     );
 };
 

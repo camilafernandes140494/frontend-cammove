@@ -1,142 +1,144 @@
 import { useState } from 'react';
-import { Image, View, ActivityIndicator, Text } from 'react-native';
+import { Image, View, ActivityIndicator, Text, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Button } from 'react-native-paper';
 import { deleteFiles, postFiles } from '@/api/files/files.api';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 interface ImageUploadProps {
-    onSelect: (url: string) => void;
+    onSelect: (urls: string[]) => void;
     labelButton?: string;
-    deletePreviousImage?: string | null
+    deletePreviousImage?: string | null;
+    storageFolder: string
 }
 
-export default function ImageUpload({ onSelect, deletePreviousImage, labelButton = 'Escolher imagem' }: ImageUploadProps) {
-    const [image, setImage] = useState<string | null>(null);
+export default function ImageUpload({
+    onSelect,
+    deletePreviousImage,
+    labelButton = 'Escolher imagens',
+    storageFolder
+}: ImageUploadProps) {
+    const [images, setImages] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const pickImage = async () => {
-        setError(null); // Limpa erros anteriores
+    const pickImages = async () => {
+        setError(null);
 
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (permissionResult.granted === false) {
+        if (!permissionResult.granted) {
             setError('Permissão para acessar imagens foi negada.');
             return;
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images, // correto para pegar imagens
-            allowsEditing: true,
-            aspect: [4, 3],
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: false,
+            allowsMultipleSelection: true,
             quality: 1,
         });
 
-        if (!result.canceled) {
-            const selectedAsset = result.assets[0];
-            setImage(selectedAsset.uri);
-            await handleSave(selectedAsset);
+        if (!result.canceled && result.assets.length > 0) {
+            const selectedAssets = result.assets;
+            setImages(selectedAssets.map((a) => a.uri));
+            await handleSaveMultiple(selectedAssets);
         }
     };
 
-    const handleSave = async (asset: ImagePicker.ImagePickerAsset) => {
+    const compressImage = async (uri: string) => {
+        const result = await ImageManipulator.manipulateAsync(
+            uri,
+            [],
+            { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        );
+        return result.uri;
+    };
+
+    const getMimeType = (filename: string) => {
+        const extension = filename.split('.').pop()?.toLowerCase();
+        switch (extension) {
+            case 'jpg':
+            case 'jpeg':
+                return 'image/jpeg';
+            case 'png':
+                return 'image/png';
+            case 'webp':
+                return 'image/webp';
+            default:
+                return 'application/octet-stream';
+        }
+    };
+
+    const handleSaveMultiple = async (assets: ImagePicker.ImagePickerAsset[]) => {
         setIsLoading(true);
+        const uploadedUrls: string[] = [];
+
         try {
-            const deleteImage = deletePreviousImage?.split('/')
+            if (deletePreviousImage) {
+                const deleteImage = deletePreviousImage.split('/');
+                await deleteFiles(deleteImage[3], deleteImage[4]);
+            }
 
-            if (deleteImage) { await deleteFiles(deleteImage[3], deleteImage[4]) }
+            for (const asset of assets) {
+                const compressedUri = await compressImage(asset.uri);
 
-            const compressImage = async (uri: string) => {
-                const result = await ImageManipulator.manipulateAsync(
-                    uri,
-                    [],
-                    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-                );
-                return result.uri;
-            };
+                const file = {
+                    uri: compressedUri,
+                    name: asset.fileName || `photo_${Date.now()}.jpg`,
+                    type: getMimeType(asset.fileName || ''),
+                } as any;
 
-            const getMimeType = (filename: string) => {
-                const extension = filename.split('.').pop()?.toLowerCase();
-                switch (extension) {
-                    case 'jpg':
-                    case 'jpeg':
-                        return 'image/jpeg';
-                    case 'png':
-                        return 'image/png';
-                    case 'webp':
-                        return 'image/webp';
-                    default:
-                        return 'application/octet-stream';
-                }
-            };
+                const formData = new FormData();
+                formData.append('file', file);
 
-            // Comprimir imagem
-            const compressedUri = await compressImage(asset.uri);
+                const uploadResult = await postFiles(storageFolder, formData);
+                const { url } = uploadResult;
+                uploadedUrls.push(url);
+            }
 
-            const file = {
-                uri: compressedUri,
-                name: asset.fileName || `photo_${Date.now()}.jpg`,
-                type: getMimeType(asset.fileName || ''),
-            } as any;
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const uploadResult = await postFiles('users', formData);
-            console.log('Upload feito com sucesso:', uploadResult);
-
-            // A resposta vem com o 'key' e 'url'
-            const { key, url } = uploadResult;
-
-            // Exemplo de como usar a URL assinada
-            console.log('URL da imagem:', url);  // Aqui você pode usar a URL para exibir a imagem ou fazer outra coisa
-
-            // Passar o `key` para o método `onSelect`, caso precise do path do arquivo
-            onSelect(url);
-
+            onSelect(uploadedUrls);
         } catch (error) {
-            console.error('Erro ao fazer upload ou buscar o arquivo:', error);
-            setError('Erro ao enviar imagem.');
+            console.error('Erro ao fazer upload:', error);
+            setError('Erro ao enviar imagens.');
         } finally {
             setIsLoading(false);
         }
     };
 
-
-
-
     return (
-        <View >
-            <Button mode="contained" onPress={pickImage}
-                style={{
-                    marginBottom: image ? 1 : 10,
-                }}>
+        <View>
+            <Button
+                mode="contained"
+                onPress={pickImages}
+                style={{ marginBottom: images.length ? 1 : 10 }}
+            >
                 {labelButton}
             </Button>
 
-            {image && (
-                <View style={{
-                    marginTop: 20,
-                    alignItems: 'center',
-                }}>
-                    <Image
-                        source={{ uri: image }}
-                        style={{
-                            width: 200,
-                            height: 200,
-                            borderRadius: 10,
-                            marginBottom: 10,
-                        }}
-                    />
+            {images.length > 0 && (
+                <ScrollView
+                    horizontal
+                    style={{ marginTop: 20 }}
+                    contentContainerStyle={{ alignItems: 'center' }}
+                >
+                    {images.map((uri, index) => (
+                        <Image
+                            key={index}
+                            source={{ uri }}
+                            style={{
+                                width: 100,
+                                height: 100,
+                                borderRadius: 8,
+                                marginRight: 10,
+                            }}
+                        />
+                    ))}
                     {isLoading && <ActivityIndicator animating={true} size="large" />}
-                </View>
+                </ScrollView>
             )}
 
             {error && (
-                <Text style={{
-                    color: 'red',
-                    marginTop: 10,
-                }}>
+                <Text style={{ color: 'red', marginTop: 10 }}>
                     {error}
                 </Text>
             )}

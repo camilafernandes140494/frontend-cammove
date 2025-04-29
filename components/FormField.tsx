@@ -71,11 +71,11 @@ export function FormField({ control, name, label, type = "text", options, getLab
             <Menu
               visible={menuVisible}
               onDismiss={() => setMenuVisible(false)}
-              style={{ width: '90%' }}
+              style={{ width: '90%', top: 40 }}
               anchor={
                 <Button
                   mode="outlined"
-                  style={{ borderWidth: error ? 2 : 1, borderColor: error ? theme.colors.error : undefined }}
+                  theme={{ colors: { outline: error ? theme.colors.error : theme.colors.primary } }}
                   {...buttonProps}
                   textColor={error ? theme.colors.error : undefined}
                   onPress={() => setMenuVisible(true)}>

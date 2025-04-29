@@ -68,7 +68,7 @@ const UserForm = ({ onSubmit, userData, children }: UserFormProps) => {
 
             {!showListTeacher &&
                 <Card style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 16 }}>
-                    <ImageUpload onSelect={(url) => { setValue('image', url) }} labelButton='Escolher foto de perfil' deletePreviousImage={userData?.image} />
+                    <ImageUpload onSelect={(url) => { setValue('image', url[0]) }} labelButton='Escolher foto de perfil' storageFolder='users' deletePreviousImage={userData?.image} />
 
                     <FormField
                         control={control}
