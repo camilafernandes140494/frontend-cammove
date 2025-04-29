@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ActivityIndicator, Text, Video } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Button } from 'react-native-paper';
 import { deleteFiles, postFiles } from '@/api/files/files.api';
@@ -95,12 +95,12 @@ export default function VideoUpload({
       {videoUri && (
         <View style={{ marginTop: 20 }}>
           {/* Pode substituir por componente de vídeo do expo-av se quiser controle */}
-          <Video
+          {/* <Video
             source={{ uri: videoUri }}
             style={{ width: 300, height: 200 }}
             useNativeControls
             resizeMode="contain"
-          />
+          /> */}
           {isLoading && <ActivityIndicator animating={true} size="large" />}
         </View>
       )}
