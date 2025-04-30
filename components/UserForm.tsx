@@ -46,7 +46,7 @@ const UserForm = ({ onSubmit, userData, children }: UserFormProps) => {
 
     const handleFormSubmit = (values: z.infer<typeof schema>) => {
         onSubmit({ ...values, gender: values.gender as GENDER });
-        setUser({ ...user, ...values });
+        setUser({ ...user, ...values, onboarding_completed: user?.permission === 'TEACHER' ? true : false });
         if (!userData) {
             setShowListTeacher(true);
         }
@@ -119,7 +119,15 @@ const UserForm = ({ onSubmit, userData, children }: UserFormProps) => {
             }
 
             {showListTeacher && user?.permission === 'STUDENT' &&
-                <UserList params={{ permission: 'TEACHER' }} navigation={navigation} />}
+                <Card
+                    mode="contained"
+                    contentStyle={{
+                        borderRadius: 10,
+                    }}
+                >
+                    <UserList params={{ permission: 'TEACHER' }} navigation={navigation} />
+                </Card>
+            }
         </View >
     );
 };

@@ -13,6 +13,7 @@ export type UserType = {
   birthDate: string | null;
   status: string | null;
   phone: string | null;
+  onboarding_completed: boolean
 };
 
 type UserContextType = {
@@ -23,6 +24,7 @@ type UserContextType = {
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
+
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<Partial<UserType> | null>(null);
@@ -61,6 +63,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         birthDate: prevUser?.birthDate ?? null,
         status: prevUser?.status ?? null,
         phone: prevUser?.phone ?? null,
+        onboarding_completed: false,
         ...newUser,
       };
 

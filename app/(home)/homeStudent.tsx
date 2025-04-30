@@ -28,8 +28,7 @@ export type RootHomeStackParamList = {
 };
 
 const HomeStudent = () => {
-  const { user, setUser } = useUser();
-  const [visible, setVisible] = useState(false);
+  const { user, logout } = useUser();
   const { theme, toggleTheme, isDarkMode } = useTheme();
   const [visibleConfig, setVisibleConfig] = useState(false);
   const { teacher } = useMyTeacher()
@@ -67,27 +66,29 @@ const HomeStudent = () => {
     });
 
   const markedDates = {
-    ...(trainingDates?.reduce((acc, date) => {
-      acc[date] = {
-        marked: true,
-        dotColor: theme.colors.card.feedback.button,
-        selected: true,
-        selectedColor: theme.colors.card.feedback.button,
-      };
-      return acc;
-    }, {} as Record<string, any>)),
-
-    ...(scheduleDates?.reduce((acc, date) => {
-      acc[date.date] = {
-        marked: true,
-        dotColor: theme.colors.card.purple.border.default,
-        selected: true,
-        selectedColor: theme.colors.card.purple.border.default,
-      };
-      return acc;
-    }, {} as Record<string, any>)),
+    ...(Array.isArray(trainingDates)
+      ? trainingDates.reduce((acc, date) => {
+        acc[date] = {
+          marked: true,
+          dotColor: theme.colors.card.feedback.button,
+          selected: true,
+          selectedColor: theme.colors.card.feedback.button,
+        };
+        return acc;
+      }, {} as Record<string, any>)
+      : {}),
+    ...(Array.isArray(scheduleDates)
+      ? scheduleDates.reduce((acc, date) => {
+        acc[date.date] = {
+          marked: true,
+          dotColor: theme.colors.card.purple.border.default,
+          selected: true,
+          selectedColor: theme.colors.card.purple.border.default,
+        };
+        return acc;
+      }, {} as Record<string, any>)
+      : {}),
   };
-
 
 
   const handleDayPress = (day: { dateString: string }) => {
@@ -166,15 +167,7 @@ const HomeStudent = () => {
               <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
 
               <CustomModal
-                onPress={() =>
-                  setUser({
-                    id: null,
-                    name: null,
-                    gender: null,
-                    permission: null,
-                    token: null,
-                  })
-                }
+                onPress={logout}
                 title="Tem certeza de que deseja sair? Você precisará fazer login novamente para acessar sua conta."
                 primaryButtonLabel="Sair"
                 trigger={

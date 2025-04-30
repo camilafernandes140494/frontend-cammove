@@ -8,7 +8,7 @@ function RootNavigator() {
 
     return (
         <>
-            {user?.token ? user?.permission === 'TEACHER' ? <TabsTeacher /> : <TabsStudent /> : <AuthNavigator />}
+            {user?.onboarding_completed ? user?.permission === 'TEACHER' ? <TabsTeacher /> : <TabsStudent /> : <AuthNavigator />}
         </>
     );
 }

@@ -14,6 +14,8 @@ import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from "zod";
+import { PostCreateUser } from '@/api/auth/auth.types';
+import { postUser } from '@/api/users/users.api';
 
 export type RootOnboardingStackParamList = {
   createUser: undefined;
@@ -23,7 +25,7 @@ export type RootOnboardingStackParamList = {
 const CreateUser = () => {
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<RootOnboardingStackParamList>>();
-  const { setUser } = useUser();
+  const { user, setUser } = useUser();
   const [showPassword, setShowPassword] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -42,15 +44,25 @@ const CreateUser = () => {
     },
   });
 
-  type CreateUserInput = { email: string; password: string };
-  type CreateUserOutput = { uid: string }; // ajuste conforme retorno real
 
-  const mutation = useMutation<CreateUserOutput, Error, CreateUserInput>({
-    mutationFn: async (values) => {
-      return await postCreateUser(values);
+  const mutation = useMutation({
+    mutationFn: async (values: PostCreateUser) => {
+      const createResult = await postCreateUser(values);
+      return { createResult };
+
     },
-    onSuccess: (data, variables) => {
-      setUser({ id: data.uid });
+    onSuccess: async ({ createResult }, variables) => {
+      setUser({ id: createResult.uid, email: variables.email });
+      await postUser(createResult.uid!, {
+        name: '',
+        gender: null,
+        birthDate: '',
+        permission: null,
+        image: '',
+        status: 'ACTIVE',
+        phone: '',
+        email: variables.email
+      });
       navigation.navigate('Onboarding', { email: variables.email });
     },
     onError: (error) => {

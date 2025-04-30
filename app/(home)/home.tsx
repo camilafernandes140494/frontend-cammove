@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Modal, Portal, Snackbar, Text, } from 'react-native-paper';
+import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Modal, Portal, Text } from 'react-native-paper';
 import { useUser } from '../UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 
-import * as z from "zod";
-import { patchUser } from '@/api/users/users.api';
 import { useTheme } from '../ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
@@ -32,8 +28,7 @@ export type RootHomeStackParamList = {
 };
 
 const Home = () => {
-    const { user, setUser } = useUser();
-    const [visible, setVisible] = useState(false);
+    const { user, logout } = useUser();
     const { theme, toggleTheme, isDarkMode } = useTheme();
     const [visibleConfig, setVisibleConfig] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
@@ -42,45 +37,11 @@ const Home = () => {
     const navigation = useNavigation<NavigationProp<RootHomeStackParamList>>();
     type IoniconName = keyof typeof Ionicons.glyphMap;
 
-
-    const modalSchema = z.object({
-        name: z.string().min(1, "Obrigatório"),
-        image: z.string().optional()
-    });
-
-    const { control, handleSubmit, setValue } = useForm<z.infer<typeof modalSchema>>({
-        resolver: zodResolver(modalSchema),
-        defaultValues: {
-            name: user?.name || '',
-            image: user?.image || '',
-        },
-    });
-
     const { data: students, refetch: studentsRefetch } = useQuery({
         queryKey: ['getRelationship', user?.id],
         queryFn: () => getRelationship(user?.id!,),
         enabled: !!user?.id
     });
-
-    const onSubmit = async (data: any) => {
-        try {
-            await patchUser(user?.id || '', data);
-
-            setUser({ name: data.name })
-        } catch (error) {
-            <Snackbar
-                visible={visible}
-                onDismiss={() => setVisible(false)}
-                action={{
-                    label: '',
-                    icon: 'close',
-                    onPress: () => setVisible(false),
-                }}
-            >
-                <Text>Erro ao atualizar usuário</Text>
-            </Snackbar>
-        }
-    }
 
 
     const { data: scheduleDates, isLoading, isFetching, refetch } = useQuery({
@@ -160,16 +121,7 @@ const Home = () => {
                             <Divider style={{ width: '100%', backgroundColor: theme.colors.outlineVariant, height: 1 }} />
 
                             <CustomModal
-                                onPress={() =>
-                                    setUser({
-                                        id: null,
-                                        name: null,
-                                        gender: null,
-                                        permission: null,
-                                        token: null,
-                                        status: null
-                                    })
-                                }
+                                onPress={logout}
                                 title="Tem certeza de que deseja sair? Você precisará fazer login novamente para acessar sua conta."
                                 primaryButtonLabel="Sair"
                                 trigger={

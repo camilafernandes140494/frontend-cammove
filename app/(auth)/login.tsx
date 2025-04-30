@@ -44,13 +44,8 @@ const Login = () => {
         mutationFn: async (values: { email: string; password: string }) => {
             const userCredential = await postLogin(values);
             const user = await getUserById(userCredential.user_id);
-            console.log('...user', user)
-            setUser({ id: userCredential.user_id, token: userCredential.uid, ...user, });
-            login({ id: userCredential.user_id, token: userCredential.uid, ...user })
-            navigation.navigate('Home' as never);
-        },
-        onSuccess: () => {
-            navigation.navigate('Exercises' as never)
+            setUser({ id: userCredential.user_id, token: userCredential.uid, ...user, onboarding_completed: true });
+            login({ id: userCredential.user_id, token: userCredential.uid, onboarding_completed: true, ...user })
         },
         onError: () => {
             setVisible(true);

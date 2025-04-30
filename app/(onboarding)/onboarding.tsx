@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, View } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import { Text, Card, IconButton } from 'react-native-paper';
 import { useTheme } from '../ThemeContext';
 import CardProfile from '@/components/CardProfile';
 import { AvatarImageSource } from 'react-native-paper/lib/typescript/components/Avatar/AvatarImage';
-import { getUserById, patchUser, postUser } from '@/api/users/users.api';
+import { patchUser } from '@/api/users/users.api';
 import { useUser } from '../UserContext';
-import { useQuery } from '@tanstack/react-query';
 import UserForm from '@/components/UserForm';
 import { PERMISSION, PostUser } from '@/api/users/users.types';
 import Skeleton from '@/components/Skeleton';
@@ -19,27 +18,6 @@ const Onboarding = () => {
     const { user, setUser } = useUser();
     const route = useRoute();
     const { email } = route.params as { email: string | undefined };
-
-    const {
-        data: userById,
-        refetch,
-        isLoading,
-    } = useQuery({
-        queryKey: ['getUserById', user?.email],
-        queryFn: () => getUserById(user?.id as string),
-        enabled: !!user?.email,
-    });
-    useEffect(() => {
-        if (userById) {
-            setUser({
-                name: userById.name,
-                permission: userById.permission,
-                gender: userById.gender,
-                email: userById.email,
-            });
-        }
-    }, [userById]);
-
 
     type CarouselItem = {
         title: string;
@@ -66,24 +44,13 @@ const Onboarding = () => {
             color: 'beige',
             status: 'TEACHER',
         },
-        // {
-        //     title: "Sou um Administrador",
-        //     description: "Área restrita",
-        //     image: require('@/assets/images/admin.png'),
-        //     color: 'purple',
-        //     status: 'ADMIN'
-        // },
     ];
 
     const handleLogin = async (values: Partial<PostUser>) => {
         try {
-            if (!userById) {
-                await postUser(user?.id!, values);
-                refetch();
-            } else {
-                await patchUser(user?.id!, values);
-                await postEmail({
-                    body: `Olá ${values.name}, <br><br>
+            await patchUser(user?.id!, values);
+            await postEmail({
+                body: `Olá ${values.name}, <br><br>
                 
                         Seja bem-vindo(a) à CamMove! 🎉<br><br>
                 
@@ -96,20 +63,23 @@ const Onboarding = () => {
                         Atenciosamente,<br>
                         Equipe CamMove 🚀`,
 
-                    subject: 'Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!',
-                    to: [email || ""]
-                });
-                refetch();
-            }
-        } catch (error) {
+                subject: 'Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!',
+                to: [email || ""]
+            });
+            setUser({
+                ...user,
+                ...values
+            })
+
+        }
+        catch (error) {
             console.error('Erro ao editar usuario', error);
         }
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <ScrollView
-                style={{ flex: 1 }}
                 contentContainerStyle={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -119,7 +89,7 @@ const Onboarding = () => {
                     backgroundColor: theme.colors.background
                 }}
             >
-                {!user?.id && isLoading ? (
+                {!user?.id ? (
                     <Skeleton style={{ width: '90%', height: 100, borderRadius: 20 }} />
                 ) : (
                     <View style={{ marginTop: 50, }}>
@@ -153,12 +123,7 @@ const Onboarding = () => {
                                             status={carouselItems[profile].status}
                                             onStatus={(status) =>
                                                 handleLogin({
-                                                    name: '',
-                                                    gender: null,
-                                                    birthDate: '',
-                                                    image: '',
                                                     permission: status as PERMISSION,
-                                                    email: email || ''
                                                 })
                                             }
                                         />
@@ -209,7 +174,7 @@ const Onboarding = () => {
                     </View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 
