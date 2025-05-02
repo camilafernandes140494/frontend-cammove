@@ -4,7 +4,9 @@
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "permissions": ["INTERNET"]
+        "permissions": [
+          "INTERNET"
+        ]
       }
     },
     "experiments": {
@@ -40,7 +42,9 @@
           "imageWidth": 200,
           "resizeMode": "contain"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "scheme": "myapp",
     "slug": "frontend-cammove",
