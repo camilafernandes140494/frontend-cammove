@@ -9,7 +9,6 @@ import { useUser } from '../UserContext';
 import UserForm from '@/components/UserForm';
 import { PERMISSION, PostUser } from '@/api/users/users.types';
 import Skeleton from '@/components/Skeleton';
-import { postEmail } from '@/api/email/email.api';
 import { useRoute } from '@react-navigation/native';
 
 const Onboarding = () => {
@@ -50,28 +49,10 @@ const Onboarding = () => {
     const handleLogin = async (values: Partial<PostUser>) => {
         try {
             await patchUser(user?.id!, values);
-            await postEmail({
-                body: `Olá ${values.name}, <br><br>
-                
-                        Seja bem-vindo(a) à CamMove! 🎉<br><br>
-                
-                        Seu cadastro foi realizado com sucesso e agora você faz parte da nossa comunidade dedicada ao seu bem-estar e evolução. <br><br>
-                
-                        Fique à vontade para explorar todos os recursos disponíveis e, caso tenha alguma dúvida ou precise de ajuda, estamos à disposição.<br><br>
-                
-                        Vamos juntos alcançar seus objetivos! 💪<br><br>
-                
-                        Atenciosamente,<br>
-                        Equipe CamMove 🚀`,
-
-                subject: 'Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!',
-                to: [email || ""]
-            });
             setUser({
                 ...user,
                 ...values
             })
-
         }
         catch (error) {
             console.error('Erro ao editar usuario', error);
@@ -168,7 +149,7 @@ const Onboarding = () => {
                                     Me conte um pouco sobre você
                                 </Text>
                                 <View style={{ width: '100%' }}>
-                                    <UserForm onSubmit={handleLogin} />
+                                    <UserForm />
                                 </View>
                             </>
                         )}
