@@ -5,7 +5,6 @@ import {
   Snackbar
 } from 'react-native-paper';
 import { postResetPassword } from '@/api/auth/auth.api';
-import { useUser } from '../UserContext';
 import { useTheme } from '../ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { FormField } from '@/components/FormField';
@@ -13,11 +12,12 @@ import * as z from "zod";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 
 const ResetPassword = () => {
   const navigation = useNavigation();
-  const { setUser, login } = useUser();
   const { theme } = useTheme();
+  const [emailSent, setEmailSent] = useState(false)
 
   const [visible, setVisible] = useState(false);
 
@@ -39,7 +39,7 @@ const ResetPassword = () => {
       await postResetPassword(values);
 
     },
-    onSuccess: () => { navigation.navigate('Login' as never) },
+    onSuccess: () => { setEmailSent(true) },
     onError: () => {
       setVisible(true);
     }
@@ -47,7 +47,6 @@ const ResetPassword = () => {
   const onSubmit = async (data: any) => {
     mutation.mutate(data);
   };
-
 
 
   return (
@@ -70,7 +69,6 @@ const ResetPassword = () => {
           Recuperar senha
         </Text>
       </View>
-
       <View
         style={{
           flex: 2,
@@ -93,34 +91,57 @@ const ResetPassword = () => {
         >
           <Text>Erro ao logar</Text>
         </Snackbar>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 5,
-          }}
-        >
-          <FormField control={control} mode="flat" name="email" label="E-mail" type="text" style={{
-            backgroundColor: theme.background,
-          }} />
-
-
-          <Button
-            mode="contained"
-            loading={mutation.isPending}
-            disabled={mutation.isPending}
-            onPress={handleSubmit(onSubmit)}
+        {emailSent ? <>
+          <View
             style={{
-              borderRadius: 10,
-              marginVertical: 20,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 24,
+              alignItems: 'center'
             }}
-            contentStyle={{ height: 50 }}
           >
-            ENVIAR
-          </Button>
+            <Ionicons
+              name={'mail-unread-outline'}
+              size={64}
+              color={theme.colors.primary}
+            />
+            <Text variant="titleLarge" >
+              Verifique seu e-mail
+            </Text>
+            <Text variant="titleSmall">
+              Enviamos instruções para redefinir sua senha.
+            </Text>
+            <Button mode="contained" onPress={() => navigation.navigate('Login' as never)}>Ir para o login</Button>
+          </View>
+        </> :
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 5,
+            }}
+          >
+            <FormField control={control} mode="flat" name="email" label="E-mail" type="text" style={{
+              backgroundColor: theme.background,
+            }} />
 
 
-        </View>
+            <Button
+              mode="contained"
+              loading={mutation.isPending}
+              disabled={mutation.isPending}
+              onPress={handleSubmit(onSubmit)}
+              style={{
+                borderRadius: 10,
+                marginVertical: 20,
+              }}
+              contentStyle={{ height: 50 }}
+            >
+              ENVIAR
+            </Button>
+
+          </View>
+        }
       </View>
     </View>
   );
