@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Avatar, Button, Snackbar, Text } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Button, List, Snackbar, Text } from 'react-native-paper';
 import { View } from 'react-native';
 import { useUser } from '@/app/UserContext';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -7,8 +7,10 @@ import { getUsers } from '@/api/users/users.api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from "zod";
-import { FormField } from './FormField';
 import { postRelationship } from '@/api/relationships/relationships.api';
+import { Users } from '@/api/users/users.types';
+import { useTheme } from '@/app/ThemeContext';
+import { getInitials } from '@/common/common';
 
 interface UserListProps {
     params?: Record<string, string>,
@@ -17,7 +19,7 @@ interface UserListProps {
 
 const UserList = ({ params, navigation }: UserListProps) => {
     const { user, setUser } = useUser();
-
+    const { theme } = useTheme();
     const [errorVisible, setErrorVisible] = useState(false);
 
     const { data: users, isLoading } = useQuery({
@@ -39,7 +41,7 @@ const UserList = ({ params, navigation }: UserListProps) => {
     });
 
 
-    const { control, handleSubmit, getValues } = useForm<z.infer<typeof schema>>({
+    const { handleSubmit, getValues, setValue } = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
             teacherId: {},
@@ -63,7 +65,22 @@ const UserList = ({ params, navigation }: UserListProps) => {
     const onSubmit = async () => {
         mutation.mutate();
     };
+    const [expanded, setExpanded] = useState(false);
 
+
+    const [selectedOption, setSelectedOption] = useState<Users>()
+
+    useEffect(() => {
+        setValue('teacherId', {
+            birthDate: selectedOption?.birthDate || '',
+            createdAt: selectedOption?.createdAt || '',
+            deletedAt: selectedOption?.deletedAt || '',
+            email: selectedOption?.email || '',
+            gender: selectedOption?.gender || '',
+            id: selectedOption?.id || '',
+            name: selectedOption?.name || '',
+        })
+    }, [selectedOption])
 
     return (
         <View style={{ padding: 20, gap: 20, alignItems: 'center' }} >
@@ -80,14 +97,42 @@ const UserList = ({ params, navigation }: UserListProps) => {
                 Selecione o professor responsável
             </Text>
             <Avatar.Image size={200} source={require('@/assets/images/personal-trainer.png')} />
-            <FormField
-                control={control}
-                name="teacherId"
-                label="Escolha um professor"
-                type="select"
-                getLabel={(option) => option.name}
-                options={users}
-            />
+
+
+
+            <List.Section style={{
+                width: '100%',
+                borderWidth: 1,
+                borderRadius: 10,
+                borderColor: theme.colors.primary || '#ccc',
+                overflow: 'hidden',
+            }}>
+                <List.Accordion
+                    title={selectedOption?.name || "Escolha um professor"}
+                    expanded={expanded}
+                    onPress={() => setExpanded(!expanded)}
+                    titleStyle={{ fontSize: 16, color: theme.colors.primary }}
+                >
+                    {users?.map((opt) => (
+                        <List.Item
+                            key={opt.id}
+                            title={opt.name}
+                            left={() => (opt.image ? <Avatar.Image size={30} source={{ uri: opt.image }} style={{
+                                marginLeft: 16
+                            }} /> : <Avatar.Text size={30} label={getInitials(opt?.name || '')}
+                                style={{
+                                    marginLeft: 16
+                                }}
+                            />)}
+                            onPress={() => {
+                                setSelectedOption(opt);
+                                setExpanded(false);
+                            }}
+                        />
+                    ))}
+                </List.Accordion>
+            </List.Section>
+
             <Button
                 mode="contained"
                 onPress={handleSubmit(onSubmit)}

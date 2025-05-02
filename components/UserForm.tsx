@@ -92,7 +92,9 @@ const UserForm = ({ userData, children }: UserFormProps) => {
     };
 
     return (
-        <View style={{ padding: 16 }}>
+        <View style={{
+            marginTop: 24,
+        }}>
             <Snackbar
                 visible={visible}
                 onDismiss={() => setVisible(false)}
@@ -105,7 +107,7 @@ const UserForm = ({ userData, children }: UserFormProps) => {
             </Snackbar>
 
             {!showListTeacher &&
-                <Card style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 16 }}>
+                <Card mode="contained" style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 24 }}>
                     <ImageUpload onSelect={(url) => { setValue('image', url[0]) }} labelButton='Escolher foto de perfil' storageFolder='users' deletePreviousImage={userData?.image} />
 
                     <FormField
@@ -135,6 +137,7 @@ const UserForm = ({ userData, children }: UserFormProps) => {
                         label="Qual é o seu celular?"
                         type="text"
                     />
+
                     <Text variant='titleMedium' >Escolha o gênero com o qual se identifica</Text>
                     <FormField
                         control={control}
@@ -149,7 +152,10 @@ const UserForm = ({ userData, children }: UserFormProps) => {
                         ]}
                     />
                     {children}
-                    <Button mode="contained" onPress={handleSubmit(onSubmit)}>
+                    <Button mode="contained"
+                        loading={mutation.isPending}
+                        disabled={mutation.isPending}
+                        onPress={handleSubmit(onSubmit)}>
                         Salvar
                     </Button>
 
@@ -161,11 +167,14 @@ const UserForm = ({ userData, children }: UserFormProps) => {
                     mode="contained"
                     contentStyle={{
                         borderRadius: 10,
+                        padding: 24,
+
                     }}
                 >
                     <UserList params={{ permission: 'TEACHER' }} navigation={navigation} />
                 </Card>
             }
+
         </View >
     );
 };

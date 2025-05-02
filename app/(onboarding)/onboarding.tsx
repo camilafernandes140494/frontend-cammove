@@ -9,16 +9,13 @@ import { useUser } from '../UserContext';
 import UserForm from '@/components/UserForm';
 import { PERMISSION, PostUser } from '@/api/users/users.types';
 import Skeleton from '@/components/Skeleton';
-import { useRoute } from '@react-navigation/native';
 
 const Onboarding = () => {
     const { theme } = useTheme();
     const [profile, setProfile] = useState(0);
     const { user, setUser } = useUser();
-    const route = useRoute();
-    const { email } = route.params as { email: string | undefined };
 
-    //
+
     type CarouselItem = {
         title: string;
         description: string;
@@ -61,6 +58,7 @@ const Onboarding = () => {
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+
             <ScrollView
                 contentContainerStyle={{
                     display: 'flex',
@@ -71,6 +69,7 @@ const Onboarding = () => {
                     backgroundColor: theme.colors.background
                 }}
             >
+
                 {!user?.id ? (
                     <Skeleton style={{ width: '90%', height: 100, borderRadius: 20 }} />
                 ) : (
