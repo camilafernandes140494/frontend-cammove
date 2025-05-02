@@ -182,9 +182,11 @@ const HomeStudent = () => {
       </Appbar.Header>
       <View style={{ display: 'flex', backgroundColor: theme.colors.secondaryContainer, flexDirection: 'row', alignItems: "center", padding: 16, gap: 16 }}>
         {user?.image ? <Avatar.Image size={80} source={{ uri: user.image }} /> : <Avatar.Text label={getInitials(user?.name || '')} />}
-        <Text variant="headlineMedium" >
-          Olá, {user?.name}
-        </Text>
+        <View style={{ paddingHorizontal: 16, maxWidth: '85%' }}>
+          <Text variant="headlineMedium" style={{ flexWrap: 'wrap' }}>
+            Olá, {user?.name}
+          </Text>
+        </View>
       </View>
 
       <ScrollView

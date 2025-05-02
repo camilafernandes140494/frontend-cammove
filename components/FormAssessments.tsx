@@ -713,7 +713,7 @@ const FormAssessmentsSkeleton = () => {
       <Card.Title title={title} />
       <Card.Content>
         {[...Array(fields)].map((_, index) => (
-          <React.Fragment key={index}>{renderFieldSkeleton()}</React.Fragment>
+          <View key={index}>{renderFieldSkeleton()}</View>
         ))}
       </Card.Content>
     </Card>
