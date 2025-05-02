@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Card, Snackbar, Text, TextInput } from 'react-native-paper';
 import { View } from 'react-native';
 import { UserType, useUser } from '@/app/UserContext';
-import { GENDER, PostUser } from '@/api/users/users.types';
+import { PostUser } from '@/api/users/users.types';
 import UserList from './UserList';
 import { useNavigation } from '@react-navigation/native';
 import * as z from "zod";
@@ -10,20 +10,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { FormField } from './FormField';
 import ImageUpload from './ImageUpload ';
+import { patchUser } from '@/api/users/users.api';
+import { postEmail } from '@/api/email/email.api';
+import { useMutation } from '@tanstack/react-query';
 
 interface UserFormProps {
     userData?: Partial<UserType> | null;
-    onSubmit: (values: Partial<PostUser>) => void;
     children?: React.ReactNode;
 
 }
 
-const UserForm = ({ onSubmit, userData, children }: UserFormProps) => {
+const UserForm = ({ userData, children }: UserFormProps) => {
     const [visible, setVisible] = useState(false);
     const [showListTeacher, setShowListTeacher] = useState(false);
     const navigation = useNavigation();
 
     const { user, setUser } = useUser();
+
 
     const schema = z.object({
         name: z.string().nonempty("Obrigatório"),
@@ -44,14 +47,49 @@ const UserForm = ({ onSubmit, userData, children }: UserFormProps) => {
         },
     });
 
-    const handleFormSubmit = (values: z.infer<typeof schema>) => {
-        onSubmit({ ...values, gender: values.gender as GENDER });
-        setUser({ ...user, ...values, onboarding_completed: user?.permission === 'TEACHER' ? true : false });
-        if (!userData) {
-            setShowListTeacher(true);
-        }
-    };
 
+    const mutation = useMutation({
+        mutationFn: async (values: Partial<PostUser>) => {
+            await patchUser(user?.id!, values as Partial<PostUser>);
+            await postEmail({
+                body: `Olá ${values.name}, <br><br>
+                            
+                                    Seja bem-vindo(a) à CamMove! 🎉<br><br>
+                            
+                                    Seu cadastro foi realizado com sucesso e agora você faz parte da nossa comunidade dedicada ao seu bem-estar e evolução. <br><br>
+                            
+                                    Fique à vontade para explorar todos os recursos disponíveis e, caso tenha alguma dúvida ou precise de ajuda, estamos à disposição.<br><br>
+                            
+                                    Vamos juntos alcançar seus objetivos! 💪<br><br>
+                            
+                                    Atenciosamente,<br>
+                                    Equipe CamMove 🚀`,
+
+                subject: 'Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!',
+                to: [user?.email || ""]
+            });
+            return values;
+        },
+        onSuccess: (data) => {
+            setUser({
+                ...user,
+                ...(data ?? {}),
+                onboarding_completed: user?.permission === 'TEACHER' ? true : false
+            });
+
+            if (!userData) {
+                setShowListTeacher(true);
+            }
+        },
+        onError: (error) => {
+            console.error('Erro ao criar usuário:', error);
+            setVisible(true);
+        }
+    });
+
+    const onSubmit = async (data: any) => {
+        mutation.mutate(data);
+    };
 
     return (
         <View style={{ padding: 16 }}>
@@ -111,7 +149,7 @@ const UserForm = ({ onSubmit, userData, children }: UserFormProps) => {
                         ]}
                     />
                     {children}
-                    <Button mode="contained" onPress={handleSubmit(handleFormSubmit)}>
+                    <Button mode="contained" onPress={handleSubmit(onSubmit)}>
                         Salvar
                     </Button>
 
