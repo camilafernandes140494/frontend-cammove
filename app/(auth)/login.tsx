@@ -125,7 +125,7 @@ const Login = () => {
                             marginBottom: 20,
                         }}
                         mode="text"
-                        onPress={() => console.log('Pressed')}
+                        onPress={() => navigation.navigate('ResetPassword' as never)}
                     >
                         Esqueceu a senha?
                     </Button>
