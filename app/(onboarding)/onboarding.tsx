@@ -19,6 +19,7 @@ const Onboarding = () => {
     const route = useRoute();
     const { email } = route.params as { email: string | undefined };
 
+    //
     type CarouselItem = {
         title: string;
         description: string;
