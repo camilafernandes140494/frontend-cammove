@@ -102,6 +102,8 @@ const HomeStudent = () => {
     }
   };
 
+  console.log(user)
+
   const { count, message, icon } = useMemo(() => {
     if (!trainingDates) return { count: 0, message: '', icon: 'emoticon-neutral-outline' };
 
@@ -242,7 +244,7 @@ const HomeStudent = () => {
         </Card>
 
 
-        {user?.status && <Card style={{ backgroundColor: theme.colors.onErrorContainer }}>
+        {user?.status !== 'ACTIVE' && <Card style={{ backgroundColor: theme.colors.onErrorContainer }}>
           <Card.Title
             title="Aluno Inativo"
             subtitle="Entre em contato com o professor."
