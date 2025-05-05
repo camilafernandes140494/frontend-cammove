@@ -15,6 +15,7 @@ import SelectStudent from '@/components/SelectStudent';
 import { useTheme } from '@/context/ThemeContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUser } from '@/context/UserContext';
+import Skeleton from '@/components/Skeleton';
 
 const Assessments = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>({ name: '' });
@@ -64,13 +65,28 @@ const Assessments = ({ navigation }: any) => {
           </View>
         }
         ListEmptyComponent={
-          value === 'assessments' ? isLoading || isFetching ? <ActivityIndicator animating={true} style={{ marginTop: 16 }} size="large" /> : <View style={{ alignItems: 'center', padding: 40 }}>
+          isLoading ? (
+            <View>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  style={{
+                    width: '90%',
+                    height: 60,
+                    borderRadius: 4,
+                    marginVertical: 8,
+                    alignSelf: 'center',
+                  }}
+                />
+              ))}
+            </View>
+          ) : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-              Nenhum item encontrado.
+              Nenhuma avaliação encontrada.
             </Text>
             <Button onPress={() => refetch()} >Tentar novamente</Button>
-          </View> : <></>
+          </View>
         }
 
         renderItem={({ item }) => <>
