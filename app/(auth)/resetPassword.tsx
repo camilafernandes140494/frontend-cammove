@@ -5,7 +5,7 @@ import {
   Snackbar
 } from 'react-native-paper';
 import { postResetPassword } from '@/api/auth/auth.api';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { FormField } from '@/components/FormField';
 import * as z from "zod";

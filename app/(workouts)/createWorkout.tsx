@@ -5,12 +5,12 @@ import {
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import SelectStudent from '@/components/SelectStudent';
-import { useStudent } from '../context/StudentContext';
+import { useStudent } from '../../context/StudentContext';
 import FilterInput from '@/components/FilterInput';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import FormWorkout from '@/components/FormWorkout';
 import StudentCard from '@/components/StudentCard';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import Skeleton from '@/components/Skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { getReviewById } from '@/api/reviews/reviews.api';

@@ -16,8 +16,8 @@ import CustomChip from '@/components/CustomChip';
 import FilterInput from '@/components/FilterInput';
 import { getWorkoutsSummaryResponse } from '@/api/workout/workout.types';
 import SelectStudent from '@/components/SelectStudent';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { useTheme } from '@/context/ThemeContext';
 import { format } from 'date-fns';
 
 const Workouts = ({ navigation }: any) => {

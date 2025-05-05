@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, Button, List, Snackbar, Text } from 'react-native-paper';
 import { View } from 'react-native';
-import { useUser } from '@/app/UserContext';
+import { useUser } from '@/context/UserContext';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getUsers } from '@/api/users/users.api';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import * as z from "zod";
 import { postRelationship } from '@/api/relationships/relationships.api';
 import { Users } from '@/api/users/users.types';
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { getInitials } from '@/common/common';
 
 interface UserListProps {

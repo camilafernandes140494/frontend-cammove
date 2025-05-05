@@ -1,4 +1,4 @@
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import React, { useState } from 'react';
 import { View, Modal, Image, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { IconButton, Dialog, Portal, Button, Text } from 'react-native-paper';

@@ -7,12 +7,12 @@ import {
   Badge,
   IconButton
 } from 'react-native-paper';
-import { useStudent } from '../context/StudentContext';
+import { useStudent } from '../../context/StudentContext';
 import { getWorkoutByStudentIdAndWorkoutId } from '@/api/workout/workout.api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import StudentCard from '@/components/StudentCard';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -20,8 +20,8 @@ import Skeleton from '@/components/Skeleton';
 import InfoField from '@/components/InfoField';
 import CongratsConfetti from '@/components/CongratsConfetti ';
 import { getReviewById } from '@/api/reviews/reviews.api';
-import { useUser } from '../UserContext';
-import { useMyTeacher } from '../context/MyTeacherContext';
+import { useUser } from '@/context/UserContext';
+import { useMyTeacher } from '../../context/MyTeacherContext';
 import { logTrainingDay } from '@/api/workoutsDay/workoutsDay.api';
 
 export type RootStackParamList = {
@@ -326,7 +326,7 @@ const DetailsWorkoutStudent = () => {
           </View>}
         ListEmptyComponent={
           isLoading ? (
-            <>
+            <View>
               {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton
                   key={index}
@@ -339,7 +339,7 @@ const DetailsWorkoutStudent = () => {
                   }}
                 />
               ))}
-            </>
+            </View>
           ) : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>

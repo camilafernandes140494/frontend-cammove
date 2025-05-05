@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Avatar, Card, Chip } from 'react-native-paper';
 import { FlatList, TouchableOpacity } from 'react-native';
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import { getRelationship } from '@/api/relationships/relationships.api';
 import { getInitials } from '@/common/common';

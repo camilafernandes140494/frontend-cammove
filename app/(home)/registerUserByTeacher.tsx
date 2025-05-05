@@ -8,8 +8,8 @@ import {
   Button
 } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { useTheme } from '@/context/ThemeContext';
 import { postCreateUser } from '@/api/auth/auth.api';
 import * as z from "zod";
 import { useForm } from 'react-hook-form';

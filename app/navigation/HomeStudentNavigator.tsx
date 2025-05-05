@@ -1,6 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import { StudentProvider } from '../context/StudentContext';
-import { useUser } from '../UserContext';
+import { StudentProvider } from '../../context/StudentContext';
+import { useUser } from '@/context/UserContext';
 import StudentProfile from '../(home)/studentProfile';
 import RegisterUserByTeacher from '../(home)/registerUserByTeacher';
 import HomeStudent from '../(home)/homeStudent';

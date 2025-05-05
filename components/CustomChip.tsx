@@ -1,4 +1,4 @@
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import React, { useState, useMemo } from 'react';
 import { Chip, ChipProps } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';

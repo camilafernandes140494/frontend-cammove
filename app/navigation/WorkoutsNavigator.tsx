@@ -2,8 +2,8 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import Workouts from '../(workouts)/workouts';
 import CreateWorkout from '../(workouts)/createWorkout';
-import { StudentProvider } from '../context/StudentContext';
-import { useUser } from '../UserContext';
+import { StudentProvider } from '../../context/StudentContext';
+import { useUser } from '@/context/UserContext';
 import DetailsWorkout from '../(workouts)/detailsWorkout';
 
 

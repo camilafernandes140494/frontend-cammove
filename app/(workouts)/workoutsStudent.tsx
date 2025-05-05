@@ -7,8 +7,8 @@ import {
   Chip, IconButton, Text
 } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { useTheme } from '@/context/ThemeContext';
 import { getWorkoutsByStudentId } from '@/api/workout/workout.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Skeleton from '@/components/Skeleton';
@@ -72,7 +72,7 @@ const WorkoutsStudent = ({ navigation }: any) => {
         }
         ListEmptyComponent={
           isLoading ? (
-            <>
+            <View>
               {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton
                   key={index}
@@ -85,7 +85,7 @@ const WorkoutsStudent = ({ navigation }: any) => {
                   }}
                 />
               ))}
-            </>
+            </View>
           ) : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>

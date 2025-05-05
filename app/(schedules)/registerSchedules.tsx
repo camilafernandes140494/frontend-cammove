@@ -2,19 +2,19 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
 import { Appbar, Button, Card, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
 import * as z from "zod";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getScheduleById, patchSchedule } from '@/api/schedules/schedules.api';
 import { SchedulesData } from '@/api/schedules/schedules.types';
-import { useMyTeacher } from '../context/MyTeacherContext';
+import { useMyTeacher } from '../../context/MyTeacherContext';
 import { Ionicons } from '@expo/vector-icons';
 import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import CustomChip from '@/components/CustomChip';
+import { useTheme } from '@/context/ThemeContext';
 
 type CreateWorkoutProps = {
   route: {

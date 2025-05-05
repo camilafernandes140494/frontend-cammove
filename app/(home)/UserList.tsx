@@ -1,12 +1,12 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Appbar } from 'react-native-paper';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import SelectStudent from '@/components/SelectStudent';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useStudent } from '../context/StudentContext';
+import { useStudent } from '../../context/StudentContext';
 
 export type RootHomeStackParamList = {
   home: undefined;

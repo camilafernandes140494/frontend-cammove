@@ -1,4 +1,4 @@
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Card, Text, Avatar } from 'react-native-paper';

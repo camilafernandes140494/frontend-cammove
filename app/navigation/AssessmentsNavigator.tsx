@@ -3,8 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Assessments from '../(assessments)/assessments';
 import CreateAssessments from '../(assessments)/createAssessments';
 import DetailsAssessments from '../(assessments)/detailsAssessments';
-import { StudentProvider } from '../context/StudentContext';
-import { useUser } from '../UserContext';
+import { StudentProvider } from '../../context/StudentContext';
+import { useUser } from '@/context/UserContext';
 
 
 const Stack = createStackNavigator();

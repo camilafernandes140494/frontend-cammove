@@ -7,8 +7,8 @@ import {
   Appbar
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { useTheme } from '@/context/ThemeContext';
 import { getInitials } from '@/common/common';
 import { patchUser } from '@/api/users/users.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

@@ -8,11 +8,11 @@ import {
   Chip
 } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { useTheme } from '@/context/ThemeContext';
 import { getSchedule } from '@/api/schedules/schedules.api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useMyTeacher } from '../context/MyTeacherContext';
+import { useMyTeacher } from '../../context/MyTeacherContext';
 import Skeleton from '@/components/Skeleton';
 import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -139,7 +139,7 @@ const SchedulesStudent = ({ navigation }: any) => {
         }
         ListEmptyComponent={
           isLoading || isFetching ? (
-            <>
+            <View>
               {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton
                   key={index}
@@ -152,7 +152,7 @@ const SchedulesStudent = ({ navigation }: any) => {
                   }}
                 />
               ))}
-            </>
+            </View>
           ) : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>

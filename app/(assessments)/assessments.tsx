@@ -8,13 +8,13 @@ import {
   IconButton
 } from 'react-native-paper';
 import FilterInput from '@/components/FilterInput';
-import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate, getNextMonth } from '@/common/common';
 import { getAssessmentsSummary } from '@/api/assessments/assessments.api';
 import SelectStudent from '@/components/SelectStudent';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useUser } from '@/context/UserContext';
 
 const Assessments = ({ navigation }: any) => {
   const [params, setParams] = useState<{ name: string }>({ name: '' });

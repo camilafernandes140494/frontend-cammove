@@ -6,8 +6,8 @@ import {
   Snackbar
 } from 'react-native-paper';
 import { postCreateUser } from '@/api/auth/auth.api';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { useTheme } from '@/context/ThemeContext';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { FormField } from '@/components/FormField';
 import { useMutation } from '@tanstack/react-query';

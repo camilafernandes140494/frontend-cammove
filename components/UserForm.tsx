@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Snackbar, Text, TextInput } from 'react-native-paper';
 import { View } from 'react-native';
-import { UserType, useUser } from '@/app/UserContext';
+import { UserType, useUser } from '@/context/UserContext';
 import { PostUser } from '@/api/users/users.types';
 import UserList from './UserList';
 import { useNavigation } from '@react-navigation/native';

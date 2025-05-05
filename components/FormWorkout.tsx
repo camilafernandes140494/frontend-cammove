@@ -3,7 +3,7 @@ import { FlatList, View, } from 'react-native';
 import * as z from "zod";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useStudent } from '@/app/context/StudentContext';
+import { useStudent } from '@/context/StudentContext';
 import { FormField } from './FormField';
 import {
   Text, Button, Card, Chip
@@ -11,7 +11,7 @@ import {
 import ExerciseModal from './ExerciseModal';
 import { ExerciseWorkout } from '@/api/workout/workout.types';
 import { getWorkoutByStudentIdAndWorkoutId, patchWorkout, postWorkout } from '@/api/workout/workout.api';
-import { useUser } from '@/app/UserContext';
+import { useUser } from '@/context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import CustomModal from './CustomModal';

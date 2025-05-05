@@ -5,7 +5,7 @@ import {
     Snackbar, Appbar,
     ActivityIndicator
 } from 'react-native-paper';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getExerciseById, patchExercise, postExercise } from '@/api/exercise/exercise.api';
 import { Exercise } from '@/api/exercise/exercise.types';

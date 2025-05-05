@@ -1,10 +1,10 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
 import { Appbar } from 'react-native-paper';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import { getReviewsByTeacher } from '@/api/reviews/reviews.api';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import CardReview from '@/components/CardReview';
 
 type ReviewsStudentProps = {

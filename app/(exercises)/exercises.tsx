@@ -11,7 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { deleteExercise, getExercises } from '@/api/exercise/exercise.api';
 import CustomModal from '@/components/CustomModal';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const Exercises = ({ navigation }: any) => {
     const { theme } = useTheme();

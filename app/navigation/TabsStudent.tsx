@@ -1,10 +1,10 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import HomeStudentNavigator from './HomeStudentNavigator';
 import AssessmentsStudentNavigator from './AssessmentsStudentNavigator';
 import WorkoutsNavigatorStudent from './WorkoutsNavigatorStudent';
-import { MyTeacherProvider } from '../context/MyTeacherContext';
+import { MyTeacherProvider } from '../../context/MyTeacherContext';
 import SchedulesNavigatorStudent from './ScheduleNavigatorStudent';
 
 const Tab = createBottomTabNavigator();

@@ -3,10 +3,10 @@ import { FlatList, View } from 'react-native';
 import * as z from "zod";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useStudent } from '@/app/context/StudentContext';
+import { useStudent } from '@/context/StudentContext';
 import { FormField } from './FormField';
 import { Button, Card, Chip, TextInput, Text, Snackbar } from 'react-native-paper';
-import { useUser } from '@/app/UserContext';
+import { useUser } from '@/context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { calculateIMC } from '@/common/common';
@@ -15,7 +15,7 @@ import { postEmail } from '@/api/email/email.api';
 import { PostEmail } from '@/api/email/email.types';
 import { getAssessmentsByStudentIdAndAssessmentsId, patchAssessments, postAssessments } from '@/api/assessments/assessments.api';
 import { AssessmentData } from '@/api/assessments/assessments.types';
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import Skeleton from './Skeleton';
 
 

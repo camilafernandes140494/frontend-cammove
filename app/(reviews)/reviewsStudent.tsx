@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Appbar, Button, Snackbar, Text } from 'react-native-paper';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import SelectableCard from '@/components/SelectableCard';
 import { FormField } from '@/components/FormField';
 import * as z from "zod";
@@ -9,8 +9,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getReviewById, postReview } from '@/api/reviews/reviews.api';
-import { useUser } from '../UserContext';
-import { useMyTeacher } from '../context/MyTeacherContext';
+import { useUser } from '@/context/UserContext';
+import { useMyTeacher } from '../../context/MyTeacherContext';
 import { ReviewData } from '@/api/reviews/reviews.types';
 
 type ReviewsStudentProps = {

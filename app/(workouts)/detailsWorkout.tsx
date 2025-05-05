@@ -7,15 +7,15 @@ import {
   Button,
   Chip
 } from 'react-native-paper';
-import { useStudent } from '../context/StudentContext';
+import { useStudent } from '../../context/StudentContext';
 import { deleteWorkoutsByStudentId, duplicateWorkout, getWorkoutsByStudentId } from '@/api/workout/workout.api';
 import { useQuery } from '@tanstack/react-query';
 import StudentCard from '@/components/StudentCard';
 import Skeleton from '@/components/Skeleton';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import CustomModal from '@/components/CustomModal';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { format } from 'date-fns';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -158,7 +158,7 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
         }
         ListEmptyComponent={
           isLoading || isFetching ? (
-            <>
+            <View>
               {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton
                   key={index}
@@ -171,7 +171,7 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
                   }}
                 />
               ))}
-            </>
+            </View>
           ) : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>

@@ -1,7 +1,7 @@
 // WorkoutsNavigator.tsx
 import { createStackNavigator } from '@react-navigation/stack';
-import { StudentProvider } from '../context/StudentContext';
-import { useUser } from '../UserContext';
+import { StudentProvider } from '../../context/StudentContext';
+import { useUser } from '@/context/UserContext';
 import WorkoutsStudent from '../(workouts)/workoutsStudent';
 import DetailsWorkoutStudent from '../(workouts)/detailsWorkoutStudent';
 import ReviewsStudent from '../(reviews)/reviewsStudent';

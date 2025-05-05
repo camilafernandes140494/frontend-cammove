@@ -1,5 +1,5 @@
 import AuthNavigator from './AuthNavigator';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import TabsTeacher from './TabsTeacher';
 import TabsStudent from './TabsStudent';
 

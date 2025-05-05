@@ -1,5 +1,5 @@
-import { useStudent } from "@/app/context/StudentContext";
-import { useTheme } from "@/app/ThemeContext";
+import { useStudent } from "@/context/StudentContext";
+import { useTheme } from "@/context/ThemeContext";
 import { calculateAge, getGender, getInitials } from "@/common/common";
 import React, { ReactNode } from "react";
 import { View } from "react-native";

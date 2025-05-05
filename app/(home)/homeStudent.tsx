@@ -1,17 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Portal, Text, Modal } from 'react-native-paper';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
 
 import { getUserById } from '@/api/users/users.api';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { Calendar } from "react-native-calendars";
 import { format, parse, parseISO } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { getTrainingDays } from '@/api/workoutsDay/workoutsDay.api';
-import { useMyTeacher } from '../context/MyTeacherContext';
+import { useMyTeacher } from '../../context/MyTeacherContext';
 import { Linking } from 'react-native';
 import { getScheduleDatesByStudent } from '@/api/schedules/schedules.api';
 import { SchedulesStudentDateData } from '@/api/schedules/schedules.types';

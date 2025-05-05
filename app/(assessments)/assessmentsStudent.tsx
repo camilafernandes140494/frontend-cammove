@@ -6,14 +6,14 @@ import {
   IconButton,
   Text
 } from 'react-native-paper';
-import { useUser } from '../UserContext';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentsByStudentId } from '@/api/assessments/assessments.api';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Skeleton from '@/components/Skeleton';
+import { useUser } from '@/context/UserContext';
 
 const AssessmentsStudent = ({ navigation }: any) => {
   const { user } = useUser();
@@ -72,7 +72,7 @@ const AssessmentsStudent = ({ navigation }: any) => {
         }
         ListEmptyComponent={
           isLoading ? (
-            <>
+            <View>
               {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton
                   key={index}
@@ -85,7 +85,7 @@ const AssessmentsStudent = ({ navigation }: any) => {
                   }}
                 />
               ))}
-            </>
+            </View>
           ) : <View style={{ alignItems: 'center', padding: 40 }}>
             <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
             <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>

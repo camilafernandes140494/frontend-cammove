@@ -6,8 +6,8 @@ import {
     Snackbar
 } from 'react-native-paper';
 import { postLogin } from '@/api/auth/auth.api';
-import { useUser } from '../UserContext';
-import { useTheme } from '../ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { getUserById } from '@/api/users/users.api';
 import { FormField } from '@/components/FormField';

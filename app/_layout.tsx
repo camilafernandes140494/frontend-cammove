@@ -5,9 +5,9 @@ import React, { useEffect } from 'react';
 import 'react-native-reanimated';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/locales/i18n';
-import { TranslationProvider } from './TranslationContext';
-import { ThemeProvider } from './ThemeContext';
-import { UserProvider } from './UserContext';
+import { TranslationProvider } from '../context/TranslationContext';
+import { ThemeProvider } from '../context/ThemeContext';
+import { UserProvider } from '../context/UserContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import RootNavigator from './navigation/RootNavigator';
 

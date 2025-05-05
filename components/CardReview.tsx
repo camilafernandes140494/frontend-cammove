@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button, Card, Chip, IconButton, Text } from 'react-native-paper';
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { ReviewData } from '@/api/reviews/reviews.types';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';

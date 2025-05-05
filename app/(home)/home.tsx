@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { Appbar, Avatar, Button, Card, Dialog, Divider, IconButton, Modal, Portal, Text } from 'react-native-paper';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import { getInitials } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
 
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { getRelationship } from '@/api/relationships/relationships.api';

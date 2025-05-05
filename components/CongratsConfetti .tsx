@@ -1,4 +1,4 @@
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';

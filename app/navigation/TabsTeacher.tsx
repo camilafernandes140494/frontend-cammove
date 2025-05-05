@@ -4,7 +4,7 @@ import ExercisesNavigator from './ExercisesNavigator';
 import WorkoutsNavigator from './WorkoutsNavigator';
 import HomeNavigator from './HomeNavigator';
 import AssessmentsNavigator from './AssessmentsNavigator';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import ScheduleNavigator from './ScheduleNavigator';
 
 const Tab = createBottomTabNavigator();

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Avatar, Button, Card, Text } from 'react-native-paper';
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { AvatarImageSource } from 'react-native-paper/lib/typescript/components/Avatar/AvatarImage';
 import { PERMISSION } from '@/api/users/users.types';
 

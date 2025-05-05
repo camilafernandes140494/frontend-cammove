@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Text, Card, IconButton } from 'react-native-paper';
-import { useTheme } from '../ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import CardProfile from '@/components/CardProfile';
 import { AvatarImageSource } from 'react-native-paper/lib/typescript/components/Avatar/AvatarImage';
 import { patchUser } from '@/api/users/users.api';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import UserForm from '@/components/UserForm';
 import { PERMISSION, PostUser } from '@/api/users/users.types';
 import Skeleton from '@/components/Skeleton';

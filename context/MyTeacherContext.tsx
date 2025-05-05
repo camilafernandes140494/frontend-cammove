@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getMyTeacher } from '@/api/relationships/relationships.api';
-import { useUser } from '../UserContext';
+import { useUser } from './UserContext';
 import { Relationship } from '@/api/relationships/relationships.types';
 
 type MyTeacherContextType = {

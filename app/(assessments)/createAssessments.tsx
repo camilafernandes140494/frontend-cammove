@@ -5,14 +5,13 @@ import {
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import SelectStudent from '@/components/SelectStudent';
-import { useStudent } from '../context/StudentContext';
+import { useStudent } from '../../context/StudentContext';
 import FilterInput from '@/components/FilterInput';
-import { useUser } from '../UserContext';
+import { useUser } from '@/context/UserContext';
 import StudentCard from '@/components/StudentCard';
-import { useTheme } from '../ThemeContext';
 import FormAssessments from '@/components/FormAssessments';
 import { formatDate } from '@/common/common';
-
+import { useTheme } from '@/context/ThemeContext';
 export type RootStackParamList = {
   Workouts: undefined;
   CreateWorkout: { workoutId?: string, studentId?: string };

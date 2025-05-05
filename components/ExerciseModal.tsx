@@ -13,7 +13,7 @@ import {
 import { getExercises } from '@/api/exercise/exercise.api';
 import { useQuery } from '@tanstack/react-query';
 import { ExerciseWorkout } from '@/api/workout/workout.types';
-import { useTheme } from '@/app/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ExerciseModalProps {
   onSave: (exercise: ExerciseWorkout) => void,
