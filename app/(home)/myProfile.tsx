@@ -56,7 +56,7 @@ const MyProfile = () => {
     <>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Detalhes do aluno(a)" />
+        <Appbar.Content title="Detalhes do usuário(a)" />
       </Appbar.Header>
       <FlatList
         style={{ flex: 1, backgroundColor: theme.colors.background }}
