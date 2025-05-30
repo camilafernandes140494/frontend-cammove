@@ -36,7 +36,7 @@ const MyProfile = () => {
     resolver: zodResolver(modalSchema),
     defaultValues: {
       name: user?.name || '',
-      // image: user?.image || '',
+      image: user?.image || '',
     },
   });
 
