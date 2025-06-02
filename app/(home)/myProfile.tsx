@@ -32,6 +32,7 @@ const MyProfile = () => {
     image: z.string().optional()
   });
 
+  // create a form with react-hook-form   
   const { control, handleSubmit, setValue, } = useForm<z.infer<typeof modalSchema>>({
     resolver: zodResolver(modalSchema),
     defaultValues: {
