@@ -33,6 +33,7 @@ const MyProfile = () => {
   });
 
   // create a form with react-hook-form   
+  // and use zod for validation
   const { control, handleSubmit, setValue, } = useForm<z.infer<typeof modalSchema>>({
     resolver: zodResolver(modalSchema),
     defaultValues: {
