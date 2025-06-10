@@ -33,8 +33,7 @@ const MyProfile = () => {
   });
 
   // create a form with react-hook-form   
-  // and use zod for validation
-  // Criando Micro SaaS de gestão de tarefas e projetos
+
   const { control, handleSubmit, setValue, } = useForm<z.infer<typeof modalSchema>>({
     resolver: zodResolver(modalSchema),
     defaultValues: {
