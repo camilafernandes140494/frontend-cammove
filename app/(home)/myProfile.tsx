@@ -13,8 +13,6 @@ import { getInitials } from '@/common/common';
 import { patchUser } from '@/api/users/users.api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Skeleton from '@/components/Skeleton';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 
 import * as z from "zod";
 import { PostUser } from '@/api/users/users.types';
@@ -34,13 +32,13 @@ const MyProfile = () => {
 
   // create a form with react-hook-form   
 
-  const { control, handleSubmit, setValue, } = useForm<z.infer<typeof modalSchema>>({
-    resolver: zodResolver(modalSchema),
-    defaultValues: {
-      name: user?.name || '',
-      image: user?.image || '',
-    },
-  });
+  // const { control, handleSubmit, setValue, } = useForm<z.infer<typeof modalSchema>>({
+  //   resolver: zodResolver(modalSchema),
+  //   defaultValues: {
+  //     name: user?.name || '',
+  //     image: user?.image || '',
+  //   },
+  // });
 
   const mutation = useMutation({
 
