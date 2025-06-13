@@ -18,6 +18,8 @@ import * as z from "zod";
 import { PostUser } from '@/api/users/users.types';
 import UserForm from '@/components/UserForm';
 import InfoField from '@/components/InfoField';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const MyProfile = () => {
   const { user, setUser } = useUser();
@@ -32,13 +34,13 @@ const MyProfile = () => {
 
   // create a form with react-hook-form   
 
-  // const { control, handleSubmit, setValue, } = useForm<z.infer<typeof modalSchema>>({
-  //   resolver: zodResolver(modalSchema),
-  //   defaultValues: {
-  //     name: user?.name || '',
-  //     image: user?.image || '',
-  //   },
-  // });
+  const { control, handleSubmit, setValue, } = useForm<z.infer<typeof modalSchema>>({
+    resolver: zodResolver(modalSchema),
+    defaultValues: {
+      name: user?.name || '',
+      image: user?.image || '',
+    },
+  });
 
   const mutation = useMutation({
 
