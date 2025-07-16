@@ -15,6 +15,7 @@ import { useUser } from '@/context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import CustomModal from './CustomModal';
+import { postWorkoutSuggestion } from '@/api/openai/openai.api';
 
 interface FormWorkoutProps {
   workoutId?: string;
@@ -126,6 +127,68 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   };
 
 
+async function workoutSuggestion() {
+  const testes = await postWorkoutSuggestion({
+    age: '30',
+    gender: 'masculino',
+    nameWorkout: 'treino de perna',
+    type: 'Hipertrofia'
+  });
+
+  console.log('Retorno original:', testes); // Para ver o retorno completo
+
+  let treinoArray = [];
+
+  // Verifica se 'testes' é uma string e contém a chave 'treino'
+  if (typeof testes === 'string') {
+    try {
+      // 1. Parsear a string 'testes' para um objeto JavaScript
+      // (Se 'testes' já for um objeto com a chave 'treino', essa etapa pode ser pulada)
+      const parsedTestes = JSON.parse(testes);
+
+      // 2. Acessar a string contida na propriedade 'treino'
+      const treinoString = parsedTestes.treino;
+
+      // 3. Remover as marcações indesejadas (```json\n e ```)
+      const cleanJsonString = treinoString
+        .replace('```json\n', '') // Remove a marcação de início
+        .replace('\n```', '');    // Remove a marcação de fim
+
+      // 4. Parsear a string JSON limpa para um array de objetos JavaScript
+      treinoArray = JSON.parse(cleanJsonString);
+
+      console.log('Array de Treino Formatado:', treinoArray);
+
+      // Agora você pode usar 'treinoArray' como um array de objetos, por exemplo:
+      // treinoArray.forEach(exercicio => {
+      //   console.log(`Exercício: ${exercicio.nome}, Séries: ${exercicio.series}`);
+      // });
+
+    } catch (error) {
+      console.error('Erro ao processar a string do treino:', error);
+    }
+  } else if (typeof testes === 'object' && testes.treino) {
+    // Caso 'testes' já seja um objeto e contenha a chave 'treino'
+    // e o valor de 'treino' já seja uma string com o JSON aninhado
+    try {
+      const treinoString = testes.treino;
+      const cleanJsonString = treinoString
+        .replace('```json\n', '')
+        .replace('\n```', '');
+
+      treinoArray = JSON.parse(cleanJsonString);
+      console.log('Array de Treino Formatado (direto do objeto):', treinoArray);
+    } catch (error) {
+      console.error('Erro ao processar o objeto do treino:', error);
+    }
+  } else {
+    console.warn('O formato de retorno de "postWorkoutSuggestion" não é o esperado.');
+  }
+
+  return treinoArray; // Retorna o array formatado
+}
+
+
   return (
     <FlatList
       style={{ flex: 1, }}
@@ -141,6 +204,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
             <Text style={{ marginBottom: 16 }}>Objetivo de treino</Text>
           }
 
+          <Button onPress={workoutSuggestion}>Sugestão de exercicios por IA</Button>
           <FormField
             control={control}
             name="type"
