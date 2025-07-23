@@ -6,7 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useStudent } from '@/context/StudentContext';
 import { FormField } from './FormField';
 import {
-  Text, Button, Card, Chip
+  Text, Button, Card, Chip,
+  SegmentedButtons,
+  ProgressBar
 } from 'react-native-paper';
 import ExerciseModal from './ExerciseModal';
 import { ExerciseWorkout } from '@/api/workout/workout.types';
@@ -15,7 +17,8 @@ import { useUser } from '@/context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import CustomModal from './CustomModal';
-import { postWorkoutSuggestion } from '@/api/openai/openai.api';
+import { postWorkoutSuggestion } from '@/api/openai/gemini.api';
+import { WorkoutSuggestionResponse } from '@/api/openai/gemini.type';
 
 interface FormWorkoutProps {
   workoutId?: string;
@@ -25,6 +28,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const { student } = useStudent();
   const { user } = useUser();
   const navigation = useNavigation();
+  const [workoutSuggestion, setWorkoutSuggestion] = useState<{treino: WorkoutSuggestionResponse[]} | null>(null);
+  const [isIA, setIsIA] = useState<'manual' | 'ia'>('manual');
 
   const { data: workoutByStudent, } = useQuery({
     queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
@@ -34,6 +39,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 
   const [exercisesList, setExercisesList] = useState<ExerciseWorkout[]>([]);
 
+  console.log(workoutSuggestion?.treino)
   useEffect(() => {
     if (workoutByStudent?.exercises) {
       setExercisesList(workoutByStudent?.exercises)
@@ -127,67 +133,27 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   };
 
 
-async function workoutSuggestion() {
-  const testes = await postWorkoutSuggestion({
-    age: '30',
-    gender: 'masculino',
+async function fetchWorkoutSuggestion() {
+  try{
+  const workoutSuggestions = await postWorkoutSuggestion({
+    age: student?.gender || '25',
+    gender: student?.gender || 'unissex',
     nameWorkout: 'treino de perna',
-    type: 'Hipertrofia'
-  });
+    type: 'Hipertrofia',
+    level:"iniciante"
 
-  console.log('Retorno original:', testes); // Para ver o retorno completo
 
-  let treinoArray = [];
+  })
+    setWorkoutSuggestion(workoutSuggestions)
 
-  // Verifica se 'testes' é uma string e contém a chave 'treino'
-  if (typeof testes === 'string') {
-    try {
-      // 1. Parsear a string 'testes' para um objeto JavaScript
-      // (Se 'testes' já for um objeto com a chave 'treino', essa etapa pode ser pulada)
-      const parsedTestes = JSON.parse(testes);
-
-      // 2. Acessar a string contida na propriedade 'treino'
-      const treinoString = parsedTestes.treino;
-
-      // 3. Remover as marcações indesejadas (```json\n e ```)
-      const cleanJsonString = treinoString
-        .replace('```json\n', '') // Remove a marcação de início
-        .replace('\n```', '');    // Remove a marcação de fim
-
-      // 4. Parsear a string JSON limpa para um array de objetos JavaScript
-      treinoArray = JSON.parse(cleanJsonString);
-
-      console.log('Array de Treino Formatado:', treinoArray);
-
-      // Agora você pode usar 'treinoArray' como um array de objetos, por exemplo:
-      // treinoArray.forEach(exercicio => {
-      //   console.log(`Exercício: ${exercicio.nome}, Séries: ${exercicio.series}`);
-      // });
-
-    } catch (error) {
-      console.error('Erro ao processar a string do treino:', error);
-    }
-  } else if (typeof testes === 'object' && testes.treino) {
-    // Caso 'testes' já seja um objeto e contenha a chave 'treino'
-    // e o valor de 'treino' já seja uma string com o JSON aninhado
-    try {
-      const treinoString = testes.treino;
-      const cleanJsonString = treinoString
-        .replace('```json\n', '')
-        .replace('\n```', '');
-
-      treinoArray = JSON.parse(cleanJsonString);
-      console.log('Array de Treino Formatado (direto do objeto):', treinoArray);
-    } catch (error) {
-      console.error('Erro ao processar o objeto do treino:', error);
-    }
-  } else {
-    console.warn('O formato de retorno de "postWorkoutSuggestion" não é o esperado.');
+  }catch( error){
+  console.error('Erro ao processar o objeto do treino:', error);
   }
 
-  return treinoArray; // Retorna o array formatado
+
 }
 
+  const [step, setStep] = useState(1);
 
   return (
     <FlatList
@@ -198,13 +164,19 @@ async function workoutSuggestion() {
       keyExtractor={() => 'FormWorkout'}
       renderItem={() => <>
         <View style={{ padding: 20, }}>
+      <ProgressBar progress={step / 4} />
+<View style={{ marginVertical: 20 , }}>
+      {step === 1 && (
+        <>
+          <Text variant="titleMedium">Informe os dados do treino</Text>
+          <View style={{ marginVertical: 20 , padding: 20,}}>
+
           <FormField control={control} name="nameWorkout" label="Nome do treino" type="text" />
 
           {selectedType.value !== "" && selectedType.value !== "Personalizado" &&
             <Text style={{ marginBottom: 16 }}>Objetivo de treino</Text>
           }
 
-          <Button onPress={workoutSuggestion}>Sugestão de exercicios por IA</Button>
           <FormField
             control={control}
             name="type"
@@ -232,8 +204,46 @@ async function workoutSuggestion() {
           {selectedType.value === "Personalizado" && (
             <FormField control={control} name="customType" label="Objetivo do Treino" type="text" />
           )}
+        </View>
+        </>
+      )}
 
-          {exercisesList.length > 0 ? (
+      {step === 2 && (
+        <>
+          <Text variant="titleMedium">Escolha como montar o treino</Text>
+   <Card mode='outlined' >
+            <Card.Title title="Como deseja montar o treino?" />
+            <Card.Content>
+  <SegmentedButtons
+        value={isIA}
+        onValueChange={setIsIA}
+        buttons={[
+             {
+            value: 'manual',
+            label: 'Cadastro manual',
+            icon: 'lightbulb',
+          },
+          {
+            value: 'ia',
+            label: 'Sugestão IA',
+                        icon: 'creation',
+
+          },
+        ]}
+      /> {isIA === 'ia' && (          <Button icon={"creation"}   onPress={fetchWorkoutSuggestion}>Sugerir exercícios</Button>
+  )}
+            </Card.Content>
+
+           
+          
+          </Card>
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <Text variant="titleMedium">Selecione os exercícios</Text>
+       {exercisesList.length > 0 ? (
             exercisesList.map((exercisesListData) => (
               <Card key={exercisesListData?.exerciseId.id} style={{ marginVertical: 10 }}>
                 <Card.Title
@@ -259,9 +269,37 @@ async function workoutSuggestion() {
           )}
 
           <ExerciseModal onSave={(exercise) => setExercisesList((prev) => [...prev, exercise])} />
-          <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
+        </>
+      )}
+      
+      {step === 4 && (
+        <>
+          <Text variant="titleMedium">Revisar e enviar</Text>
+  <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
             Enviar
           </Button>
+        </>
+      )}
+   <Button
+        mode="outlined"
+        onPress={() => setStep((prev) => prev - 1)}
+        disabled={step === 1}
+        style={{ marginTop: 16 }}
+      >
+        Voltar
+      </Button>
+      <Button
+        mode="contained"
+        onPress={() => setStep((prev) => prev + 1)}
+        disabled={step === 4}
+        style={{ marginTop: 16 }}
+      >
+        Próximo
+      </Button>
+
+
+       </View>
+        
         </View>
       </>
       }
