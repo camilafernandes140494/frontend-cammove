@@ -1,11 +1,11 @@
 import api from "../axios";
-import { WorkoutSuggestionData } from "./openai.type";
+import { WorkoutSuggestionData, WorkoutSuggestionResponse } from "./gemini.type";
 
 export const postWorkoutSuggestion = async (
   params: WorkoutSuggestionData,
 ) => {
   try {
-    const response = await api.post(
+    const response = await api.post<{treino: WorkoutSuggestionResponse[]}>(
       `/gemini/workouts`,
       params,
     );
