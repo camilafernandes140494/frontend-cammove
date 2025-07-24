@@ -1,15 +1,17 @@
 export type WorkoutSuggestionData = {
-  age:string;
-  gender:string;
+  age: string;
+  gender: string;
   type: string;
   nameWorkout: string;
-  level: string
+  level: string;
 };
 
 export type WorkoutSuggestionResponse = {
-  age:string;
-  gender:string;
-  type: string;
-  nameWorkout: string;
-  level: string; // Nível do aluno (iniciantes, intermediários, avançados)
+  treino: {
+    age: string;
+    gender: string;
+    type: string;
+    nameWorkout: string;
+    level: string; // Nível do aluno (iniciantes, intermediários, avançados)
+  }[];
 };

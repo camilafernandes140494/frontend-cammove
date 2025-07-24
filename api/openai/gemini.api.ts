@@ -1,17 +1,17 @@
-import api from "../axios";
-import { WorkoutSuggestionData, WorkoutSuggestionResponse } from "./gemini.type";
+import api from '../axios';
+import type {
+  WorkoutSuggestionData,
+  WorkoutSuggestionResponse,
+} from './gemini.type';
 
-export const postWorkoutSuggestion = async (
-  params: WorkoutSuggestionData,
-) => {
+export const postWorkoutSuggestion = async (params: WorkoutSuggestionData) => {
   try {
-    const response = await api.post<{treino: WorkoutSuggestionResponse[]}>(
-      `/gemini/workouts`,
-      params,
+    const response = await api.post<WorkoutSuggestionResponse>(
+      '/gemini/workouts',
+      params
     );
     return response.data; // Retorna os dados da resposta
   } catch (error) {
-    console.error('Erro ao sugerir treino:', error);
     throw error; // Propaga o erro para quem chamar a função
   }
 };
