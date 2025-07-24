@@ -1,50 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, View, } from 'react-native';
-import * as z from "zod";
-import { useForm } from 'react-hook-form';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useStudent } from '@/context/StudentContext';
-import { FormField } from './FormField';
+import { postWorkoutSuggestion } from '@/api/openai/gemini.api';
+import type { WorkoutSuggestionResponse } from '@/api/openai/gemini.type';
 import {
-  Text, Button, Card, Chip,
-  SegmentedButtons,
-  ProgressBar
-} from 'react-native-paper';
-import ExerciseModal from './ExerciseModal';
-import { ExerciseWorkout } from '@/api/workout/workout.types';
-import { getWorkoutByStudentIdAndWorkoutId, patchWorkout, postWorkout } from '@/api/workout/workout.api';
+  getWorkoutByStudentIdAndWorkoutId,
+  patchWorkout,
+  postWorkout,
+} from '@/api/workout/workout.api';
+import type { ExerciseWorkout } from '@/api/workout/workout.types';
+import { useStudent } from '@/context/StudentContext';
 import { useUser } from '@/context/UserContext';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { FlatList, View } from 'react-native';
+import {
+  Button,
+  Card,
+  Chip,
+  ProgressBar,
+  SegmentedButtons,
+  Text,
+} from 'react-native-paper';
+import * as z from 'zod';
 import CustomModal from './CustomModal';
-import { postWorkoutSuggestion } from '@/api/openai/gemini.api';
-import { WorkoutSuggestionResponse } from '@/api/openai/gemini.type';
+import ExerciseModal from './ExerciseModal';
+import { FormField } from './FormField';
 
 interface FormWorkoutProps {
   workoutId?: string;
-};
+}
 const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const [visible, setVisible] = useState(false);
   const { student } = useStudent();
   const { user } = useUser();
   const navigation = useNavigation();
-  const [workoutSuggestion, setWorkoutSuggestion] = useState<{treino: WorkoutSuggestionResponse[]} | null>(null);
+  const [workoutSuggestion, setWorkoutSuggestion] = useState<{
+    treino: WorkoutSuggestionResponse[];
+  } | null>(null);
   const [isIA, setIsIA] = useState<'manual' | 'ia'>('manual');
+  const [step, setStep] = useState(1);
 
-  const { data: workoutByStudent, } = useQuery({
+  const { data: workoutByStudent } = useQuery({
     queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
-    queryFn: () => getWorkoutByStudentIdAndWorkoutId(workoutId || '', student?.id || ''),
-    enabled: !!workoutId
+    queryFn: () =>
+      getWorkoutByStudentIdAndWorkoutId(workoutId || '', student?.id || ''),
+    enabled: !!workoutId,
   });
 
   const [exercisesList, setExercisesList] = useState<ExerciseWorkout[]>([]);
 
-  console.log(workoutSuggestion?.treino)
+  console.log(workoutSuggestion?.treino);
   useEffect(() => {
     if (workoutByStudent?.exercises) {
-      setExercisesList(workoutByStudent?.exercises)
+      setExercisesList(workoutByStudent?.exercises);
     }
-  }, [workoutByStudent])
+  }, [workoutByStudent]);
 
   const schema = z.object({
     type: z
@@ -53,18 +64,26 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
         value: z.string(),
       })
       .optional()
-      .refine(value => value !== undefined, { message: "Adicione um objetivo ao treino" }),
+      .refine((value) => value !== undefined, {
+        message: 'Adicione um objetivo ao treino',
+      }),
     customType: z.string(),
     nameWorkout: z.string(),
   });
 
-
-  const { control, handleSubmit, watch, reset } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, watch, reset } = useForm<
+    z.infer<typeof schema>
+  >({
     resolver: zodResolver(schema),
     defaultValues: {
-      type: workoutByStudent?.type ? { label: workoutByStudent?.type || '', value: workoutByStudent?.type || '' } : {},
-      customType: workoutByStudent?.type || "",
-      nameWorkout: workoutByStudent?.nameWorkout || ""
+      type: workoutByStudent?.type
+        ? {
+            label: workoutByStudent?.type || '',
+            value: workoutByStudent?.type || '',
+          }
+        : {},
+      customType: workoutByStudent?.type || '',
+      nameWorkout: workoutByStudent?.nameWorkout || '',
     },
   });
 
@@ -77,27 +96,30 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
         customType: workoutByStudent?.type || '',
         nameWorkout: workoutByStudent?.nameWorkout || '',
       });
-
     }
   }, [workoutByStudent, reset]);
 
-  const selectedType = watch("type");
+  const selectedType = watch('type');
 
   const mutation = useMutation({
     mutationFn: async (data: { workoutId?: string; workoutData: any }) => {
       const { workoutId, workoutData } = data;
       if (workoutId) {
-        return await patchWorkout(workoutId, user?.id || '', student?.id || '', workoutData);
-      } else {
-        return await postWorkout(user?.id || '', student?.id || '', workoutData);
+        return await patchWorkout(
+          workoutId,
+          user?.id || '',
+          student?.id || '',
+          workoutData
+        );
       }
+      return await postWorkout(user?.id || '', student?.id || '', workoutData);
     },
     onSuccess: () => {
       navigation.navigate('Workouts' as never);
     },
     onError: () => {
       setVisible(true);
-    }
+    },
   });
 
   const onSubmit = async (data: any) => {
@@ -108,7 +130,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       exercises: exercisesList,
       studentId: student?.id || '',
       studentName: student?.name || '',
-      nameWorkout: data.nameWorkout || 'Treino '
+      nameWorkout: data.nameWorkout || 'Treino ',
     };
 
     mutation.mutate({ workoutId, workoutData });
@@ -122,7 +144,9 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 
   const updateExerciseList = (exercise: ExerciseWorkout) => {
     setExercisesList((prevList) => {
-      const index = prevList.findIndex((ex) => ex.exerciseId.id === exercise.exerciseId.id);
+      const index = prevList.findIndex(
+        (ex) => ex.exerciseId.id === exercise.exerciseId.id
+      );
       if (index !== -1) {
         const updatedList = [...prevList];
         updatedList[index] = exercise;
@@ -132,182 +156,239 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     });
   };
 
-
-async function fetchWorkoutSuggestion() {
-  try{
-  const workoutSuggestions = await postWorkoutSuggestion({
-    age: student?.gender || '25',
-    gender: student?.gender || 'unissex',
-    nameWorkout: 'treino de perna',
-    type: 'Hipertrofia',
-    level:"iniciante"
-
-
-  })
-    setWorkoutSuggestion(workoutSuggestions)
-
-  }catch( error){
-  console.error('Erro ao processar o objeto do treino:', error);
+  async function fetchWorkoutSuggestion() {
+    try {
+      const workoutSuggestions = await postWorkoutSuggestion({
+        age: student?.gender || '25',
+        gender: student?.gender || 'unissex',
+        nameWorkout: 'treino de perna',
+        type: 'Hipertrofia',
+        level: 'iniciante',
+      });
+      setWorkoutSuggestion(workoutSuggestions);
+    } catch (error) {
+      console.error('Erro ao processar o objeto do treino:', error);
+    }
   }
-
-
-}
-
-  const [step, setStep] = useState(1);
 
   return (
     <FlatList
-      style={{ flex: 1, }}
-      keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       data={[{}]}
+      keyboardShouldPersistTaps="handled"
       keyExtractor={() => 'FormWorkout'}
-      renderItem={() => <>
-        <View style={{ padding: 20, }}>
-      <ProgressBar progress={step / 4} />
-<View style={{ marginVertical: 20 , }}>
-      {step === 1 && (
+      renderItem={() => (
         <>
-          <Text variant="titleMedium">Informe os dados do treino</Text>
-          <View style={{ marginVertical: 20 , padding: 20,}}>
+          <View style={{ padding: 20 }}>
+            <ProgressBar progress={step / 4} />
+            <View style={{ marginVertical: 20 }}>
+              {step === 1 && (
+                <>
+                  <Text variant="titleMedium">Informe os dados do treino</Text>
+                  <View style={{ marginVertical: 20 }}>
+                    <Card mode="outlined">
+                      <Card.Title title="Informações" />
+                      <Card.Content>
+                        <FormField
+                          control={control}
+                          label="Nome do treino"
+                          name="nameWorkout"
+                          type="text"
+                        />
 
-          <FormField control={control} name="nameWorkout" label="Nome do treino" type="text" />
+                        {selectedType.value !== '' &&
+                          selectedType.value !== 'Personalizado' && (
+                            <Text style={{ marginBottom: 16 }}>
+                              Objetivo de treino
+                            </Text>
+                          )}
 
-          {selectedType.value !== "" && selectedType.value !== "Personalizado" &&
-            <Text style={{ marginBottom: 16 }}>Objetivo de treino</Text>
-          }
-
-          <FormField
-            control={control}
-            name="type"
-            label="Escolha seu objetivo de treino"
-            type="select"
-            getLabel={(option) => option.label}
-            options={[
-              { label: "Personalizado", value: "Personalizado" },
-              { label: "Hipertrofia", value: "Hipertrofia" },
-              { label: "Emagrecimento", value: "Emagrecimento" },
-              { label: "Resistência", value: "Resistência" },
-              { label: "Definição", value: "Definição" },
-              { label: "Força", value: "Força" },
-              { label: "Flexibilidade", value: "Flexibilidade" },
-              { label: "Equilíbrio", value: "Equilíbrio" },
-              { label: "Saúde geral", value: "Saúde geral" },
-              { label: "Velocidade", value: "Velocidade" },
-              { label: "Desempenho atlético", value: "Desempenho atlético" },
-              { label: "Pré-natal", value: "Pré-natal" },
-              { label: "Reabilitação", value: "Reabilitação" },
-              { label: "Mobilidade", value: "Mobilidade" },
-              { label: "Potência", value: "Potência" },
-            ]}
-          />
-          {selectedType.value === "Personalizado" && (
-            <FormField control={control} name="customType" label="Objetivo do Treino" type="text" />
-          )}
-        </View>
-        </>
-      )}
-
-      {step === 2 && (
-        <>
-          <Text variant="titleMedium">Escolha como montar o treino</Text>
-   <Card mode='outlined' >
-            <Card.Title title="Como deseja montar o treino?" />
-            <Card.Content>
-  <SegmentedButtons
-        value={isIA}
-        onValueChange={setIsIA}
-        buttons={[
-             {
-            value: 'manual',
-            label: 'Cadastro manual',
-            icon: 'lightbulb',
-          },
-          {
-            value: 'ia',
-            label: 'Sugestão IA',
-                        icon: 'creation',
-
-          },
-        ]}
-      /> {isIA === 'ia' && (          <Button icon={"creation"}   onPress={fetchWorkoutSuggestion}>Sugerir exercícios</Button>
-  )}
-            </Card.Content>
-
-           
-          
-          </Card>
-        </>
-      )}
-
-      {step === 3 && (
-        <>
-          <Text variant="titleMedium">Selecione os exercícios</Text>
-       {exercisesList.length > 0 ? (
-            exercisesList.map((exercisesListData) => (
-              <Card key={exercisesListData?.exerciseId.id} style={{ marginVertical: 10 }}>
-                <Card.Title
-                  title={exercisesListData?.exerciseId.name}
-                  subtitle={exercisesListData?.exerciseId.category}
-                  right={(props) => <ExerciseModal exercise={exercisesListData} onSave={updateExerciseList} />}
-                />
-                <Card.Content style={{ flexDirection: "row", gap: 16, justifyContent: 'space-between', alignItems: 'center' }}>
-
-                  <View>
-                    <Chip icon="repeat">{`${exercisesListData.repetitions} ${exercisesListData.sets && `x ${exercisesListData.sets}`}`}</Chip>
+                        <FormField
+                          control={control}
+                          getLabel={(option) => option.label}
+                          label="Escolha seu objetivo de treino"
+                          name="type"
+                          options={[
+                            { label: 'Personalizado', value: 'Personalizado' },
+                            { label: 'Hipertrofia', value: 'Hipertrofia' },
+                            { label: 'Emagrecimento', value: 'Emagrecimento' },
+                            { label: 'Resistência', value: 'Resistência' },
+                            { label: 'Definição', value: 'Definição' },
+                            { label: 'Força', value: 'Força' },
+                            { label: 'Flexibilidade', value: 'Flexibilidade' },
+                            { label: 'Equilíbrio', value: 'Equilíbrio' },
+                            { label: 'Saúde geral', value: 'Saúde geral' },
+                            { label: 'Velocidade', value: 'Velocidade' },
+                            {
+                              label: 'Desempenho atlético',
+                              value: 'Desempenho atlético',
+                            },
+                            { label: 'Pré-natal', value: 'Pré-natal' },
+                            { label: 'Reabilitação', value: 'Reabilitação' },
+                            { label: 'Mobilidade', value: 'Mobilidade' },
+                            { label: 'Potência', value: 'Potência' },
+                          ]}
+                          type="select"
+                        />
+                        {selectedType.value === 'Personalizado' && (
+                          <FormField
+                            control={control}
+                            label="Objetivo do Treino"
+                            name="customType"
+                            type="text"
+                          />
+                        )}
+                      </Card.Content>
+                    </Card>
                   </View>
+                </>
+              )}
 
-                  <CustomModal
-                    onPress={() => removeExercise(exercisesListData?.exerciseId.id || '')}
-                    title='Tem certeza que deseja deletar o exercício?'
-                    primaryButtonLabel='Deletar' />
-                </Card.Content>
-              </Card>
-            ))
-          ) : (
-            <Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhum exercício encontrado</Text>
-          )}
+              {step === 2 && (
+                <>
+                  <Text variant="titleMedium">
+                    Escolha como montar o treino
+                  </Text>
+                  <View style={{ marginVertical: 20 }}>
+                    <Card mode="outlined">
+                      <Card.Title title="Como deseja montar o treino?" />
+                      <Card.Content>
+                        <SegmentedButtons
+                          buttons={[
+                            {
+                              value: 'manual',
+                              label: 'Cadastro manual',
+                              icon: 'lightbulb',
+                            },
+                            {
+                              value: 'ia',
+                              label: 'Sugestão IA',
+                              icon: 'creation',
+                            },
+                          ]}
+                          onValueChange={setIsIA}
+                          value={isIA}
+                        />{' '}
+                        {isIA === 'ia' && (
+                          <Button
+                            icon={'creation'}
+                            onPress={fetchWorkoutSuggestion}
+                          >
+                            Sugerir exercícios
+                          </Button>
+                        )}
+                      </Card.Content>
+                    </Card>
+                  </View>
+                </>
+              )}
 
-          <ExerciseModal onSave={(exercise) => setExercisesList((prev) => [...prev, exercise])} />
+              {step === 3 && (
+                <>
+                  <Text variant="titleMedium">Selecione os exercícios</Text>
+                  <View style={{ marginVertical: 20 }}>
+                    <Card mode="outlined">
+                      <Card.Content>
+                        {exercisesList.length > 0 ? (
+                          exercisesList.map((exercisesListData) => (
+                            <Card
+                              key={exercisesListData?.exerciseId.id}
+                              style={{ marginVertical: 10 }}
+                            >
+                              <Card.Title
+                                right={(props) => (
+                                  <ExerciseModal
+                                    exercise={exercisesListData}
+                                    onSave={updateExerciseList}
+                                  />
+                                )}
+                                subtitle={
+                                  exercisesListData?.exerciseId.category
+                                }
+                                title={exercisesListData?.exerciseId.name}
+                              />
+                              <Card.Content
+                                style={{
+                                  flexDirection: 'row',
+                                  gap: 16,
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <View>
+                                  <Chip icon="repeat">{`${exercisesListData.repetitions} ${exercisesListData.sets && `x ${exercisesListData.sets}`}`}</Chip>
+                                </View>
+
+                                <CustomModal
+                                  onPress={() =>
+                                    removeExercise(
+                                      exercisesListData?.exerciseId.id || ''
+                                    )
+                                  }
+                                  primaryButtonLabel="Deletar"
+                                  title="Tem certeza que deseja deletar o exercício?"
+                                />
+                              </Card.Content>
+                            </Card>
+                          ))
+                        ) : (
+                          <Text style={{ textAlign: 'center', marginTop: 20 }}>
+                            Nenhum exercício encontrado
+                          </Text>
+                        )}
+
+                        <ExerciseModal
+                          onSave={(exercise) =>
+                            setExercisesList((prev) => [...prev, exercise])
+                          }
+                        />
+                      </Card.Content>
+                    </Card>
+                  </View>
+                </>
+              )}
+
+              {step === 4 && (
+                <>
+                  <Text variant="titleMedium">Revisar e enviar</Text>
+                  <View style={{ marginVertical: 20 }}>
+                    <Card mode="outlined">
+                      <Card.Content>
+                        <Button
+                          disabled={mutation.isPending}
+                          loading={mutation.isPending}
+                          mode="contained"
+                          onPress={handleSubmit(onSubmit)}
+                        >
+                          Enviar
+                        </Button>
+                      </Card.Content>
+                    </Card>
+                  </View>
+                </>
+              )}
+              <Button
+                disabled={step === 1}
+                mode="outlined"
+                onPress={() => setStep((prev) => prev - 1)}
+                style={{ marginTop: 16 }}
+              >
+                Voltar
+              </Button>
+              <Button
+                disabled={step === 4}
+                mode="contained"
+                onPress={() => setStep((prev) => prev + 1)}
+                style={{ marginTop: 16 }}
+              >
+                Próximo
+              </Button>
+            </View>
+          </View>
         </>
       )}
-      
-      {step === 4 && (
-        <>
-          <Text variant="titleMedium">Revisar e enviar</Text>
-  <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={mutation.isPending} loading={mutation.isPending}>
-            Enviar
-          </Button>
-        </>
-      )}
-   <Button
-        mode="outlined"
-        onPress={() => setStep((prev) => prev - 1)}
-        disabled={step === 1}
-        style={{ marginTop: 16 }}
-      >
-        Voltar
-      </Button>
-      <Button
-        mode="contained"
-        onPress={() => setStep((prev) => prev + 1)}
-        disabled={step === 4}
-        style={{ marginTop: 16 }}
-      >
-        Próximo
-      </Button>
-
-
-       </View>
-        
-        </View>
-      </>
-      }
+      style={{ flex: 1 }}
     />
   );
 };
 export default FormWorkout;
-
-
-
-
