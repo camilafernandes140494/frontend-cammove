@@ -18,64 +18,61 @@ const StepManualExercise = ({
   updateExerciseList,
 }: StepManualExerciseeProps) => {
   return (
-    <>
-      <Text variant="titleMedium">Selecione os exercícios</Text>
-      <View style={{ marginVertical: 20 }}>
-        <Card mode="outlined">
-          <Card.Content>
-            {exercisesList.length > 0 ? (
-              exercisesList.map((exercisesListData) => (
-                <Card
-                  key={exercisesListData?.exerciseId.id}
-                  style={{ marginVertical: 10 }}
-                >
-                  <Card.Title
-                    right={() => (
-                      <ExerciseModal
-                        exercise={exercisesListData}
-                        onSave={updateExerciseList}
-                      />
-                    )}
-                    subtitle={exercisesListData?.exerciseId.category}
-                    title={exercisesListData?.exerciseId.name}
-                  />
-                  <Card.Content
-                    style={{
-                      flexDirection: 'row',
-                      gap: 16,
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <View>
-                      <Chip icon="repeat">{`${exercisesListData.repetitions} ${exercisesListData.sets && `x ${exercisesListData.sets}`}`}</Chip>
-                    </View>
-
-                    <CustomModal
-                      onPress={() =>
-                        removeExercise(exercisesListData?.exerciseId.id || '')
-                      }
-                      primaryButtonLabel="Deletar"
-                      title="Tem certeza que deseja deletar o exercício?"
+    <View style={{ marginVertical: 20 }}>
+      <Card mode="outlined">
+        <Card.Content>
+          {exercisesList.length > 0 ? (
+            exercisesList.map((exercisesListData) => (
+              <Card
+                key={exercisesListData?.exerciseId.id}
+                style={{ marginVertical: 10 }}
+              >
+                <Card.Title
+                  right={() => (
+                    <ExerciseModal
+                      exercise={exercisesListData}
+                      onSave={updateExerciseList}
                     />
-                  </Card.Content>
-                </Card>
-              ))
-            ) : (
-              <Text style={{ textAlign: 'center', marginTop: 20 }}>
-                Nenhum exercício encontrado
-              </Text>
-            )}
+                  )}
+                  subtitle={exercisesListData?.exerciseId.category}
+                  title={exercisesListData?.exerciseId.name}
+                />
+                <Card.Content
+                  style={{
+                    flexDirection: 'row',
+                    gap: 16,
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <View>
+                    <Chip icon="repeat">{`${exercisesListData.repetitions} ${exercisesListData.sets && `x ${exercisesListData.sets}`}`}</Chip>
+                  </View>
 
-            <ExerciseModal
-              onSave={(exercise) =>
-                setExercisesList((prev) => [...prev, exercise])
-              }
-            />
-          </Card.Content>
-        </Card>
-      </View>
-    </>
+                  <CustomModal
+                    onPress={() =>
+                      removeExercise(exercisesListData?.exerciseId.id || '')
+                    }
+                    primaryButtonLabel="Deletar"
+                    title="Tem certeza que deseja deletar o exercício?"
+                  />
+                </Card.Content>
+              </Card>
+            ))
+          ) : (
+            <Text style={{ textAlign: 'center', marginTop: 20 }}>
+              Nenhum exercício encontrado
+            </Text>
+          )}
+
+          <ExerciseModal
+            onSave={(exercise) =>
+              setExercisesList((prev) => [...prev, exercise])
+            }
+          />
+        </Card.Content>
+      </Card>
+    </View>
   );
 };
 export default StepManualExercise;
