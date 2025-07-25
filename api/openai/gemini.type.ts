@@ -8,10 +8,11 @@ export type WorkoutSuggestionData = {
 
 export type WorkoutSuggestionResponse = {
   treino: {
-    age: string;
-    gender: string;
-    type: string;
-    nameWorkout: string;
-    level: string; // Nível do aluno (iniciantes, intermediários, avançados)
-  }[];
+    exercises: {
+      restTime: string;
+      repetitions: string;
+      sets: string;
+      name: string;
+    }[];
+  };
 };
