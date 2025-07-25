@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/suspicious/noConsole: <explanation> 1213*/
 
-import { postWorkoutSuggestion } from '@/api/openai/gemini.api';
 import {
   getWorkoutByStudentIdAndWorkoutId,
   patchWorkout,
@@ -16,7 +15,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FlatList, View } from 'react-native';
-import { Button, ProgressBar } from 'react-native-paper';
+import { Button, Icon, ProgressBar, Text } from 'react-native-paper';
 import * as z from 'zod';
 import StepChooseType from './steps/StepChooseType';
 import StepExerciseIA from './steps/StepExerciseIA';
@@ -33,7 +32,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const { user } = useUser();
   const navigation = useNavigation();
 
-  const { step, nextStep, prevStep, setWorkoutSuggestion } = useWorkoutForm();
+  const { step, nextStep, prevStep, goToStep, isGeneratedByIA } =
+    useWorkoutForm();
 
   const { data: workoutByStudent } = useQuery({
     queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
@@ -149,21 +149,6 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     });
   };
 
-  async function fetchWorkoutSuggestion() {
-    try {
-      const workoutSuggestions = await postWorkoutSuggestion({
-        age: student?.gender || '25',
-        gender: student?.gender || 'unissex',
-        nameWorkout: 'treino de perna',
-        type: 'Hipertrofia',
-        level: 'iniciante',
-      });
-      setWorkoutSuggestion(workoutSuggestions);
-    } catch (error) {
-      console.error('Erro ao processar o objeto do treino:', error);
-    }
-  }
-
   const nameWorkout = watch('nameWorkout');
   const type = watch('type');
   const customType = watch('customType');
@@ -186,6 +171,14 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     return true;
   };
 
+  const stepItems = [
+    { label: 'Informe os dados do treino', icon: 'clipboard-text' },
+    { label: 'Escolha como montar o treino', icon: 'tune' },
+    { label: 'Selecionar os exercícios', icon: 'dumbbell' },
+    { label: 'Validar exercícios', icon: 'dumbbell' },
+    { label: 'Revisar e enviar', icon: 'check-circle-outline' },
+  ];
+
   return (
     <FlatList
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -195,7 +188,20 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       renderItem={() => (
         <>
           <View style={{ padding: 20 }}>
-            <ProgressBar progress={step / 4} />
+            <ProgressBar progress={step / 5} />
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+                marginVertical: 8,
+              }}
+            >
+              <Icon size={20} source={stepItems[step - 1].icon ?? ''} />
+              <Text variant="titleMedium">
+                {stepItems[step - 1].label ?? ''}
+              </Text>
+            </View>
             <View style={{ marginVertical: 20 }}>
               {step === 1 && (
                 <StepTrainingData
@@ -232,15 +238,27 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
               <Button
                 disabled={step === 1}
                 mode="outlined"
-                onPress={prevStep}
+                onPress={() => {
+                  if (step === 4 && isGeneratedByIA) {
+                    goToStep(2);
+                  } else {
+                    prevStep();
+                  }
+                }}
                 style={{ marginTop: 16 }}
               >
                 Voltar
               </Button>
               <Button
-                disabled={step === 4 || !isStepValid()}
+                disabled={step === 5 || !isStepValid()}
                 mode="contained"
-                onPress={nextStep}
+                onPress={() => {
+                  if (step === 2 && isGeneratedByIA) {
+                    goToStep(4);
+                  } else {
+                    nextStep();
+                  }
+                }}
                 style={{ marginTop: 16 }}
               >
                 Próximo
