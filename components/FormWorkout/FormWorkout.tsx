@@ -7,6 +7,7 @@ import {
 } from '@/api/workout/workout.api';
 import type { ExerciseWorkout } from '@/api/workout/workout.types';
 import { useStudent } from '@/context/StudentContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
 import { useWorkoutForm } from '@/context/WorkoutFormContext';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import { FlatList, View } from 'react-native';
 import { Button, Icon, ProgressBar, Text } from 'react-native-paper';
 import * as z from 'zod';
+import StudentCard from '../StudentCard';
 import StepChooseType from './steps/StepChooseType';
 import StepExerciseIA from './steps/StepExerciseIA';
 import StepManualExercise from './steps/StepManualExercise';
@@ -31,6 +33,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const { student } = useStudent();
   const { user } = useUser();
   const navigation = useNavigation();
+  const { theme } = useTheme();
 
   const { step, nextStep, prevStep, goToStep, isGeneratedByIA } =
     useWorkoutForm();
@@ -180,95 +183,99 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   ];
 
   return (
-    <FlatList
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-      data={[{}]}
-      keyboardShouldPersistTaps="handled"
-      keyExtractor={() => 'FormWorkout'}
-      renderItem={() => (
-        <>
-          <View style={{ padding: 20 }}>
-            <ProgressBar progress={step / 5} />
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 8,
-                marginVertical: 8,
-              }}
-            >
-              <Icon size={20} source={stepItems[step - 1].icon ?? ''} />
-              <Text variant="titleMedium">
-                {stepItems[step - 1].label ?? ''}
-              </Text>
-            </View>
-            <View style={{ marginVertical: 20 }}>
-              {step === 1 && (
-                <StepTrainingData
-                  control={control}
-                  selectedType={selectedType.value}
-                />
-              )}
+    <>
+      <StudentCard />
 
-              {step === 2 && <StepChooseType />}
+      <FlatList
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+        data={[{}]}
+        keyboardShouldPersistTaps="handled"
+        keyExtractor={() => 'FormWorkout'}
+        renderItem={() => (
+          <>
+            <View style={{ padding: 20 }}>
+              <ProgressBar progress={step / 5} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginVertical: 8,
+                }}
+              >
+                <Icon size={20} source={stepItems[step - 1].icon ?? ''} />
+                <Text variant="titleMedium">
+                  {stepItems[step - 1].label ?? ''}
+                </Text>
+              </View>
+              <View style={{ marginVertical: 20 }}>
+                {step === 1 && (
+                  <StepTrainingData
+                    control={control}
+                    selectedType={selectedType.value}
+                  />
+                )}
 
-              {step === 3 && (
-                <StepManualExercise
-                  exercisesList={exercisesList}
-                  removeExercise={removeExercise}
-                  setExercisesList={setExercisesList}
-                  updateExerciseList={updateExerciseList}
-                />
-              )}
-              {step === 4 && (
-                <StepExerciseIA
-                  exercisesList={exercisesList}
-                  removeExercise={removeExercise}
-                  setExercisesList={setExercisesList}
-                  updateExerciseList={updateExerciseList}
-                />
-              )}
-              {step === 5 && (
-                <StepReviewAndSubmit
-                  disabled={mutation.isPending}
-                  loading={mutation.isPending}
-                  onSubmit={handleSubmit(onSubmit)}
-                />
-              )}
-              <Button
-                disabled={step === 1}
-                mode="outlined"
-                onPress={() => {
-                  if (step === 4 && isGeneratedByIA) {
-                    goToStep(2);
-                  } else {
-                    prevStep();
-                  }
-                }}
-                style={{ marginTop: 16 }}
-              >
-                Voltar
-              </Button>
-              <Button
-                disabled={step === 5 || !isStepValid()}
-                mode="contained"
-                onPress={() => {
-                  if (step === 2 && isGeneratedByIA) {
-                    goToStep(4);
-                  } else {
-                    nextStep();
-                  }
-                }}
-                style={{ marginTop: 16 }}
-              >
-                Próximo
-              </Button>
+                {step === 2 && <StepChooseType />}
+
+                {step === 3 && (
+                  <StepManualExercise
+                    exercisesList={exercisesList}
+                    removeExercise={removeExercise}
+                    setExercisesList={setExercisesList}
+                    updateExerciseList={updateExerciseList}
+                  />
+                )}
+                {step === 4 && (
+                  <StepExerciseIA
+                    exercisesList={exercisesList}
+                    removeExercise={removeExercise}
+                    setExercisesList={setExercisesList}
+                    updateExerciseList={updateExerciseList}
+                  />
+                )}
+                {step === 5 && (
+                  <StepReviewAndSubmit
+                    disabled={mutation.isPending}
+                    loading={mutation.isPending}
+                    onSubmit={handleSubmit(onSubmit)}
+                  />
+                )}
+                <Button
+                  disabled={step === 1}
+                  mode="outlined"
+                  onPress={() => {
+                    if (step === 4 && isGeneratedByIA) {
+                      goToStep(2);
+                    } else {
+                      prevStep();
+                    }
+                  }}
+                  style={{ marginTop: 16 }}
+                >
+                  Voltar
+                </Button>
+                <Button
+                  disabled={step === 5 || !isStepValid()}
+                  mode="contained"
+                  onPress={() => {
+                    if (step === 2 && isGeneratedByIA) {
+                      goToStep(4);
+                    } else {
+                      nextStep();
+                    }
+                  }}
+                  style={{ marginTop: 16 }}
+                >
+                  Próximo
+                </Button>
+              </View>
             </View>
-          </View>
-        </>
-      )}
-      style={{ flex: 1 }}
-    />
+          </>
+        )}
+        style={{ flex: 1 }}
+      />
+    </>
   );
 };
 export default FormWorkout;

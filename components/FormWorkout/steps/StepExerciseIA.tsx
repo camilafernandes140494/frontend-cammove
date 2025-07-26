@@ -2,13 +2,17 @@
 
 import { postWorkoutSuggestion } from '@/api/openai/gemini.api';
 import type { ExerciseWorkout } from '@/api/workout/workout.types';
+import { calculateAge } from '@/common/common';
+import CustomModal from '@/components/CustomModal';
 import ExerciseModal from '@/components/ExerciseModal';
-import InfoField from '@/components/InfoField';
 import { useStudent } from '@/context/StudentContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useWorkoutForm } from '@/context/WorkoutFormContext';
+import Ionicons from '@expo/vector-icons/build/Ionicons';
 import { useMutation } from '@tanstack/react-query';
+import { useCallback, useEffect } from 'react';
 import { FlatList, View } from 'react-native';
-import { Button, Card, Divider, Text } from 'react-native-paper';
+import { Button, Card, Chip, Divider, Icon, Text } from 'react-native-paper';
 
 interface StepExerciseIAProps {
   removeExercise: (exerciseId: string) => void;
@@ -26,11 +30,11 @@ const StepExerciseIA = ({
   const { student } = useStudent();
 
   const { setWorkoutSuggestion, workoutSuggestion } = useWorkoutForm();
-
+  const { theme } = useTheme();
   const mutation = useMutation({
     mutationFn: async () => {
       return await postWorkoutSuggestion({
-        age: student?.birthDate || '25', // Corrigido: era student?.gender
+        age: String(calculateAge(student?.birthDate || '')),
         gender: student?.gender || 'unissex',
         nameWorkout: 'treino de perna',
         type: 'Hipertrofia',
@@ -45,7 +49,178 @@ const StepExerciseIA = ({
     },
   });
 
-  console.log(workoutSuggestion?.treino);
+  useEffect(() => {
+    if (workoutSuggestion?.treino?.exercises) {
+      const exercisesTemp: ExerciseWorkout[] =
+        workoutSuggestion.treino.exercises.map((exercise) => ({
+          observations: '',
+          repetitions: exercise.repetitions,
+          sets: exercise.sets,
+          restTime: `${exercise.restTime} segundos`,
+          exerciseId: {
+            name: exercise.name,
+            description: '',
+          },
+        }));
+      setExercisesList(exercisesTemp);
+    }
+  }, [workoutSuggestion, setExercisesList]);
+
+  const renderExerciseItem = useCallback(
+    ({ item }: { item: ExerciseWorkout }) => {
+      const isLinked = Boolean(
+        item.exerciseId?.id && item.exerciseId.id.trim() !== ''
+      );
+
+      return (
+        <Card style={{ marginVertical: 10 }}>
+          <Card.Content style={{ gap: 8 }}>
+            <Text variant="titleMedium">{item.exerciseId.name}</Text>
+
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Ionicons
+                color={theme.colors.primary}
+                name={'bed-outline'}
+                size={18}
+                style={{ marginRight: 4 }}
+              />
+              <Text variant="bodySmall">{`Descanso: ${item.restTime}`}</Text>
+            </View>
+
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 16,
+              }}
+            >
+              {item.sets && (
+                <Chip
+                  disabled
+                  icon={() => (
+                    <Ionicons
+                      color={theme.colors.primary}
+                      name={'repeat'}
+                      size={18}
+                    />
+                  )}
+                  style={{
+                    backgroundColor: theme.colors.primaryContainer,
+                    alignSelf: 'flex-start',
+                  }}
+                  textStyle={{
+                    color: theme.colors.primary,
+                  }}
+                >
+                  {item.sets}
+                </Chip>
+              )}
+              {item.repetitions && (
+                <Chip
+                  disabled
+                  icon={() => (
+                    <Ionicons
+                      color={theme.colors.primary}
+                      name={'repeat'}
+                      size={18}
+                    />
+                  )}
+                  style={{
+                    backgroundColor: theme.colors.primaryContainer,
+                    alignSelf: 'flex-start',
+                  }}
+                  textStyle={{
+                    color: theme.colors.primary,
+                  }}
+                >
+                  {item.repetitions}
+                </Chip>
+              )}
+            </View>
+          </Card.Content>
+
+          <Card.Actions>
+            <CustomModal
+              cancelButtonLabel="Entendi"
+              onPress={() => console.log('Vinculado')}
+              showPrimaryButton={false}
+              title={'Exercício Vinculado'}
+              trigger={
+                <Chip
+                  icon={() => (
+                    <Ionicons
+                      color={
+                        isLinked
+                          ? ''
+                          : theme.colors.card.negativeFeedback.text.primary
+                      }
+                      name={
+                        isLinked
+                          ? 'checkmark-circle-outline'
+                          : 'alert-circle-outline'
+                      }
+                      size={18}
+                    />
+                  )}
+                  style={{
+                    // backgroundColor: isLinked
+                    //   ? theme.colors.card.positiveFeedback.chipBackground
+                    //   : theme.colors.card.negativeFeedback.background,
+                    borderColor: isLinked
+                      ? '#4CAF50'
+                      : theme.colors.card.negativeFeedback.background,
+                    borderWidth: 1,
+                  }}
+                  textStyle={{
+                    color: isLinked ? '#2E7D32' : theme.colors.card,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {isLinked ? 'Vinculado' : 'Não vinculado'}
+                </Chip>
+              }
+            >
+              <View
+                style={{
+                  borderRadius: 50,
+                  padding: 12,
+                  marginBottom: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Icon
+                  color={
+                    isLinked
+                      ? '#4CAF50'
+                      : theme.colors.card.negativeFeedback.text.primary
+                  }
+                  size={48}
+                  source={isLinked ? 'database-check' : 'database-alert'}
+                />
+              </View>
+
+              <Text style={{ textAlign: 'center' }} variant="bodySmall">
+                {isLinked
+                  ? 'Este exercício já está cadastrado na nossa base. O seu aluno poderá visualizar fotos, vídeos e os grupos musculares relacionados para entender melhor a execução.'
+                  : 'Este exercício não está cadastrado na nossa base. Ao vinculá-lo, seu aluno poderá visualizar fotos, vídeos e grupos musculares para entender melhor a execução.'}
+              </Text>
+            </CustomModal>
+            <ExerciseModal exercise={item} onSave={updateExerciseList} />
+          </Card.Actions>
+        </Card>
+      );
+    },
+    [updateExerciseList]
+  );
+
   return (
     <View style={{ marginVertical: 20 }}>
       <Card mode="outlined">
@@ -58,44 +233,20 @@ const StepExerciseIA = ({
           >
             Gerar sugestão
           </Button>
-          <Divider style={{ marginVertical: 10 }} />
-          <Text>Sugestão automática por IA</Text>
+          <Divider
+            style={{
+              width: '100%',
+              backgroundColor: theme.colors.outlineVariant,
+              height: 1,
+              marginVertical: 10,
+            }}
+          />
 
           <FlatList
-            data={workoutSuggestion?.treino?.exercises}
+            data={exercisesList}
             initialNumToRender={10}
-            keyExtractor={(item) => item.name}
-            renderItem={({ item }) => (
-              <Card style={{ marginVertical: 10 }}>
-                <Card.Content>
-                  <Text>{item.name}</Text>
-
-                  <InfoField
-                    description={`${item.restTime} segundos`}
-                    title="Tempo de descanso"
-                  />
-                  <InfoField description={item.sets} title="Número de séries" />
-                  <InfoField
-                    description={item.repetitions}
-                    title="Quantidade de repetições"
-                  />
-                  <ExerciseModal
-                    exercise={{
-                      exerciseId: {
-                        name: item.name,
-                        description: '',
-                      },
-                      repetitions: item.repetitions,
-                      sets: item.sets,
-                      restTime: `${item.restTime} segundos`,
-                      observations: '',
-                    }}
-                    onSave={updateExerciseList}
-                  />
-                  <Button>Vinculado</Button>
-                </Card.Content>
-              </Card>
-            )}
+            keyExtractor={(item) => item.exerciseId.name}
+            renderItem={renderExerciseItem}
           />
         </Card.Content>
       </Card>
