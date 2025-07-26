@@ -5,7 +5,6 @@ import FilterInput from '@/components/FilterInput';
 import FormWorkout from '@/components/FormWorkout/FormWorkout';
 import SelectStudent from '@/components/SelectStudent';
 import Skeleton from '@/components/Skeleton';
-import StudentCard from '@/components/StudentCard';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
 import { WorkoutFormProvider } from '@/context/WorkoutFormContext';
@@ -73,18 +72,7 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
           </CustomModal>
         )}
       </Appbar.Header>
-      {!workoutId && (
-        <StudentCard>
-          {workoutId && (
-            <Text
-              style={{ marginLeft: 16, color: theme.colors.outline }}
-              variant="bodySmall"
-            >
-              ID: {workoutId}
-            </Text>
-          )}
-        </StudentCard>
-      )}
+
       <FlatList
         data={[{}]}
         keyExtractor={() => 'header'}
