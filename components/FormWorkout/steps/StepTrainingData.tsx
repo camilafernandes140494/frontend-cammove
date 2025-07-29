@@ -49,6 +49,12 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
             name="nameWorkout"
             type="text"
           />
+          <FormField
+            control={control}
+            label="Quantidade de exercícios"
+            name="amountOfExercise"
+            type="text"
+          />
           <Text>{'Intensidade do treino'}</Text>
           <FormField
             control={control}
