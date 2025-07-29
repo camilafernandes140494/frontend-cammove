@@ -4,6 +4,8 @@ export type WorkoutSuggestionData = {
   type: string;
   nameWorkout: string;
   level: string;
+  muscleGroup: string[];
+  amountExercises: number;
 };
 
 export type WorkoutSuggestionResponse = {

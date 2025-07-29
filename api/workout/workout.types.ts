@@ -1,4 +1,4 @@
-import { Exercise } from '../exercise/exercise.types';
+import type { Exercise } from '../exercise/exercise.types';
 
 export type getWorkoutsSummaryResponse = {
   id: string;
@@ -26,6 +26,8 @@ export type WorkoutData = {
   studentName: string;
   studentId: string;
   nameWorkout: string;
+  level?: string;
+  muscleGroup?: string[];
 };
 
 export type WorkoutDataByIdStudent = {
