@@ -132,9 +132,9 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     mutation.mutate({ workoutId, workoutData });
   };
 
-  const removeExercise = (exerciseId: string) => {
+  const removeExercise = (name: string) => {
     setExercisesList((prevList) =>
-      prevList.filter((exercise) => exercise.exerciseId.id !== exerciseId)
+      prevList.filter((exercise) => exercise.exerciseId.name !== name)
     );
   };
 

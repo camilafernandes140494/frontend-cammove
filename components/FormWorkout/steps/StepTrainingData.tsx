@@ -10,6 +10,34 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
   //   const { step, nextStep, prevStep, isGeneratedByIA, setIsGeneratedByIA } =
   //     useWorkoutForm();
 
+  const muscleGroup = [
+    'Peito',
+    'Costas',
+    'Ombros',
+    'Bíceps',
+    'Tríceps',
+    'Antebraços',
+    'Abdômen',
+    'Glúteos',
+    'Quadríceps',
+    'Isquiotibiais',
+    'Panturrilhas',
+    'Adutores',
+    'Flexores de quadril',
+    'Trapézio',
+    'Lombares',
+    'Serrátil anterior',
+    'Reto abdominal',
+    'Oblíquos',
+    'Erectores da espinha',
+    'Flexores de tornozelo',
+  ];
+
+  const muscleGroupChip = muscleGroup?.map((item) => ({
+    label: item,
+    value: item,
+  }));
+
   return (
     <View style={{ marginVertical: 20 }}>
       <Card mode="outlined">
@@ -20,6 +48,19 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
             label="Nome do treino"
             name="nameWorkout"
             type="text"
+          />
+          <Text>{'Intensidade do treino'}</Text>
+          <FormField
+            control={control}
+            getLabel={(option) => option.label}
+            label="Intensidade do treino"
+            name="level"
+            options={[
+              { label: 'Iniciante', value: 'iniciante' },
+              { label: 'Médio', value: 'medio' },
+              { label: 'Avançado', value: 'avançado' },
+            ]}
+            type="chip"
           />
 
           {selectedType !== '' && selectedType !== 'Personalizado' && (
@@ -61,6 +102,14 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
               type="text"
             />
           )}
+
+          <Text>{'Grupo muscular'}</Text>
+          <FormField
+            control={control}
+            name="muscleGroup"
+            options={muscleGroupChip}
+            type="chip-multi"
+          />
         </Card.Content>
       </Card>
     </View>

@@ -51,7 +51,7 @@ const StepManualExercise = ({
 
                   <CustomModal
                     onPress={() =>
-                      removeExercise(exercisesListData?.exerciseId.id || '')
+                      removeExercise(exercisesListData?.exerciseId.name || '')
                     }
                     primaryButtonLabel="Deletar"
                     title="Tem certeza que deseja deletar o exercício?"

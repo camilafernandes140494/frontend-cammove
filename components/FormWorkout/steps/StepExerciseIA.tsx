@@ -1,5 +1,7 @@
 /** biome-ignore-all lint/suspicious/noConsole: <explanation> */
 
+import { getExercises } from '@/api/exercise/exercise.api';
+import type { Exercise } from '@/api/exercise/exercise.types';
 import { postWorkoutSuggestion } from '@/api/openai/gemini.api';
 import type { ExerciseWorkout } from '@/api/workout/workout.types';
 import { calculateAge } from '@/common/common';
@@ -9,10 +11,18 @@ import { useStudent } from '@/context/StudentContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useWorkoutForm } from '@/context/WorkoutFormContext';
 import Ionicons from '@expo/vector-icons/build/Ionicons';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 import { FlatList, View } from 'react-native';
-import { Button, Card, Chip, Divider, Icon, Text } from 'react-native-paper';
+import {
+  Button,
+  Card,
+  Chip,
+  Divider,
+  Icon,
+  IconButton,
+  Text,
+} from 'react-native-paper';
 
 interface StepExerciseIAProps {
   removeExercise: (exerciseId: string) => void;
@@ -31,6 +41,22 @@ const StepExerciseIA = ({
 
   const { setWorkoutSuggestion, workoutSuggestion } = useWorkoutForm();
   const { theme } = useTheme();
+
+  const { data: exercises } = useQuery({
+    queryKey: ['getExercises'],
+    queryFn: () => getExercises({}),
+    enabled: true,
+  });
+
+  function searchByName(name: string): Exercise[] | undefined {
+    const termo = name.replace(/\s*\(.*?\)\s*/g, '').toLowerCase();
+    console.log(termo, 'termo');
+    console.log(
+      exercises?.filter((item) => item.name.toLowerCase().includes(termo))
+    );
+    return exercises?.filter((item) => item.name.toLowerCase().includes(termo));
+  }
+
   const mutation = useMutation({
     mutationFn: async () => {
       return await postWorkoutSuggestion({
@@ -75,7 +101,24 @@ const StepExerciseIA = ({
       return (
         <Card style={{ marginVertical: 10 }}>
           <Card.Content style={{ gap: 8 }}>
-            <Text variant="titleMedium">{item.exerciseId.name}</Text>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+            >
+              <Text variant="titleMedium">{item.exerciseId.name}</Text>
+              <IconButton
+                icon="sync"
+                onPress={() => {
+                  const match = searchByName(item.exerciseId.name)[0];
+                  if (match) {
+                    updateExerciseList({
+                      ...item,
+                      exerciseId: match,
+                    });
+                  }
+                }}
+                size={20}
+              />
+            </View>
 
             <View
               style={{
@@ -144,9 +187,6 @@ const StepExerciseIA = ({
                 </Chip>
               )}
             </View>
-          </Card.Content>
-
-          <Card.Actions>
             <CustomModal
               cancelButtonLabel="Entendi"
               onPress={() => console.log('Vinculado')}
@@ -180,7 +220,6 @@ const StepExerciseIA = ({
                   }}
                   textStyle={{
                     color: isLinked ? '#2E7D32' : theme.colors.card,
-                    fontWeight: 'bold',
                   }}
                 >
                   {isLinked ? 'Vinculado' : 'Não vinculado'}
@@ -213,12 +252,20 @@ const StepExerciseIA = ({
                   : 'Este exercício não está cadastrado na nossa base. Ao vinculá-lo, seu aluno poderá visualizar fotos, vídeos e grupos musculares para entender melhor a execução.'}
               </Text>
             </CustomModal>
+          </Card.Content>
+
+          <Card.Actions>
+            <CustomModal
+              onPress={() => removeExercise(item?.exerciseId.name || '')}
+              primaryButtonLabel="Deletar"
+              title="Tem certeza que deseja deletar o exercício?"
+            />
             <ExerciseModal exercise={item} onSave={updateExerciseList} />
           </Card.Actions>
         </Card>
       );
     },
-    [updateExerciseList]
+    [updateExerciseList, updateExerciseList, removeExercise, theme]
   );
 
   return (
