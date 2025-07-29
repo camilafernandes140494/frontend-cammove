@@ -1,6 +1,7 @@
 import { FormField } from '@/components/FormField';
+import { useTheme } from '@/context/ThemeContext';
 import { View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
+import { Card, Icon, Text } from 'react-native-paper';
 
 interface StepTrainingDataProps {
   control?: any;
@@ -9,6 +10,7 @@ interface StepTrainingDataProps {
 const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
   //   const { step, nextStep, prevStep, isGeneratedByIA, setIsGeneratedByIA } =
   //     useWorkoutForm();
+  const { theme } = useTheme();
 
   const muscleGroup = [
     'Peito',
@@ -41,7 +43,6 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
   return (
     <View style={{ marginVertical: 20 }}>
       <Card mode="outlined">
-        <Card.Title title="Informações" />
         <Card.Content>
           <FormField
             control={control}
@@ -49,13 +50,18 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
             name="nameWorkout"
             type="text"
           />
-          <FormField
-            control={control}
-            label="Quantidade de exercícios"
-            name="amountOfExercise"
-            type="text"
-          />
-          <Text>{'Intensidade do treino'}</Text>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Icon color={theme.colors.primary} size={24} source={'fire'} />
+            <Text>{'Intensidade do treino'}</Text>
+          </View>
+
           <FormField
             control={control}
             getLabel={(option) => option.label}
@@ -70,7 +76,21 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
           />
 
           {selectedType !== '' && selectedType !== 'Personalizado' && (
-            <Text style={{ marginBottom: 16 }}>Objetivo de treino</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                marginBottom: 16,
+              }}
+            >
+              <Icon
+                color={theme.colors.primary}
+                size={24}
+                source={'bullseye-arrow'}
+              />
+              <Text>{'Objetivo de treino'}</Text>
+            </View>
           )}
 
           <FormField
@@ -108,8 +128,20 @@ const StepTrainingData = ({ control, selectedType }: StepTrainingDataProps) => {
               type="text"
             />
           )}
-
-          <Text>{'Grupo muscular'}</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Icon
+              color={theme.colors.primary}
+              size={24}
+              source={'arm-flex-outline'}
+            />
+            <Text>{'Grupo muscular'}</Text>
+          </View>
           <FormField
             control={control}
             name="muscleGroup"

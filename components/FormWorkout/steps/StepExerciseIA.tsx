@@ -7,24 +7,19 @@ import type { ExerciseWorkout } from '@/api/workout/workout.types';
 import { calculateAge } from '@/common/common';
 import CustomModal from '@/components/CustomModal';
 import ExerciseModal from '@/components/ExerciseModal';
+import { FormField } from '@/components/FormField';
 import { useStudent } from '@/context/StudentContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useWorkoutForm } from '@/context/WorkoutFormContext';
 import Ionicons from '@expo/vector-icons/build/Ionicons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useWatch } from 'react-hook-form';
 import { FlatList, View } from 'react-native';
-import {
-  Button,
-  Card,
-  Chip,
-  Divider,
-  Icon,
-  IconButton,
-  Text,
-} from 'react-native-paper';
+import { Button, Card, Chip, Icon, IconButton, Text } from 'react-native-paper';
 
 interface StepExerciseIAProps {
+  control?: any;
   removeExercise: (exerciseId: string) => void;
   exercisesList: ExerciseWorkout[];
   setExercisesList: React.Dispatch<React.SetStateAction<ExerciseWorkout[]>>;
@@ -36,11 +31,14 @@ const StepExerciseIA = ({
   setExercisesList,
   exercisesList,
   updateExerciseList,
+  control,
 }: StepExerciseIAProps) => {
   const { student } = useStudent();
 
   const { setWorkoutSuggestion, workoutSuggestion } = useWorkoutForm();
+  const [match, setMatch] = useState<Exercise | null>(null);
   const { theme } = useTheme();
+  const allValues = useWatch({ control });
 
   const { data: exercises } = useQuery({
     queryKey: ['getExercises'],
@@ -50,21 +48,23 @@ const StepExerciseIA = ({
 
   function searchByName(name: string): Exercise[] | undefined {
     const termo = name.replace(/\s*\(.*?\)\s*/g, '').toLowerCase();
-    console.log(termo, 'termo');
-    console.log(
-      exercises?.filter((item) => item.name.toLowerCase().includes(termo))
-    );
     return exercises?.filter((item) => item.name.toLowerCase().includes(termo));
   }
+
+  useEffect(() => {
+    setWorkoutSuggestion(exercisesList);
+  }, [exercisesList, setWorkoutSuggestion]);
 
   const mutation = useMutation({
     mutationFn: async () => {
       return await postWorkoutSuggestion({
         age: String(calculateAge(student?.birthDate || '')),
         gender: student?.gender || 'unissex',
-        nameWorkout: 'treino de perna',
-        type: 'Hipertrofia',
-        level: 'iniciante',
+        nameWorkout: allValues.nameWorkou || '',
+        type: allValues.type.value || allValues.customType || '',
+        level: allValues.level,
+        muscleGroup: allValues.muscleGroup || [],
+        amountExercises: allValues.amountExercises || 4,
       });
     },
     onSuccess: (data) => {
@@ -86,6 +86,13 @@ const StepExerciseIA = ({
           exerciseId: {
             name: exercise.name,
             description: '',
+            id: '',
+            image: '',
+            category: '',
+            muscleGroup: [],
+            video: '',
+            createdAt: '',
+            updatedAt: '',
           },
         }));
       setExercisesList(exercisesTemp);
@@ -102,22 +109,130 @@ const StepExerciseIA = ({
         <Card style={{ marginVertical: 10 }}>
           <Card.Content style={{ gap: 8 }}>
             <View
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+                justifyContent: 'space-between',
+              }}
             >
-              <Text variant="titleMedium">{item.exerciseId.name}</Text>
-              <IconButton
-                icon="sync"
-                onPress={() => {
-                  const match = searchByName(item.exerciseId.name)[0];
-                  if (match) {
-                    updateExerciseList({
-                      ...item,
-                      exerciseId: match,
-                    });
+              <Text
+                style={{ flexShrink: 1, flexWrap: 'wrap' }}
+                variant="titleMedium"
+              >
+                {item.exerciseId.name}
+              </Text>
+              {!isLinked && (
+                <CustomModal
+                  onOpen={() => {
+                    const matchName = searchByName(item.exerciseId.name)?.[0];
+                    setMatch(matchName || null);
+                  }}
+                  onPress={() => {
+                    if (match) {
+                      removeExercise(item.exerciseId.name || '');
+                      updateExerciseList({
+                        ...item,
+                        exerciseId: match,
+                      });
+                    }
+                  }}
+                  primaryButtonLabel={
+                    match
+                      ? 'Substituir Exercício'
+                      : 'Nenhum Exercício Encontrado'
                   }
-                }}
-                size={20}
-              />
+                  showPrimaryButton={Boolean(match)}
+                  title="Alternar Exercício"
+                  trigger={<IconButton icon="sync" size={20} />}
+                >
+                  <Card mode="outlined">
+                    <Card.Content
+                      style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 16,
+                        paddingVertical: 20,
+                      }}
+                    >
+                      {/* Título Explicativo */}
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                        }}
+                      >
+                        Substituir Exercício Gerado pela IA
+                      </Text>
+
+                      {/* Exercício atual */}
+                      <View style={{ alignItems: 'center', marginTop: 10 }}>
+                        <Text style={{ fontSize: 14, color: '#666' }}>
+                          Exercício Atual:
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: theme.colors.primary,
+                          }}
+                        >
+                          {item.exerciseId.name}
+                        </Text>
+                      </View>
+
+                      {/* Ícone animado entre eles */}
+                      <Icon
+                        color={theme.colors.primary}
+                        size={48}
+                        source={'sync'}
+                      />
+
+                      {/* Match encontrado */}
+                      {match ? (
+                        <View style={{ alignItems: 'center' }}>
+                          <Text style={{ fontSize: 14, color: '#666' }}>
+                            Será substituído por:
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontWeight: '600',
+                              color: theme.colors.primary,
+                            }}
+                          >
+                            {match.name}
+                          </Text>
+                        </View>
+                      ) : (
+                        <Text
+                          style={{
+                            color: '#999',
+                            textAlign: 'center',
+                            marginTop: 8,
+                          }}
+                        >
+                          Nenhum exercício parecido foi encontrado na base.
+                        </Text>
+                      )}
+
+                      {/* Dica para o usuário */}
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: '#777',
+                          marginTop: 12,
+                          textAlign: 'center',
+                        }}
+                      >
+                        Essa ação irá substituir o exercício gerado
+                        automaticamente por um equivalente da base de dados.
+                      </Text>
+                    </Card.Content>
+                  </Card>
+                </CustomModal>
+              )}
             </View>
 
             <View
@@ -187,116 +302,128 @@ const StepExerciseIA = ({
                 </Chip>
               )}
             </View>
-            <CustomModal
-              cancelButtonLabel="Entendi"
-              onPress={() => console.log('Vinculado')}
-              showPrimaryButton={false}
-              title={'Exercício Vinculado'}
-              trigger={
-                <Chip
-                  icon={() => (
-                    <Ionicons
-                      color={
-                        isLinked
-                          ? ''
-                          : theme.colors.card.negativeFeedback.text.primary
-                      }
-                      name={
-                        isLinked
-                          ? 'checkmark-circle-outline'
-                          : 'alert-circle-outline'
-                      }
-                      size={18}
-                    />
-                  )}
+
+            <View
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexDirection: 'row',
+                marginTop: 24,
+              }}
+            >
+              <CustomModal
+                cancelButtonLabel="Entendi"
+                onPress={() => console.log('Vinculado')}
+                showPrimaryButton={false}
+                title={isLinked ? 'Vinculado' : 'Não vinculado'}
+                trigger={
+                  <Chip
+                    icon={() => (
+                      <Ionicons
+                        color={isLinked ? '#2E7D32' : '#D32F2F'}
+                        name={isLinked ? 'checkmark-circle' : 'alert-circle'}
+                        size={18}
+                      />
+                    )}
+                    style={{
+                      backgroundColor: isLinked ? '#E8F5E9' : '#FFEBEE',
+                    }}
+                    textStyle={{
+                      color: isLinked ? '#2E7D32' : '#D32F2F',
+                      fontWeight: '600',
+                    }}
+                  >
+                    {isLinked ? 'Vinculado' : 'Não vinculado'}
+                  </Chip>
+                }
+              >
+                <View
                   style={{
-                    // backgroundColor: isLinked
-                    //   ? theme.colors.card.positiveFeedback.chipBackground
-                    //   : theme.colors.card.negativeFeedback.background,
-                    borderColor: isLinked
-                      ? '#4CAF50'
-                      : theme.colors.card.negativeFeedback.background,
-                    borderWidth: 1,
-                  }}
-                  textStyle={{
-                    color: isLinked ? '#2E7D32' : theme.colors.card,
+                    borderRadius: 50,
+                    padding: 12,
+                    marginBottom: 12,
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
-                  {isLinked ? 'Vinculado' : 'Não vinculado'}
-                </Chip>
-              }
-            >
-              <View
-                style={{
-                  borderRadius: 50,
-                  padding: 12,
-                  marginBottom: 12,
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <Icon
-                  color={
-                    isLinked
-                      ? '#4CAF50'
-                      : theme.colors.card.negativeFeedback.text.primary
-                  }
-                  size={48}
-                  source={isLinked ? 'database-check' : 'database-alert'}
+                  <Icon
+                    color={
+                      isLinked
+                        ? '#4CAF50'
+                        : theme.colors.card.negativeFeedback.text.primary
+                    }
+                    size={48}
+                    source={isLinked ? 'database-check' : 'database-alert'}
+                  />
+                </View>
+
+                <Text style={{ textAlign: 'center' }} variant="bodySmall">
+                  {isLinked
+                    ? 'Este exercício já está cadastrado na nossa base. O seu aluno poderá visualizar fotos, vídeos e os grupos musculares relacionados para entender melhor a execução.'
+                    : 'Este exercício não está cadastrado na nossa base. Ao vinculá-lo, seu aluno poderá visualizar fotos, vídeos e grupos musculares para entender melhor a execução.'}
+                </Text>
+              </CustomModal>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <CustomModal
+                  onPress={() => removeExercise(item?.exerciseId.name || '')}
+                  primaryButtonLabel="Deletar"
+                  title="Tem certeza que deseja deletar o exercício?"
+                />
+                <ExerciseModal
+                  exercise={item}
+                  onSave={(exerciseData) => {
+                    removeExercise(item.exerciseId.name || '');
+                    updateExerciseList(exerciseData);
+                  }}
+                  triggerWithIcon={true}
                 />
               </View>
-
-              <Text style={{ textAlign: 'center' }} variant="bodySmall">
-                {isLinked
-                  ? 'Este exercício já está cadastrado na nossa base. O seu aluno poderá visualizar fotos, vídeos e os grupos musculares relacionados para entender melhor a execução.'
-                  : 'Este exercício não está cadastrado na nossa base. Ao vinculá-lo, seu aluno poderá visualizar fotos, vídeos e grupos musculares para entender melhor a execução.'}
-              </Text>
-            </CustomModal>
+            </View>
           </Card.Content>
-
-          <Card.Actions>
-            <CustomModal
-              onPress={() => removeExercise(item?.exerciseId.name || '')}
-              primaryButtonLabel="Deletar"
-              title="Tem certeza que deseja deletar o exercício?"
-            />
-            <ExerciseModal exercise={item} onSave={updateExerciseList} />
-          </Card.Actions>
         </Card>
       );
     },
-    [updateExerciseList, updateExerciseList, removeExercise, theme]
+    [updateExerciseList, updateExerciseList, removeExercise, theme, match]
   );
 
   return (
-    <View style={{ marginVertical: 20 }}>
+    <View style={{ marginVertical: 20, gap: 24 }}>
       <Card mode="outlined">
         <Card.Content>
+          <FormField
+            control={control}
+            keyboardType="numeric"
+            label="Quantidade de exercícios"
+            name="amountExercises"
+          />
           <Button
             disabled={mutation.isPending}
             icon={'creation'}
             loading={mutation.isPending}
             onPress={() => mutation.mutate()}
           >
-            Gerar sugestão
+            Gerar sugestão com IA
           </Button>
-          <Divider
-            style={{
-              width: '100%',
-              backgroundColor: theme.colors.outlineVariant,
-              height: 1,
-              marginVertical: 10,
-            }}
-          />
-
-          <FlatList
-            data={exercisesList}
-            initialNumToRender={10}
-            keyExtractor={(item) => item.exerciseId.name}
-            renderItem={renderExerciseItem}
-          />
         </Card.Content>
       </Card>
+      {exercisesList && exercisesList.length !== 0 && (
+        <Card mode="outlined">
+          <Card.Content>
+            <FlatList
+              data={exercisesList}
+              initialNumToRender={10}
+              keyExtractor={(item) => item.exerciseId.name}
+              renderItem={renderExerciseItem}
+            />
+            <ExerciseModal
+              onSave={(exercise) =>
+                setExercisesList((prev) => [...prev, exercise])
+              }
+            />
+          </Card.Content>
+        </Card>
+      )}
     </View>
   );
 };
