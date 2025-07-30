@@ -1,4 +1,3 @@
-import type { WorkoutSuggestionResponse } from '@/api/openai/gemini.type';
 import type React from 'react';
 import { createContext, type ReactNode, useContext, useState } from 'react';
 
@@ -7,10 +6,6 @@ type WorkoutFormontextType = {
   setStep: React.Dispatch<React.SetStateAction<number>>;
   isGeneratedByIA: boolean | undefined;
   setIsGeneratedByIA: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  workoutSuggestion: WorkoutSuggestionResponse | undefined;
-  setWorkoutSuggestion: React.Dispatch<
-    React.SetStateAction<WorkoutSuggestionResponse | undefined>
-  >;
   nextStep: VoidFunction;
   prevStep: VoidFunction;
   goToStep: (step: number) => void;
@@ -23,9 +18,6 @@ const WorkoutFormContext = createContext<WorkoutFormontextType | undefined>(
 export const WorkoutFormProvider = ({ children }: { children: ReactNode }) => {
   const [step, setStep] = useState(1);
   const [isGeneratedByIA, setIsGeneratedByIA] = useState<boolean>();
-
-  const [workoutSuggestion, setWorkoutSuggestion] =
-    useState<WorkoutSuggestionResponse>();
 
   function nextStep() {
     setStep((prev) => Math.min(prev + 1, 5));
@@ -51,8 +43,6 @@ export const WorkoutFormProvider = ({ children }: { children: ReactNode }) => {
         goToStep,
         isGeneratedByIA,
         setIsGeneratedByIA,
-        workoutSuggestion,
-        setWorkoutSuggestion,
       }}
     >
       {children}

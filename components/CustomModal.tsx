@@ -1,21 +1,43 @@
-import { useTheme } from "@/context/ThemeContext";
-import React, { useState } from "react";
-import { Button, IconButton, Modal, Portal, Text } from "react-native-paper";
-import { Switch } from 'react-native-paper';
+import { useTheme } from '@/context/ThemeContext';
+import React, { useEffect, useState } from 'react';
+import {
+  Button,
+  IconButton,
+  Modal,
+  Portal,
+  Switch,
+  Text,
+} from 'react-native-paper';
 
 interface CustomModalProps {
-  onPress: () => void
-  title: string
+  onPress: () => void;
+  onOpen?: () => void;
+  title: string;
   trigger?: React.ReactNode;
   primaryButtonLabel?: string;
   cancelButtonLabel?: string;
   children?: React.ReactNode;
-  showPrimaryButton?: boolean
+  showPrimaryButton?: boolean;
 }
 
-const CustomModal = ({ onPress, title, trigger, primaryButtonLabel = 'Salvar', showPrimaryButton = true, cancelButtonLabel = 'Cancelar', children }: CustomModalProps) => {
+const CustomModal = ({
+  onPress,
+  onOpen,
+  title,
+  trigger,
+  primaryButtonLabel = 'Salvar',
+  showPrimaryButton = true,
+  cancelButtonLabel = 'Cancelar',
+  children,
+}: CustomModalProps) => {
   const [visibleModal, setVisibleModal] = useState(false);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    if (visibleModal && onOpen) {
+      onOpen();
+    }
+  }, [visibleModal, onOpen]);
 
   const handleDelete = () => {
     onPress();
@@ -24,23 +46,31 @@ const CustomModal = ({ onPress, title, trigger, primaryButtonLabel = 'Salvar', s
 
   const openModal = () => setVisibleModal(true);
 
-
   return (
     <>
-      <Portal >
-        <Modal visible={visibleModal} onDismiss={() => setVisibleModal(false)} contentContainerStyle={{ backgroundColor: theme.colors.background, padding: 20, gap: 16, marginHorizontal: 16, borderRadius: 24 }}>
+      <Portal>
+        <Modal
+          contentContainerStyle={{
+            backgroundColor: theme.colors.surface,
+            padding: 20,
+            gap: 16,
+            marginHorizontal: 16,
+            borderRadius: 24,
+          }}
+          onDismiss={() => setVisibleModal(false)}
+          visible={visibleModal}
+        >
           <Text variant="titleMedium">{title}</Text>
           {children}
           <Button mode="contained-tonal" onPress={() => setVisibleModal(false)}>
             {cancelButtonLabel}
           </Button>
-          {showPrimaryButton &&
+          {showPrimaryButton && (
             <Button mode="contained" onPress={handleDelete}>
               {primaryButtonLabel}
             </Button>
-          }
+          )}
         </Modal>
-
       </Portal>
       {trigger ? (
         React.isValidElement(trigger) &&
@@ -52,9 +82,9 @@ const CustomModal = ({ onPress, title, trigger, primaryButtonLabel = 'Salvar', s
       ) : (
         <IconButton
           icon="delete"
-          size={20}
           mode="outlined"
           onPress={() => setVisibleModal(true)}
+          size={20}
         />
       )}
     </>

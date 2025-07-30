@@ -1,13 +1,13 @@
 import type { ExerciseWorkout } from '@/api/workout/workout.types';
+import { ExerciseCard } from '@/components/ExerciseCard';
 import InfoField from '@/components/InfoField';
+import { useTheme } from '@/context/ThemeContext';
+import { useCallback } from 'react';
 import { useWatch } from 'react-hook-form';
-import { View } from 'react-native';
-import { Button, Card } from 'react-native-paper';
+import { FlatList, View } from 'react-native';
+import { Card } from 'react-native-paper';
 
 interface StepReviewAndSubmitProps {
-  onSubmit?: () => void;
-  disabled: boolean;
-  loading: boolean;
   control?: any;
   removeExercise: (exerciseId: string) => void;
   exercisesList: ExerciseWorkout[];
@@ -16,16 +16,33 @@ interface StepReviewAndSubmitProps {
 }
 
 const StepReviewAndSubmit = ({
-  onSubmit,
-  disabled,
   control,
   removeExercise,
   exercisesList,
   updateExerciseList,
-  loading,
 }: StepReviewAndSubmitProps) => {
   const allValues = useWatch({ control });
+  const { theme } = useTheme();
 
+  const renderExerciseItem = useCallback(
+    ({ item }: { item: ExerciseWorkout }) => {
+      const isLinked = Boolean(
+        item.exerciseId?.id && item.exerciseId.id.trim() !== ''
+      );
+
+      return (
+        <ExerciseCard
+          isLinked={isLinked}
+          item={item}
+          removeExercise={removeExercise}
+          updateExerciseList={updateExerciseList}
+        />
+      );
+    },
+    [exercisesList, theme]
+  );
+
+  console.log(allValues, 'allValues');
   return (
     <View style={{ marginVertical: 20, gap: 24 }}>
       <Card mode="outlined">
@@ -60,7 +77,11 @@ const StepReviewAndSubmit = ({
             title="Objetivo"
           />
           <InfoField
-            description={allValues.muscleGroup.join(', ') || ''}
+            description={
+              Array.isArray(allValues.muscleGroup)
+                ? allValues.muscleGroup.join(', ')
+                : ''
+            }
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -72,14 +93,12 @@ const StepReviewAndSubmit = ({
       </Card>
       <Card mode="outlined">
         <Card.Content>
-          <Button
-            disabled={disabled}
-            loading={loading}
-            mode="contained"
-            onPress={onSubmit}
-          >
-            Enviar
-          </Button>
+          <FlatList
+            data={exercisesList}
+            initialNumToRender={10}
+            keyExtractor={(item) => item.exerciseId.name}
+            renderItem={renderExerciseItem}
+          />
         </Card.Content>
       </Card>
     </View>

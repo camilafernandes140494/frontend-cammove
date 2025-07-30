@@ -7,7 +7,6 @@ import {
 } from '@/api/workout/workout.api';
 import type { ExerciseWorkout } from '@/api/workout/workout.types';
 import { useStudent } from '@/context/StudentContext';
-import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
 import { useWorkoutForm } from '@/context/WorkoutFormContext';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,10 +32,13 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
   const { student } = useStudent();
   const { user } = useUser();
   const navigation = useNavigation();
-  const { theme } = useTheme();
 
   const { step, nextStep, prevStep, goToStep, isGeneratedByIA } =
     useWorkoutForm();
+
+  useEffect(() => {
+    !!workoutId && goToStep(5);
+  }, [workoutId]);
 
   const { data: workoutByStudent } = useQuery({
     queryKey: ['getWorkoutByStudentIdAndWorkoutId', workoutId, student?.id],
@@ -65,6 +67,9 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       }),
     customType: z.string(),
     nameWorkout: z.string(),
+    level: z.string().optional(),
+    muscleGroup: z.array(z.string()).optional(),
+    amountExercises: z.number().optional().default(4),
   });
 
   const { control, handleSubmit, watch, reset } = useForm<
@@ -80,6 +85,9 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
         : {},
       customType: workoutByStudent?.type || '',
       nameWorkout: workoutByStudent?.nameWorkout || '',
+      level: workoutByStudent?.level || 'iniciante',
+      muscleGroup: workoutByStudent?.muscleGroup || [],
+      amountExercises: 4,
     },
   });
 
@@ -91,6 +99,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
           : undefined,
         customType: workoutByStudent?.type || '',
         nameWorkout: workoutByStudent?.nameWorkout || '',
+        amountExercises: 4,
       });
     }
   }, [workoutByStudent, reset]);
@@ -138,16 +147,21 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     );
   };
 
-  const updateExerciseList = (exercise: ExerciseWorkout) => {
+  const updateExerciseList = (
+    exercise: ExerciseWorkout,
+    matchBy: 'id' | 'name' = 'id'
+  ) => {
     setExercisesList((prevList) => {
       const index = prevList.findIndex(
-        (ex) => ex.exerciseId.id === exercise.exerciseId.id
+        (ex) => ex.exerciseId[matchBy] === exercise.exerciseId[matchBy]
       );
+
       if (index !== -1) {
         const updatedList = [...prevList];
         updatedList[index] = exercise;
         return updatedList;
       }
+
       return [...prevList, exercise];
     });
   };
@@ -158,8 +172,6 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 
   const isStepValid = () => {
     if (step === 1) {
-      console.log(nameWorkout, type, customType);
-
       if (type?.value === 'Personalizado') {
         return nameWorkout?.trim() !== '' && customType?.trim() !== '';
       }
@@ -181,6 +193,36 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     { label: 'Validar exercícios', icon: 'dumbbell' },
     { label: 'Revisar e enviar', icon: 'check-circle-outline' },
   ];
+
+  const handleNext = () => {
+    if (isGeneratedByIA) {
+      // Fluxo IA
+      if (step === 2) return goToStep(4);
+    } else {
+      // Fluxo Manual
+      if (step === 3) return goToStep(5);
+    }
+
+    if (step === 5) {
+      return handleSubmit(onSubmit)();
+    }
+    nextStep();
+  };
+
+  const handlePrev = () => {
+    if (isGeneratedByIA) {
+      if (step === 4) {
+        setExercisesList([]);
+        return goToStep(2);
+      }
+    } else if (step === 5) {
+      return goToStep(3);
+    } else if (step === 3) {
+      setExercisesList([]);
+    }
+
+    prevStep();
+  };
 
   return (
     <>
@@ -228,46 +270,39 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
                 )}
                 {step === 4 && (
                   <StepExerciseIA
+                    control={control}
+                    exercisesList={exercisesList}
+                    removeExercise={removeExercise}
+                    setExercisesList={setExercisesList}
+                    updateExerciseList={(exerciseData) =>
+                      updateExerciseList(exerciseData, 'name')
+                    }
+                  />
+                )}
+                {step === 5 && (
+                  <StepReviewAndSubmit
+                    control={control}
                     exercisesList={exercisesList}
                     removeExercise={removeExercise}
                     setExercisesList={setExercisesList}
                     updateExerciseList={updateExerciseList}
                   />
                 )}
-                {step === 5 && (
-                  <StepReviewAndSubmit
-                    disabled={mutation.isPending}
-                    loading={mutation.isPending}
-                    onSubmit={handleSubmit(onSubmit)}
-                  />
-                )}
                 <Button
                   disabled={step === 1}
                   mode="outlined"
-                  onPress={() => {
-                    if (step === 4 && isGeneratedByIA) {
-                      goToStep(2);
-                    } else {
-                      prevStep();
-                    }
-                  }}
+                  onPress={handlePrev}
                   style={{ marginTop: 16 }}
                 >
                   Voltar
                 </Button>
                 <Button
-                  disabled={step === 5 || !isStepValid()}
+                  disabled={!isStepValid()}
                   mode="contained"
-                  onPress={() => {
-                    if (step === 2 && isGeneratedByIA) {
-                      goToStep(4);
-                    } else {
-                      nextStep();
-                    }
-                  }}
+                  onPress={handleNext}
                   style={{ marginTop: 16 }}
                 >
-                  Próximo
+                  {step === 5 ? 'Enviar' : 'Próximo'}
                 </Button>
               </View>
             </View>
