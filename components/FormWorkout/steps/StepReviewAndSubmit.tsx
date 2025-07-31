@@ -2,10 +2,11 @@ import type { ExerciseWorkout } from '@/api/workout/workout.types';
 import { ExerciseCard } from '@/components/ExerciseCard';
 import InfoField from '@/components/InfoField';
 import { useTheme } from '@/context/ThemeContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useCallback } from 'react';
 import { useWatch } from 'react-hook-form';
 import { FlatList, View } from 'react-native';
-import { Card } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
 
 interface StepReviewAndSubmitProps {
   control?: any;
@@ -97,6 +98,20 @@ const StepReviewAndSubmit = ({
             data={exercisesList}
             initialNumToRender={10}
             keyExtractor={(item) => item.exerciseId.name}
+            ListEmptyComponent={
+              <View style={{ alignItems: 'center', padding: 40 }}>
+                <MaterialCommunityIcons
+                  color="#999"
+                  name="playlist-remove"
+                  size={48}
+                />
+                <Text
+                  style={{ fontSize: 16, marginVertical: 12, color: '#555' }}
+                >
+                  Nenhuma exercício encontrado.
+                </Text>
+              </View>
+            }
             renderItem={renderExerciseItem}
           />
         </Card.Content>
