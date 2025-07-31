@@ -43,7 +43,6 @@ const StepReviewAndSubmit = ({
     [exercisesList, theme]
   );
 
-  console.log(allValues, 'allValues');
   return (
     <View style={{ marginVertical: 20, gap: 24 }}>
       <Card mode="outlined">
