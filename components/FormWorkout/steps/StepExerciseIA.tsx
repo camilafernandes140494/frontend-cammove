@@ -136,7 +136,9 @@ const StepExerciseIA = ({
             <FlatList
               data={exercisesList}
               initialNumToRender={10}
-              keyExtractor={(item) => item.exerciseId.name}
+              keyExtractor={(item) =>
+                `temp-${item.exerciseId.id}-${item.exerciseId.name}-${item.exerciseId.createdAt}-`
+              }
               renderItem={renderExerciseItem}
             />
             <ExerciseModal

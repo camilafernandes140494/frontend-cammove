@@ -228,15 +228,13 @@ export const ExerciseCard = ({
           style={{
             display: 'flex',
             justifyContent:
-              !isLinked && !!searchByName && !!setMatch
-                ? 'space-between'
-                : 'flex-end',
+              !!searchByName && !!setMatch ? 'space-between' : 'flex-end',
             alignItems: 'center',
             flexDirection: 'row',
             marginTop: 24,
           }}
         >
-          {!isLinked && !!searchByName && !!setMatch && (
+          {setMatch && searchByName && (
             <CustomModal
               cancelButtonLabel="Entendi"
               onPress={() => console.log('Vinculado')}
