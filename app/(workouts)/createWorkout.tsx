@@ -8,9 +8,9 @@ import Skeleton from '@/components/Skeleton';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
 import { WorkoutFormProvider } from '@/context/WorkoutFormContext';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Appbar, Button, Text } from 'react-native-paper';
 import { useStudent } from '../../context/StudentContext';
@@ -27,21 +27,23 @@ type CreateWorkoutProps = {
 const CreateWorkout = ({ route }: CreateWorkoutProps) => {
   const navigation = useNavigation();
   const { user } = useUser();
-  const { refetchStudent, isLoading } = useStudent();
+  const { refetchStudent, isLoading, student } = useStudent();
   const [params, setParams] = useState('');
   const { workoutId, studentId } = route.params || {};
   const [newStudent, setNewStudent] = useState(!studentId);
   const { theme } = useTheme();
 
-  useEffect(() => {
-    studentId && refetchStudent(studentId);
-  }, [studentId]);
+  useFocusEffect(
+    useCallback(() => {
+      studentId ? refetchStudent(studentId) : refetchStudent('');
+    }, [studentId])
+  );
 
   const { data: review } = useQuery({
     queryKey: ['getReviewById', user?.id, workoutId],
     queryFn: () =>
       getReviewById(user?.id || '', workoutId || '', studentId || ''),
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!workoutId && !!studentId,
   });
 
   return (
@@ -90,7 +92,11 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
                   onSelect={(student) => refetchStudent(student.studentId)}
                   teacherId={user?.id || ''}
                 />
-                <Button mode="contained" onPress={() => setNewStudent(false)}>
+                <Button
+                  disabled={student?.permission !== 'STUDENT'}
+                  mode="contained"
+                  onPress={() => setNewStudent(false)}
+                >
                   Continuar
                 </Button>
               </View>

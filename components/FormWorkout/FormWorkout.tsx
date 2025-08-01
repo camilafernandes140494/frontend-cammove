@@ -12,7 +12,7 @@ import { useWorkoutForm } from '@/context/WorkoutFormContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FlatList, View } from 'react-native';
 import { Button, Icon, ProgressBar, Text } from 'react-native-paper';
@@ -108,6 +108,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: { workoutId?: string; workoutData: any }) => {
+      console.log('mutation data', data);
       const { workoutId, workoutData } = data;
       if (workoutId) {
         return await patchWorkout(
@@ -136,6 +137,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       studentId: student?.id || '',
       studentName: student?.name || '',
       nameWorkout: data.nameWorkout || 'Treino ',
+      level: data.level || 'iniciante',
+      muscleGroup: data.muscleGroup || [],
     };
 
     mutation.mutate({ workoutId, workoutData });
@@ -285,7 +288,12 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
                     exercisesList={exercisesList}
                     removeExercise={removeExercise}
                     setExercisesList={setExercisesList}
-                    updateExerciseList={updateExerciseList}
+                    updateExerciseList={(exerciseData) =>
+                      updateExerciseList(
+                        exerciseData,
+                        isGeneratedByIA ? 'name' : 'id'
+                      )
+                    }
                   />
                 )}
                 <Button
