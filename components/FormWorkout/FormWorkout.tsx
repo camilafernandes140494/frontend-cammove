@@ -108,7 +108,6 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: { workoutId?: string; workoutData: any }) => {
-      console.log('mutation data', data);
       const { workoutId, workoutData } = data;
       if (workoutId) {
         return await patchWorkout(
@@ -197,7 +196,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     { label: 'Revisar e enviar', icon: 'check-circle-outline' },
   ];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isGeneratedByIA) {
       // Fluxo IA
       if (step === 2) return goToStep(4);
@@ -205,9 +204,9 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       // Fluxo Manual
       if (step === 3) return goToStep(5);
     }
-
     if (step === 5) {
-      return handleSubmit(onSubmit)();
+      await handleSubmit(onSubmit)();
+      return;
     }
     nextStep();
   };

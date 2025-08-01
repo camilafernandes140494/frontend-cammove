@@ -1,5 +1,6 @@
 import { getExercises } from '@/api/exercise/exercise.api';
 import type { ExerciseWorkout } from '@/api/workout/workout.types';
+import { convertTimestampsToString } from '@/common/common';
 import { useTheme } from '@/context/ThemeContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
@@ -44,7 +45,16 @@ const ExerciseModal = ({
         category: z.string(),
         muscleGroup: z.array(z.string()).optional(),
         images: z.array(z.string()).optional(),
-        createdAt: z.string().optional(),
+        createdAt: z
+          .union([
+            z.string(),
+            z.array(z.string()),
+            z.object({
+              _seconds: z.number(),
+              _nanoseconds: z.number(),
+            }),
+          ])
+          .optional(),
         updatedAt: z.string().optional(),
         deletedAt: z.string().optional(),
         id: z.string().optional(),
@@ -73,8 +83,13 @@ const ExerciseModal = ({
   const selectedExerciseId = watch('exerciseId');
 
   const addExercise = (exercise: any) => {
+    const exerciseConverted = {
+      ...exercise,
+      createdAt: convertTimestampsToString(exercise.createdAt),
+    };
+
     reset();
-    onSave(exercise);
+    onSave(exerciseConverted);
     hideModal();
   };
 

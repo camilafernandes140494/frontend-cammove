@@ -78,6 +78,7 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
       <FlatList
         data={[{}]}
         keyExtractor={() => 'header'}
+        nestedScrollEnabled
         renderItem={() => (
           <>
             {newStudent ? (

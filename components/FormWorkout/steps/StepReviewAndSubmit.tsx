@@ -94,6 +94,7 @@ const StepReviewAndSubmit = ({
       <Card mode="outlined">
         <Card.Content>
           <FlatList
+            contentOffset={{ x: 0, y: 0 }}
             data={exercisesList}
             initialNumToRender={10}
             keyExtractor={(item) => item.exerciseId.name}
@@ -111,6 +112,7 @@ const StepReviewAndSubmit = ({
                 </Text>
               </View>
             }
+            nestedScrollEnabled
             renderItem={renderExerciseItem}
           />
         </Card.Content>
