@@ -16,6 +16,7 @@ export type ExerciseWorkout = {
   sets: string;
   restTime: string;
   observations: string;
+  category?: string;
 };
 export type WorkoutData = {
   createdAt?: string;
