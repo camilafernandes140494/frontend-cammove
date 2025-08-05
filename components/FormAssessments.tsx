@@ -1,27 +1,37 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, View } from 'react-native';
-import * as z from "zod";
-import { useForm } from 'react-hook-form';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useStudent } from '@/context/StudentContext';
-import { FormField } from './FormField';
-import { Button, Card, Chip, TextInput, Text, Snackbar } from 'react-native-paper';
-import { useUser } from '@/context/UserContext';
-import { useNavigation } from '@react-navigation/native';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  getAssessmentsByStudentIdAndAssessmentsId,
+  patchAssessments,
+  postAssessments,
+} from '@/api/assessments/assessments.api';
+import type { AssessmentData } from '@/api/assessments/assessments.types';
+import { postEmail } from '@/api/email/email.api';
+import type { PostEmail } from '@/api/email/email.types';
 import { calculateIMC } from '@/common/common';
 import GeneratePDFBase64 from '@/common/GeneratePDFBase64';
-import { postEmail } from '@/api/email/email.api';
-import { PostEmail } from '@/api/email/email.types';
-import { getAssessmentsByStudentIdAndAssessmentsId, patchAssessments, postAssessments } from '@/api/assessments/assessments.api';
-import { AssessmentData } from '@/api/assessments/assessments.types';
+import { useStudent } from '@/context/StudentContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigation } from '@react-navigation/native';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { FlatList, View } from 'react-native';
+import {
+  Button,
+  Card,
+  Chip,
+  Snackbar,
+  Text,
+  TextInput,
+} from 'react-native-paper';
+import * as z from 'zod';
+import { FormField } from './FormField';
 import Skeleton from './Skeleton';
-
 
 interface FormAssessmentsProps {
   assessmentsId?: string;
-};
+}
 
 const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const [visible, setVisible] = useState(false);
@@ -31,23 +41,33 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const today = new Date();
   const navigation = useNavigation();
 
-  const { data: assessmentsByStudent, refetch, isLoading } = useQuery({
-    queryKey: ['getAssessmentsByStudentIdAndAssessmentsId', assessmentsId, student?.id],
+  const {
+    data: assessmentsByStudent,
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: [
+      'getAssessmentsByStudentIdAndAssessmentsId',
+      assessmentsId,
+      student?.id,
+    ],
     queryFn: () =>
-      getAssessmentsByStudentIdAndAssessmentsId(assessmentsId || '', student?.id || ''),
+      getAssessmentsByStudentIdAndAssessmentsId(
+        assessmentsId || '',
+        student?.id || ''
+      ),
     enabled: Boolean(assessmentsId && student?.id), // ✅ só ativa quando os dois existem
   });
 
-
-
-  const [sendEmail, setSendEmail] = useState(false)
+  const [sendEmail, setSendEmail] = useState(false);
 
   const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   const handleSendPDFEmail = async () => {
     try {
-      setSendEmail(true)
-      const pdfBase64 = await GeneratePDFBase64(`
+      setSendEmail(true);
+      const pdfBase64 = await GeneratePDFBase64(
+        `
         Medições Corporais
     
         Peso: ${assessmentsByStudent?.bodyMeasurements?.weight || ''} kg
@@ -95,7 +115,9 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
         Atenciosamente,
         ${user?.name}
         Equipe CamMove 
-    `, student);
+    `,
+        student
+      );
 
       const emailData: PostEmail = {
         to: [student?.email || ''],
@@ -126,9 +148,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       await postEmail(emailData);
     } catch (error) {
       console.error('Erro ao gerar/enviar PDF:', error);
-    }
-    finally {
-      setSendEmail(false)
+    } finally {
+      setSendEmail(false);
     }
   };
 
@@ -167,13 +188,13 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
       mobilityTest: z.object({
         value: z.string().optional(),
         label: z.string().optional(),
-      })
+      }),
     }),
     posture: z.object({
       postureAssessment: z.object({
         value: z.string().optional(),
         label: z.string().optional(),
-      })
+      }),
     }),
     medicalHistory: z.object({
       injuryHistory: z.string().optional(),
@@ -191,75 +212,106 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     bodyMeasurements: {
       weight: Number(assessmentsByStudent?.bodyMeasurements?.weight) || 0,
       height: Number(assessmentsByStudent?.bodyMeasurements?.height) || 0,
-      bodyFatPercentage: assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || 0,
+      bodyFatPercentage:
+        assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || 0,
       imc: String(assessmentsByStudent?.bodyMeasurements?.imc) || '',
-      waistCircumference: Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
-      hipCircumference: Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
-      chestCircumference: Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
-      rightArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) || 0,
-      leftArmCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) || 0,
-      rightThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightThighCircumference) || 0,
-      leftThighCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftThighCircumference) || 0,
-      rightCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference) || 0,
-      leftCalfCircumference: Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) || 0,
-      neckCircumference: Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
+      waistCircumference:
+        Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
+      hipCircumference:
+        Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
+      chestCircumference:
+        Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
+      rightArmCircumference:
+        Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) ||
+        0,
+      leftArmCircumference:
+        Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) ||
+        0,
+      rightThighCircumference:
+        Number(
+          assessmentsByStudent?.bodyMeasurements?.rightThighCircumference
+        ) || 0,
+      leftThighCircumference:
+        Number(
+          assessmentsByStudent?.bodyMeasurements?.leftThighCircumference
+        ) || 0,
+      rightCalfCircumference:
+        Number(
+          assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference
+        ) || 0,
+      leftCalfCircumference:
+        Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) ||
+        0,
+      neckCircumference:
+        Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
     },
     bodyMass: {
       muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
       boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
     },
     heartRate: {
-      restingHeartRate: Number(assessmentsByStudent?.heartRate?.restingHeartRate) || 0,
+      restingHeartRate:
+        Number(assessmentsByStudent?.heartRate?.restingHeartRate) || 0,
       maxHeartRate: Number(assessmentsByStudent?.heartRate?.maxHeartRate) || 0,
     },
     balanceAndMobility: {
       balanceTest: {
-        value: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
-        label: String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
+        value:
+          String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
+        label:
+          String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
       },
       mobilityTest: {
-        value: String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
-        label: String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
-      }
+        value:
+          String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
+        label:
+          String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
+      },
     },
     posture: {
       postureAssessment: {
         value: String(assessmentsByStudent?.posture?.postureAssessment) || '',
         label: String(assessmentsByStudent?.posture?.postureAssessment) || '',
-      }
+      },
     },
     medicalHistory: {
-      injuryHistory: assessmentsByStudent?.medicalHistory?.injuryHistory as string || '',
-      medicalConditions: assessmentsByStudent?.medicalHistory?.medicalConditions as string || '',
-      chronicPain: assessmentsByStudent?.medicalHistory?.chronicPain as string || '',
+      injuryHistory:
+        (assessmentsByStudent?.medicalHistory?.injuryHistory as string) || '',
+      medicalConditions:
+        (assessmentsByStudent?.medicalHistory?.medicalConditions as string) ||
+        '',
+      chronicPain:
+        (assessmentsByStudent?.medicalHistory?.chronicPain as string) || '',
     },
     fitnessGoals: assessmentsByStudent?.fitnessGoals || '',
     observations: assessmentsByStudent?.observations || '',
     assessmentDate: assessmentsByStudent?.assessmentDate || '',
   };
 
-
-  const { control, handleSubmit, watch, setValue, getValues, reset } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, watch, setValue, getValues, reset } = useForm<
+    z.infer<typeof schema>
+  >({
     resolver: zodResolver(schema),
     defaultValues: mapAssessmentToForm,
   });
 
-
+  console.log('getValues', getValues('assessmentDate'));
   useEffect(() => {
     if (assessmentsByStudent) {
       reset(mapAssessmentToForm);
     }
   }, [assessmentsByStudent]);
 
-  const selectedWeight = watch("bodyMeasurements.weight");
-  const selectedHeight = watch("bodyMeasurements.height");
+  const selectedWeight = watch('bodyMeasurements.weight');
+  const selectedHeight = watch('bodyMeasurements.height');
 
-  const selectedBalanceTest = watch("balanceAndMobility.balanceTest");
-  const selectedMobilityTest = watch("balanceAndMobility.mobilityTest");
-  const selectedPostureTest = watch("posture.postureAssessment");
+  const selectedBalanceTest = watch('balanceAndMobility.balanceTest');
+  const selectedMobilityTest = watch('balanceAndMobility.mobilityTest');
+  const selectedPostureTest = watch('posture.postureAssessment');
 
   const imcDescription = useMemo(() => {
-    const alturaEmMetros = Number(String(selectedHeight).replace(",", ".")) / 100;
+    const alturaEmMetros =
+      Number(String(selectedHeight).replace(',', '.')) / 100;
     const peso = Number(selectedWeight);
 
     const resultadoIMC = calculateIMC(peso, alturaEmMetros || 0);
@@ -267,14 +319,18 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     return `${resultadoIMC.categoria} - ${resultadoIMC.imc}`;
   }, [selectedWeight, selectedHeight]);
 
-
   useEffect(() => {
-    setValue('bodyMeasurements.imc', imcDescription)
-  }, [imcDescription])
+    setValue('bodyMeasurements.imc', imcDescription);
+  }, [imcDescription]);
   const assessmentMutation = useMutation({
     mutationFn: async (data: Partial<AssessmentData>) => {
       if (assessmentsId) {
-        await patchAssessments(assessmentsId, user?.id || '', student?.id || '', data);
+        await patchAssessments(
+          assessmentsId,
+          user?.id || '',
+          student?.id || '',
+          data
+        );
       } else {
         await postAssessments(user?.id || '', student?.id || '', data);
       }
@@ -289,24 +345,22 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     },
     onError: () => {
       setVisible(true);
-    }
+    },
   });
 
   const onSubmit = (data: Partial<AssessmentData>) => {
     const dataToSend = {
       ...data,
       posture: {
-        postureAssessment: getValues().posture.postureAssessment.value
+        postureAssessment: getValues().posture.postureAssessment.value,
       },
       balanceAndMobility: {
         balanceTest: getValues().balanceAndMobility.balanceTest.value,
-        mobilityTest: getValues().balanceAndMobility.mobilityTest.value
+        mobilityTest: getValues().balanceAndMobility.mobilityTest.value,
       },
     };
     assessmentMutation.mutate(dataToSend);
   };
-
-
 
   // const removeAssessments = (exerciseId: string) => {
   //   setAssessmentsList((prevList) =>
@@ -326,62 +380,70 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   //   });
   // };
 
-
-
   return (
     <FlatList
-      style={{ flex: 1 }}
-      keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       data={[{}]}
+      keyboardShouldPersistTaps="handled"
       keyExtractor={() => 'FormWorkout'}
-      ListHeaderComponent={<View
-        style={{ backgroundColor: theme.colors.secondaryContainer, padding: 12, }}>
-        <Button disabled={sendEmail} icon="email-fast-outline" mode='contained' onPress={handleSendPDFEmail}
-        >Enviar por e-mail</Button>
-      </View>}
+      ListHeaderComponent={
+        <View
+          style={{
+            backgroundColor: theme.colors.secondaryContainer,
+            padding: 12,
+          }}
+        >
+          <Button
+            disabled={sendEmail}
+            icon="email-fast-outline"
+            mode="contained"
+            onPress={handleSendPDFEmail}
+          >
+            Enviar por e-mail
+          </Button>
+        </View>
+      }
       renderItem={() => (
         <>
-          {assessmentsId && isLoading ? <FormAssessmentsSkeleton /> :
+          {assessmentsId && isLoading ? (
+            <FormAssessmentsSkeleton />
+          ) : (
             <View style={{ padding: 20, gap: 16 }}>
               <Card>
                 <Card.Title title="Medidas Corporais" />
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="scale-balance" />}
-                    name="bodyMeasurements.weight"
                     label="Peso"
-                    type="number"
+                    left={<TextInput.Icon icon="scale-balance" />}
+                    mode="flat"
+                    name="bodyMeasurements.weight"
                     right={<TextInput.Affix text=" kg" />}
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="human-male-height-variant" />}
-                    name="bodyMeasurements.height"
                     label="Altura"
-                    type="number"
+                    left={<TextInput.Icon icon="human-male-height-variant" />}
+                    mode="flat"
+                    name="bodyMeasurements.height"
                     right={<TextInput.Affix text=" cm" />}
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="percent" />}
-                    name="bodyMeasurements.bodyFatPercentage"
                     label="Porcentagem de Gordura Corporal"
-                    type="number"
+                    left={<TextInput.Icon icon="percent" />}
+                    mode="flat"
+                    name="bodyMeasurements.bodyFatPercentage"
                     right={<TextInput.Affix text=" %" />}
-
+                    type="number"
                   />
 
-                  <Chip icon="information">
-                    {`${imcDescription} (IMC)`}
-                  </Chip>
+                  <Chip icon="information">{`${imcDescription} (IMC)`}</Chip>
                 </Card.Content>
               </Card>
 
@@ -390,48 +452,45 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.waistCircumference"
                     label="Cintura"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.waistCircumference"
                     right={<TextInput.Affix text=" cm" />}
+                    type="number"
                   />
 
                   <FormField
                     control={control}
-                    mode="flat"
-                    keyboardType="decimal-pad" // permite ponto nos iPhones
+                    keyboardType="decimal-pad"
+                    label="Quadril" // permite ponto nos iPhones
                     left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
                     name="bodyMeasurements.hipCircumference"
-                    label="Quadril"
-                    type="number"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.chestCircumference"
                     label="Peito"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.chestCircumference"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.neckCircumference"
                     label="Pescoço"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.neckCircumference"
                     right={<TextInput.Affix text=" cm" />}
+                    type="number"
                   />
-
                 </Card.Content>
               </Card>
 
@@ -440,24 +499,23 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
+                    label="Braço Direito"
                     left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.rightArmCircumference" label="Braço Direito"
-                    type="number"
+                    mode="flat"
+                    name="bodyMeasurements.rightArmCircumference"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.leftArmCircumference"
                     label="Braço Esquerdo"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.leftArmCircumference"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                 </Card.Content>
               </Card>
@@ -467,47 +525,43 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.rightThighCircumference"
                     label="Coxa Direita"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.rightThighCircumference"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.leftThighCircumference"
                     label="Coxa Esquerda"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.leftThighCircumference"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.rightCalfCircumference"
                     label="Panturrilha Direita"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.rightCalfCircumference"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="ruler" />}
-                    name="bodyMeasurements.leftCalfCircumference"
                     label="Panturrilha Esquerda"
-                    type="number"
+                    left={<TextInput.Icon icon="ruler" />}
+                    mode="flat"
+                    name="bodyMeasurements.leftCalfCircumference"
                     right={<TextInput.Affix text=" cm" />}
-
+                    type="number"
                   />
                 </Card.Content>
               </Card>
@@ -517,25 +571,23 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="scale-balance" />}
-                    name="bodyMass.muscleMass"
                     label="Massa Muscular"
-                    type="number"
+                    left={<TextInput.Icon icon="scale-balance" />}
+                    mode="flat"
+                    name="bodyMass.muscleMass"
                     right={<TextInput.Affix text=" kg" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="bone" />}
-                    name="bodyMass.boneMass"
                     label="Massa Óssea"
-                    type="number"
+                    left={<TextInput.Icon icon="bone" />}
+                    mode="flat"
+                    name="bodyMass.boneMass"
                     right={<TextInput.Affix text=" kg" />}
-
+                    type="number"
                   />
                 </Card.Content>
               </Card>
@@ -545,55 +597,52 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="sleep" />}
-                    name="heartRate.restingHeartRate"
                     label="Em repouso"
-                    type="number"
+                    left={<TextInput.Icon icon="sleep" />}
+                    mode="flat"
+                    name="heartRate.restingHeartRate"
                     right={<TextInput.Affix text=" bpm" />}
-
+                    type="number"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
                     keyboardType="numeric"
-                    left={<TextInput.Icon icon="heart-pulse" />}
-                    name="heartRate.maxHeartRate"
                     label="Máxima"
-                    type="number"
+                    left={<TextInput.Icon icon="heart-pulse" />}
+                    mode="flat"
+                    name="heartRate.maxHeartRate"
                     right={<TextInput.Affix text=" bpm" />}
-
+                    type="number"
                   />
                 </Card.Content>
               </Card>
-
 
               <Card>
                 <Card.Title title="Histórico Médico" />
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
-                    left={<TextInput.Icon icon="bandage" />}
-                    name="medicalHistory.injuryHistory"
                     label="Lesões Anteriores"
+                    left={<TextInput.Icon icon="bandage" />}
+                    mode="flat"
+                    name="medicalHistory.injuryHistory"
                     type="text"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
-                    left={<TextInput.Icon icon="stethoscope" />}
-                    name="medicalHistory.medicalConditions"
                     label="Condições Médicas"
+                    left={<TextInput.Icon icon="stethoscope" />}
+                    mode="flat"
+                    name="medicalHistory.medicalConditions"
                     type="text"
                   />
                   <FormField
                     control={control}
-                    mode="flat"
-                    left={<TextInput.Icon icon="pill" />}
-                    name="medicalHistory.chronicPain"
                     label="Dores Crônicas"
+                    left={<TextInput.Icon icon="pill" />}
+                    mode="flat"
+                    name="medicalHistory.chronicPain"
                     type="text"
                   />
                 </Card.Content>
@@ -601,62 +650,64 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
               <Card>
                 <Card.Title title="Equilíbrio, Mobilidade e Postura" />
                 <Card.Content style={{ gap: 10 }}>
-                  {selectedBalanceTest.value && <Text>Teste de Equilíbrio</Text>}
+                  {selectedBalanceTest.value && (
+                    <Text>Teste de Equilíbrio</Text>
+                  )}
                   <FormField
                     control={control}
-                    name="balanceAndMobility.balanceTest.value"
-                    label="Teste de Equilíbrio"
-                    type="select"
                     getLabel={(option) => option.label}
+                    label="Teste de Equilíbrio"
+                    name="balanceAndMobility.balanceTest.value"
                     options={[
-                      { label: "Boa", value: "Boa" },
-                      { label: "Regular", value: "Regular" },
-                      { label: "Ruim", value: "Ruim" },
+                      { label: 'Boa', value: 'Boa' },
+                      { label: 'Regular', value: 'Regular' },
+                      { label: 'Ruim', value: 'Ruim' },
                     ]}
+                    type="select"
                   />
-                  {selectedMobilityTest.value && <Text>Teste de Mobilidade</Text>}
+                  {selectedMobilityTest.value && (
+                    <Text>Teste de Mobilidade</Text>
+                  )}
 
                   <FormField
                     control={control}
-                    name="balanceAndMobility.mobilityTest.value"
-                    label="Teste de Mobilidade"
-                    type="select"
                     getLabel={(option) => option.label}
+                    label="Teste de Mobilidade"
+                    name="balanceAndMobility.mobilityTest.value"
                     options={[
-                      { label: "Boa", value: "Boa" },
-                      { label: "Regular", value: "Regular" },
-                      { label: "Ruim", value: "Ruim" },
+                      { label: 'Boa', value: 'Boa' },
+                      { label: 'Regular', value: 'Regular' },
+                      { label: 'Ruim', value: 'Ruim' },
                     ]}
+                    type="select"
                   />
 
                   {selectedPostureTest.value && <Text>Teste de Postura</Text>}
                   <FormField
                     control={control}
-                    name="posture.postureAssessment.value"
-                    label="Teste de Postura"
-                    type="select"
                     getLabel={(option) => option.label}
+                    label="Teste de Postura"
+                    name="posture.postureAssessment.value"
                     options={[
-                      { label: "Boa", value: "Boa" },
-                      { label: "Regular", value: "Regular" },
-                      { label: "Ruim", value: "Ruim" },
+                      { label: 'Boa', value: 'Boa' },
+                      { label: 'Regular', value: 'Regular' },
+                      { label: 'Ruim', value: 'Ruim' },
                     ]}
+                    type="select"
                   />
                 </Card.Content>
               </Card>
-
 
               <Card>
                 <Card.Title title="Objetivo" />
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
-                    left={<TextInput.Icon icon="bullseye-arrow" />}
-                    name="fitnessGoals"
                     label="Objetivo"
+                    left={<TextInput.Icon icon="bullseye-arrow" />}
+                    mode="flat"
+                    name="fitnessGoals"
                     type="text"
-
                   />
                 </Card.Content>
               </Card>
@@ -666,35 +717,39 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                 <Card.Content style={{ gap: 10 }}>
                   <FormField
                     control={control}
-                    mode="flat"
-                    left={<TextInput.Icon icon="comment" />}
-                    name="observations"
                     label="Observação"
+                    left={<TextInput.Icon icon="comment" />}
+                    mode="flat"
+                    name="observations"
                     type="text"
                   />
                 </Card.Content>
               </Card>
 
               <Snackbar
-                visible={visible}
-                onDismiss={() => setVisible(false)}
                 action={{
                   label: 'Close',
                   icon: 'close',
                   onPress: () => setVisible(false),
                 }}
+                onDismiss={() => setVisible(false)}
+                visible={visible}
               >
                 <Text>Erro ao cadastrar treino</Text>
               </Snackbar>
-              <Button mode="contained" onPress={handleSubmit(onSubmit)} disabled={assessmentMutation.isPending} loading={assessmentMutation.isPending}>
+              <Button
+                disabled={assessmentMutation.isPending}
+                loading={assessmentMutation.isPending}
+                mode="contained"
+                onPress={handleSubmit(onSubmit)}
+              >
                 Enviar
               </Button>
-
             </View>
-          }
+          )}
         </>
-
       )}
+      style={{ flex: 1 }}
     />
   );
 };
@@ -721,16 +776,16 @@ const FormAssessmentsSkeleton = () => {
 
   return (
     <View style={{ padding: 20 }}>
-      {renderCardSkeleton("Medidas Corporais", 3)}
-      {renderCardSkeleton("Medidas de Circunferência", 4)}
-      {renderCardSkeleton("Medidas de Braços", 2)}
-      {renderCardSkeleton("Medidas das Pernas", 4)}
-      {renderCardSkeleton("Massa Corporal", 2)}
-      {renderCardSkeleton("Frequência Cardíaca", 2)}
-      {renderCardSkeleton("Histórico Médico", 3)}
-      {renderCardSkeleton("Equilíbrio, Mobilidade e Postura", 3)}
-      {renderCardSkeleton("Objetivo", 1)}
-      {renderCardSkeleton("Observação", 1)}
+      {renderCardSkeleton('Medidas Corporais', 3)}
+      {renderCardSkeleton('Medidas de Circunferência', 4)}
+      {renderCardSkeleton('Medidas de Braços', 2)}
+      {renderCardSkeleton('Medidas das Pernas', 4)}
+      {renderCardSkeleton('Massa Corporal', 2)}
+      {renderCardSkeleton('Frequência Cardíaca', 2)}
+      {renderCardSkeleton('Histórico Médico', 3)}
+      {renderCardSkeleton('Equilíbrio, Mobilidade e Postura', 3)}
+      {renderCardSkeleton('Objetivo', 1)}
+      {renderCardSkeleton('Observação', 1)}
 
       <Skeleton style={{ marginTop: 24, height: 48, borderRadius: 26 }} />
     </View>

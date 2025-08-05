@@ -177,6 +177,21 @@ export const ExerciseCard = ({
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
+          }}
+        >
+          <Ionicons
+            color={theme.colors.primary}
+            name={'grid-outline'}
+            size={18}
+            style={{ marginRight: 4 }}
+          />
+          <Text variant="bodySmall">{item?.category || ''}</Text>
+        </View>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
             gap: 16,
           }}
         >

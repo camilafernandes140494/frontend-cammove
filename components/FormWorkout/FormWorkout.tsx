@@ -99,6 +99,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
           : undefined,
         customType: workoutByStudent?.type || '',
         nameWorkout: workoutByStudent?.nameWorkout || '',
+        level: workoutByStudent?.level || 'iniciante',
+        muscleGroup: workoutByStudent?.muscleGroup || [],
         amountExercises: 4,
       });
     }
@@ -149,6 +151,11 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     );
   };
 
+  console.log('step atual:', step);
+  // console.log('isStepValid:', isStepValid());
+  console.log('mutation.isPending:', mutation?.isPending);
+  console.log('form values:', watch());
+
   const updateExerciseList = (
     exercise: ExerciseWorkout,
     matchBy: 'id' | 'name' = 'id'
@@ -196,7 +203,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     { label: 'Revisar e enviar', icon: 'check-circle-outline' },
   ];
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (isGeneratedByIA) {
       // Fluxo IA
       if (step === 2) return goToStep(4);
@@ -205,7 +212,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
       if (step === 3) return goToStep(5);
     }
     if (step === 5) {
-      await handleSubmit(onSubmit)();
+      handleSubmit(onSubmit)();
       return;
     }
     nextStep();
@@ -304,7 +311,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
                   Voltar
                 </Button>
                 <Button
-                  disabled={!isStepValid()}
+                  disabled={!isStepValid() || mutation?.isPending}
+                  loading={mutation?.isPending}
                   mode="contained"
                   onPress={handleNext}
                   style={{ marginTop: 16 }}

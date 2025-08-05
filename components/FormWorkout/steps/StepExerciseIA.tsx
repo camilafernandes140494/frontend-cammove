@@ -62,6 +62,7 @@ const StepExerciseIA = ({
       });
     },
     onSuccess: (data) => {
+      console.table('IA', data.treino.exercises);
       const exercisesMapped: ExerciseWorkout[] = data.treino.exercises.map(
         (exercise) => ({
           observations: '',
@@ -72,7 +73,7 @@ const StepExerciseIA = ({
             name: exercise.name,
             description: '',
             id: '',
-            category: '',
+            category: exercise.category,
             muscleGroup: [],
             images: [],
             createdAt: '',
