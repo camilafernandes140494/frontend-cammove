@@ -15,6 +15,7 @@ export type WorkoutSuggestionResponse = {
       repetitions: string;
       sets: string;
       name: string;
+      category: string;
     }[];
   };
 };
