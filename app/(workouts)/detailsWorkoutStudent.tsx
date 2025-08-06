@@ -2,12 +2,13 @@ import { getReviewById } from '@/api/reviews/reviews.api';
 import { getWorkoutByStudentIdAndWorkoutId } from '@/api/workout/workout.api';
 import { logTrainingDay } from '@/api/workoutsDay/workoutsDay.api';
 import CongratsConfetti from '@/components/CongratsConfetti ';
+import EmptyState from '@/components/EmptyState';
 import InfoField from '@/components/InfoField';
 import Skeleton from '@/components/Skeleton';
 import StudentCard from '@/components/StudentCard';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import {
   type NavigationProp,
   useNavigation,
@@ -200,17 +201,10 @@ const DetailsWorkoutStudent = () => {
               ))}
             </View>
           ) : (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <MaterialCommunityIcons
-                color="#999"
-                name="playlist-remove"
-                size={48}
-              />
-              <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-                Nenhum treino encontrado.
-              </Text>
-              <Button onPress={() => refetch()}>Tentar novamente</Button>
-            </View>
+            <EmptyState
+              message=" Nenhum treino encontrado."
+              onRetry={() => refetch()}
+            />
           )
         }
         ListFooterComponent={

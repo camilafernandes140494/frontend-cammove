@@ -33,7 +33,6 @@ const StepExerciseIA = ({
 }: StepExerciseIAProps) => {
   const { student } = useStudent();
 
-  // const { setWorkoutSuggestion, workoutSuggestion } = useWorkoutForm();
   const [match, setMatch] = useState<Exercise | null>(null);
   const { theme } = useTheme();
   const allValues = useWatch({ control });
@@ -54,7 +53,7 @@ const StepExerciseIA = ({
       return await postWorkoutSuggestion({
         age: String(calculateAge(student?.birthDate || '')),
         gender: student?.gender || 'unissex',
-        nameWorkout: allValues.nameWorkou || '',
+        nameWorkout: allValues.nameWorkout || '',
         type: allValues.type.value || allValues.customType || '',
         level: allValues.level,
         muscleGroup: allValues.muscleGroup || [],
@@ -62,7 +61,6 @@ const StepExerciseIA = ({
       });
     },
     onSuccess: (data) => {
-      console.table('IA', data.treino.exercises);
       const exercisesMapped: ExerciseWorkout[] = data.treino.exercises.map(
         (exercise) => ({
           observations: '',
@@ -73,8 +71,8 @@ const StepExerciseIA = ({
             name: exercise.name,
             description: '',
             id: '',
-            category: exercise.category,
-            muscleGroup: [],
+            category: exercise.category[0],
+            muscleGroup: exercise.category,
             images: [],
             createdAt: '',
             updatedAt: '',

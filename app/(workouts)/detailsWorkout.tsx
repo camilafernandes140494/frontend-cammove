@@ -1,27 +1,33 @@
+import {
+  deleteWorkoutsByStudentId,
+  duplicateWorkout,
+  getWorkoutsByStudentId,
+} from '@/api/workout/workout.api';
+import CustomModal from '@/components/CustomModal';
+import EmptyState from '@/components/EmptyState';
+import Skeleton from '@/components/Skeleton';
+import StudentCard from '@/components/StudentCard';
+import { useTheme } from '@/context/ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { type NavigationProp, useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import {
-  Text,
-  Snackbar, Appbar,
-  Card, IconButton,
+  Appbar,
   Button,
-  Chip
+  Card,
+  Chip,
+  IconButton,
+  Snackbar,
+  Text,
 } from 'react-native-paper';
 import { useStudent } from '../../context/StudentContext';
-import { deleteWorkoutsByStudentId, duplicateWorkout, getWorkoutsByStudentId } from '@/api/workout/workout.api';
-import { useQuery } from '@tanstack/react-query';
-import StudentCard from '@/components/StudentCard';
-import Skeleton from '@/components/Skeleton';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useUser } from '@/context/UserContext';
-import CustomModal from '@/components/CustomModal';
-import { useTheme } from '@/context/ThemeContext';
-import { format } from 'date-fns';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export type RootStackParamList = {
   Workouts: undefined;
-  CreateWorkout: { workoutId?: string, studentId?: string };
+  CreateWorkout: { workoutId?: string; studentId?: string };
 };
 
 type DetailsWorkoutProps = {
@@ -49,24 +55,31 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
   }, [studentId, student?.id]);
 
   useEffect(() => {
-    if (!!studentId) {
-      refetchStudent(activeStudentId)
-
+    if (studentId) {
+      refetchStudent(activeStudentId);
     }
-  }, [activeStudentId])
+  }, [activeStudentId]);
 
-
-  const { data: workoutsStudent, isLoading, refetch, isFetching } = useQuery({
+  const {
+    data: workoutsStudent,
+    isLoading,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ['getWorkoutsByStudentId', activeStudentId],
     queryFn: () => getWorkoutsByStudentId(activeStudentId),
-    enabled: !!activeStudentId
+    enabled: !!activeStudentId,
   });
 
   const handleDelete = async (workoutId: string) => {
     setIsLoadingButtonDelete(true);
     try {
-      await deleteWorkoutsByStudentId(workoutId, activeStudentId, user?.id || '');
-      refetch()
+      await deleteWorkoutsByStudentId(
+        workoutId,
+        activeStudentId,
+        user?.id || ''
+      );
+      refetch();
     } catch (error) {
       console.error('Erro ao criar exercício:', error);
     } finally {
@@ -78,7 +91,7 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
     setIsLoadingButton(true);
     try {
       await duplicateWorkout(workoutId, activeStudentId, user?.id || '');
-      refetch()
+      refetch();
     } catch (error) {
       console.error('Erro ao criar exercício:', error);
     } finally {
@@ -87,75 +100,37 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
   };
   return (
     <>
-      <Appbar.Header mode='small'>
+      <Appbar.Header mode="small">
         <Appbar.BackAction onPress={() => navigation.navigate('Workouts')} />
         <Appbar.Content title="Treinos" />
         <Button
           icon="plus"
-          mode='contained'
-          onPress={() => navigation.navigate('CreateWorkout', { studentId: activeStudentId })}
-        >Novo treino
+          mode="contained"
+          onPress={() =>
+            navigation.navigate('CreateWorkout', { studentId: activeStudentId })
+          }
+        >
+          Novo treino
         </Button>
       </Appbar.Header>
       <StudentCard />
 
       <Snackbar
-        visible={visible}
-        onDismiss={() => setVisible(false)}
         action={{
           label: '',
           icon: 'close',
           onPress: () => setVisible(false),
         }}
+        onDismiss={() => setVisible(false)}
+        visible={visible}
       >
         <Text>Erro ao cadastrar</Text>
       </Snackbar>
 
       <FlatList
-        style={{ flex: 1, backgroundColor: theme.colors.background }}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
         data={workoutsStudent}
-        refreshing={isLoading || isFetching}
-        onRefresh={refetch}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
-        >
-          <Card.Title
-            title={item.nameWorkout}
-            subtitle={`ID ${item.id}`}
-            titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
-            subtitleStyle={{ fontSize: 12, color: 'gray' }}
-            right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateWorkout', { workoutId: item.id, studentId: activeStudentId }) }} />}
-          />
-          <Card.Content>
-            <Chip
-              style={{ alignSelf: 'flex-start' }}
-              icon='calendar'>
-              {format(item?.createdAt, "dd/MM/yyyy")}
-            </Chip>
-          </Card.Content>
-          <Card.Actions>
-
-
-            <CustomModal
-              onPress={() => handleDelete(item.id)}
-              title='Tem certeza que deseja deletar o treino?'
-              primaryButtonLabel='Deletar' />
-            <CustomModal
-              onPress={() => handleDuplicate(item.id)}
-              title='Tem certeza que deseja duplicar o treino?'
-              primaryButtonLabel="Duplicar"
-              trigger={<Button
-                disabled={isLoadingButton}
-                loading={isLoadingButton}
-                mode='contained'
-              >Duplicar</Button>} />
-
-          </Card.Actions>
-        </Card>
-        }
-        </>
-        }
         ListEmptyComponent={
           isLoading || isFetching ? (
             <View>
@@ -172,17 +147,71 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
                 />
               ))}
             </View>
-          ) : <View style={{ alignItems: 'center', padding: 40 }}>
-            <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
-            <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-              Nenhum dado encontrado.
-            </Text>
-            <Button onPress={() => refetch()} >Tentar novamente</Button>
-          </View>
+          ) : (
+            <EmptyState onRetry={() => refetch()} />
+          )
         }
+        onRefresh={refetch}
+        refreshing={isLoading || isFetching}
+        renderItem={({ item }) => (
+          <>
+            {isLoading ? (
+              <Skeleton
+                style={{ width: '90%', height: 50, borderRadius: 20 }}
+              />
+            ) : (
+              <Card style={{ marginHorizontal: 20, marginVertical: 10 }}>
+                <Card.Title
+                  right={(props) => (
+                    <IconButton
+                      {...props}
+                      icon="arrow-right"
+                      onPress={() => {
+                        navigation.navigate('CreateWorkout', {
+                          workoutId: item.id,
+                          studentId: activeStudentId,
+                        });
+                      }}
+                    />
+                  )}
+                  subtitle={`ID ${item.id}`}
+                  subtitleStyle={{ fontSize: 12, color: 'gray' }}
+                  title={item.nameWorkout}
+                  titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                />
+                <Card.Content>
+                  <Chip icon="calendar" style={{ alignSelf: 'flex-start' }}>
+                    {format(item?.createdAt, 'dd/MM/yyyy')}
+                  </Chip>
+                </Card.Content>
+                <Card.Actions>
+                  <CustomModal
+                    onPress={() => handleDelete(item.id)}
+                    primaryButtonLabel="Deletar"
+                    title="Tem certeza que deseja deletar o treino?"
+                  />
+                  <CustomModal
+                    onPress={() => handleDuplicate(item.id)}
+                    primaryButtonLabel="Duplicar"
+                    title="Tem certeza que deseja duplicar o treino?"
+                    trigger={
+                      <Button
+                        disabled={isLoadingButton}
+                        loading={isLoadingButton}
+                        mode="contained"
+                      >
+                        Duplicar
+                      </Button>
+                    }
+                  />
+                </Card.Actions>
+              </Card>
+            )}
+          </>
+        )}
+        style={{ flex: 1, backgroundColor: theme.colors.background }}
       />
     </>
-
   );
 };
 

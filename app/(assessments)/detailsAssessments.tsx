@@ -1,28 +1,33 @@
+import {
+  deleteAssessmentsByStudentId,
+  getAssessmentsByStudentId,
+} from '@/api/assessments/assessments.api';
+import { duplicateWorkout } from '@/api/workout/workout.api';
+import CustomModal from '@/components/CustomModal';
+import EmptyState from '@/components/EmptyState';
+import Skeleton from '@/components/Skeleton';
+import StudentCard from '@/components/StudentCard';
+import { useTheme } from '@/context/ThemeContext';
+import { useUser } from '@/context/UserContext';
+import { type NavigationProp, useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import {
-  Text,
-  Snackbar, Appbar,
-  Card, IconButton,
+  Appbar,
   Button,
-  Chip
+  Card,
+  Chip,
+  IconButton,
+  Snackbar,
+  Text,
 } from 'react-native-paper';
 import { useStudent } from '../../context/StudentContext';
-import { duplicateWorkout } from '@/api/workout/workout.api';
-import { useQuery } from '@tanstack/react-query';
-import StudentCard from '@/components/StudentCard';
-import Skeleton from '@/components/Skeleton';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useUser } from '@/context/UserContext';
-import CustomModal from '@/components/CustomModal';
-import { deleteAssessmentsByStudentId, getAssessmentsByStudentId } from '@/api/assessments/assessments.api';
-import { useTheme } from '@/context/ThemeContext';
-import { format } from 'date-fns';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export type RootStackParamList = {
   Assessments: undefined;
-  CreateAssessments: { assessmentsId?: string, studentId?: string };
+  CreateAssessments: { assessmentsId?: string; studentId?: string };
 };
 
 type DetailsAssessmentsProps = {
@@ -43,30 +48,35 @@ const DetailsAssessments = ({ route }: DetailsAssessmentsProps) => {
   const { user } = useUser();
   const { studentId } = route.params || {};
 
-
   const activeStudentId = useMemo(() => {
     return studentId ?? student?.id ?? '';
   }, [studentId, student?.id]);
 
   useEffect(() => {
-    if (!!studentId) {
-      refetchStudent(activeStudentId)
-
+    if (studentId) {
+      refetchStudent(activeStudentId);
     }
-  }, [activeStudentId])
+  }, [activeStudentId]);
 
-
-  const { data: assessmentsStudent, isLoading, refetch, isFetching } = useQuery({
+  const {
+    data: assessmentsStudent,
+    isLoading,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ['getAssessmentsByStudentId', student?.id],
     queryFn: () => getAssessmentsByStudentId(student?.id || ''),
-    enabled: !!student?.id
+    enabled: !!student?.id,
   });
-
 
   const handleDelete = async (assessmentsId: string) => {
     try {
-      await deleteAssessmentsByStudentId(assessmentsId, student?.id || '', user?.id || '');
-      refetch()
+      await deleteAssessmentsByStudentId(
+        assessmentsId,
+        student?.id || '',
+        user?.id || ''
+      );
+      refetch();
     } catch (error) {
       console.error('Erro ao criar exercício:', error);
     }
@@ -76,7 +86,7 @@ const DetailsAssessments = ({ route }: DetailsAssessmentsProps) => {
     setIsLoadingButton(true);
     try {
       await duplicateWorkout(workoutId, student?.id || '', user?.id || '');
-      refetch()
+      refetch();
     } catch (error) {
       console.error('Erro ao criar avaliação:', error);
     } finally {
@@ -86,34 +96,41 @@ const DetailsAssessments = ({ route }: DetailsAssessmentsProps) => {
   return (
     <>
       <>
-        <Appbar.Header mode='small'>
-          <Appbar.BackAction onPress={() => navigation.navigate('Assessments')} />
+        <Appbar.Header mode="small">
+          <Appbar.BackAction
+            onPress={() => navigation.navigate('Assessments')}
+          />
           <Appbar.Content title="Avaliação" />
-          <Button icon="plus" mode="contained" onPress={() => navigation.navigate('CreateAssessments', { studentId: activeStudentId })}>
+          <Button
+            icon="plus"
+            mode="contained"
+            onPress={() =>
+              navigation.navigate('CreateAssessments', {
+                studentId: activeStudentId,
+              })
+            }
+          >
             Nova Avaliação
           </Button>
         </Appbar.Header>
         <StudentCard />
 
         <Snackbar
-          visible={visible}
-          onDismiss={() => setVisible(false)}
           action={{
             label: '',
             icon: 'close',
             onPress: () => setVisible(false),
           }}
+          onDismiss={() => setVisible(false)}
+          visible={visible}
         >
           <Text>Erro ao cadastrar</Text>
         </Snackbar>
       </>
       <FlatList
-        style={{ flex: 1, backgroundColor: theme.colors.background }}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
         data={assessmentsStudent}
         keyExtractor={(item) => String(item.id)}
-        refreshing={isLoading || isFetching}
-        onRefresh={refetch}
         ListEmptyComponent={
           isLoading || isFetching ? (
             <View>
@@ -130,44 +147,61 @@ const DetailsAssessments = ({ route }: DetailsAssessmentsProps) => {
                 />
               ))}
             </View>
-          ) : <View style={{ alignItems: 'center', padding: 40 }}>
-            <MaterialCommunityIcons name="playlist-remove" size={48} color="#999" />
-            <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-              Nenhum dado encontrado.
-            </Text>
-            <Button onPress={() => refetch()} >Tentar novamente</Button>
-          </View>
+          ) : (
+            <EmptyState onRetry={() => refetch()} />
+          )
         }
-        renderItem={({ item }) => <>{isLoading ? <Skeleton style={{ width: '90%', height: 50, borderRadius: 20 }} /> : <Card style={{ marginHorizontal: 20, marginVertical: 10 }}
-        >
-          <Card.Title
-            title="Avaliação"
-            subtitle={`ID ${item.id}`}
-            titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
-            subtitleStyle={{ fontSize: 12, color: 'gray' }}
-            right={(props) => <IconButton {...props} icon="arrow-right" onPress={() => { navigation.navigate('CreateAssessments', { assessmentsId: item.id, studentId: activeStudentId }) }} />}
-          />
-          <Card.Content style={{
-            display: 'flex', justifyContent: 'space-between', flexDirection: "row", alignItems: 'center'
-          }} >
+        onRefresh={refetch}
+        refreshing={isLoading || isFetching}
+        renderItem={({ item }) => (
+          <>
+            {isLoading ? (
+              <Skeleton
+                style={{ width: '90%', height: 50, borderRadius: 20 }}
+              />
+            ) : (
+              <Card style={{ marginHorizontal: 20, marginVertical: 10 }}>
+                <Card.Title
+                  right={(props) => (
+                    <IconButton
+                      {...props}
+                      icon="arrow-right"
+                      onPress={() => {
+                        navigation.navigate('CreateAssessments', {
+                          assessmentsId: item.id,
+                          studentId: activeStudentId,
+                        });
+                      }}
+                    />
+                  )}
+                  subtitle={`ID ${item.id}`}
+                  subtitleStyle={{ fontSize: 12, color: 'gray' }}
+                  title="Avaliação"
+                  titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                />
+                <Card.Content
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Chip icon="calendar">
+                    {format(item?.createdAt, 'dd/MM/yyyy')}
+                  </Chip>
 
-            <Chip
-
-              icon='calendar'>
-              {format(item?.createdAt, "dd/MM/yyyy")}
-            </Chip>
-
-            <CustomModal
-              onPress={() => handleDelete(item.id)}
-              title='Tem certeza que deseja deletar a avaliação?'
-              primaryButtonLabel='Deletar'
-            />
-          </Card.Content>
-
-        </Card>
-        }
-        </>
-        }
+                  <CustomModal
+                    onPress={() => handleDelete(item.id)}
+                    primaryButtonLabel="Deletar"
+                    title="Tem certeza que deseja deletar a avaliação?"
+                  />
+                </Card.Content>
+              </Card>
+            )}
+          </>
+        )}
+        style={{ flex: 1, backgroundColor: theme.colors.background }}
       />
     </>
   );

@@ -1,21 +1,15 @@
 import { getWorkoutsByStudentId } from '@/api/workout/workout.api';
+import EmptyState from '@/components/EmptyState';
 import Skeleton from '@/components/Skeleton';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import React from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
-import {
-  Appbar,
-  Button,
-  Card,
-  Chip,
-  IconButton,
-  Text,
-} from 'react-native-paper';
+import { Appbar, Card, Chip, IconButton } from 'react-native-paper';
 
 const WorkoutsStudent = ({ navigation }: any) => {
   const { user } = useUser();
@@ -59,17 +53,10 @@ const WorkoutsStudent = ({ navigation }: any) => {
               ))}
             </View>
           ) : (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <MaterialCommunityIcons
-                color="#999"
-                name="playlist-remove"
-                size={48}
-              />
-              <Text style={{ fontSize: 16, marginVertical: 12, color: '#555' }}>
-                Nenhum treino encontrado.
-              </Text>
-              <Button onPress={() => refetch()}>Tentar novamente</Button>
-            </View>
+            <EmptyState
+              message="Nenhum treino encontrado."
+              onRetry={() => refetch()}
+            />
           )
         }
         onRefresh={refetch}

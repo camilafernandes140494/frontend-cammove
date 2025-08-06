@@ -151,11 +151,6 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
     );
   };
 
-  console.log('step atual:', step);
-  // console.log('isStepValid:', isStepValid());
-  console.log('mutation.isPending:', mutation?.isPending);
-  console.log('form values:', watch());
-
   const updateExerciseList = (
     exercise: ExerciseWorkout,
     matchBy: 'id' | 'name' = 'id'

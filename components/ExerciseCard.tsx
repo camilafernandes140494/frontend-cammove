@@ -185,7 +185,7 @@ export const ExerciseCard = ({
             size={18}
             style={{ marginRight: 4 }}
           />
-          <Text variant="bodySmall">{item?.category || ''}</Text>
+          <Text variant="bodySmall">{item?.exerciseId.category || ''}</Text>
         </View>
         <View
           style={{
