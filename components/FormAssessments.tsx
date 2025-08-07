@@ -93,11 +93,11 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
         Máxima: ${assessmentsByStudent?.heartRate?.maxHeartRate || ''} bpm
     
         Equilíbrio e Mobilidade 
-        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility?.balanceTest.value || ''}
-        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility?.mobilityTest.value || ''}
+        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility?.balanceTest || ''}
+        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility?.mobilityTest || ''}
     
         Postura 
-        Avaliação Postural: ${assessmentsByStudent?.posture?.postureAssessment.value || ''}
+        Avaliação Postural: ${assessmentsByStudent?.posture?.postureAssessment || ''}
     
         Histórico Médico 
         Lesões Anteriores: ${assessmentsByStudent?.medicalHistory?.injuryHistory || ''}
@@ -157,28 +157,130 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     studentName: z.string().optional(),
     studentId: z.string().optional(),
     bodyMeasurements: z.object({
-      weight: z.number().optional(),
-      height: z.number().optional(),
-      bodyFatPercentage: z.number().optional(),
+      weight: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      height: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      bodyFatPercentage: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
       imc: z.string().optional(),
-      waistCircumference: z.number().optional(),
-      hipCircumference: z.number().optional(),
-      chestCircumference: z.number().optional(),
-      rightArmCircumference: z.number().optional(),
-      leftArmCircumference: z.number().optional(),
-      rightThighCircumference: z.number().optional(),
-      leftThighCircumference: z.number().optional(),
-      rightCalfCircumference: z.number().optional(),
-      leftCalfCircumference: z.number().optional(),
-      neckCircumference: z.number().optional(),
+      waistCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      hipCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      chestCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      rightArmCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      leftArmCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      rightThighCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      leftThighCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      rightCalfCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      leftCalfCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      neckCircumference: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
     }),
     bodyMass: z.object({
-      muscleMass: z.number().optional(),
-      boneMass: z.number().optional(),
+      muscleMass: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      boneMass: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
     }),
     heartRate: z.object({
-      restingHeartRate: z.number().optional(),
-      maxHeartRate: z.number().optional(),
+      restingHeartRate: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
+      maxHeartRate: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine((val) => val === undefined || !isNaN(val), {
+          message: 'Só números, sem vírgula',
+        }),
     }),
     balanceAndMobility: z.object({
       balanceTest: z.object({
@@ -210,68 +312,68 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     studentName: student?.name || '',
     studentId: student?.id || '',
     bodyMeasurements: {
-      weight: Number(assessmentsByStudent?.bodyMeasurements?.weight) || 0,
-      height: Number(assessmentsByStudent?.bodyMeasurements?.height) || 0,
+      weight: Number(assessmentsByStudent?.bodyMeasurements?.weight) || '0',
+      height: Number(assessmentsByStudent?.bodyMeasurements?.height) || '0',
       bodyFatPercentage:
-        assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || 0,
+        assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || '0',
       imc: String(assessmentsByStudent?.bodyMeasurements?.imc) || '',
       waistCircumference:
-        Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) || 0,
+        Number(assessmentsByStudent?.bodyMeasurements?.waistCircumference) ||
+        '0',
       hipCircumference:
-        Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || 0,
+        Number(assessmentsByStudent?.bodyMeasurements?.hipCircumference) || '0',
       chestCircumference:
-        Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) || 0,
+        Number(assessmentsByStudent?.bodyMeasurements?.chestCircumference) ||
+        '0',
       rightArmCircumference:
         Number(assessmentsByStudent?.bodyMeasurements?.rightArmCircumference) ||
-        0,
+        '0',
       leftArmCircumference:
         Number(assessmentsByStudent?.bodyMeasurements?.leftArmCircumference) ||
-        0,
+        '0',
       rightThighCircumference:
         Number(
           assessmentsByStudent?.bodyMeasurements?.rightThighCircumference
-        ) || 0,
+        ) || '0',
       leftThighCircumference:
         Number(
           assessmentsByStudent?.bodyMeasurements?.leftThighCircumference
-        ) || 0,
+        ) || '0',
       rightCalfCircumference:
         Number(
           assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference
-        ) || 0,
+        ) || '0',
       leftCalfCircumference:
         Number(assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference) ||
-        0,
+        '0',
       neckCircumference:
-        Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) || 0,
+        Number(assessmentsByStudent?.bodyMeasurements?.neckCircumference) ||
+        '0',
     },
     bodyMass: {
-      muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || 0,
-      boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || 0,
+      muscleMass: Number(assessmentsByStudent?.bodyMass.muscleMass) || '0',
+      boneMass: Number(assessmentsByStudent?.bodyMass.boneMass) || '0',
     },
     heartRate: {
       restingHeartRate:
-        Number(assessmentsByStudent?.heartRate?.restingHeartRate) || 0,
-      maxHeartRate: Number(assessmentsByStudent?.heartRate?.maxHeartRate) || 0,
+        Number(assessmentsByStudent?.heartRate?.restingHeartRate) || '0',
+      maxHeartRate:
+        Number(assessmentsByStudent?.heartRate?.maxHeartRate) || '0',
     },
     balanceAndMobility: {
       balanceTest: {
-        value:
-          String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
-        label:
-          String(assessmentsByStudent?.balanceAndMobility?.balanceTest) || '',
+        label: assessmentsByStudent?.balanceAndMobility?.balanceTest || '',
+        value: assessmentsByStudent?.balanceAndMobility?.balanceTest || '',
       },
       mobilityTest: {
-        value:
-          String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
-        label:
-          String(assessmentsByStudent?.balanceAndMobility?.mobilityTest) || '',
+        label: assessmentsByStudent?.balanceAndMobility?.mobilityTest || '',
+        value: assessmentsByStudent?.balanceAndMobility?.mobilityTest || '',
       },
     },
     posture: {
       postureAssessment: {
-        value: String(assessmentsByStudent?.posture?.postureAssessment) || '',
-        label: String(assessmentsByStudent?.posture?.postureAssessment) || '',
+        label: assessmentsByStudent?.posture?.postureAssessment || '',
+        value: assessmentsByStudent?.posture?.postureAssessment || '',
       },
     },
     medicalHistory: {
@@ -295,7 +397,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
     defaultValues: mapAssessmentToForm,
   });
 
-  console.log('getValues', getValues('assessmentDate'));
   useEffect(() => {
     if (assessmentsByStudent) {
       reset(mapAssessmentToForm);
@@ -305,23 +406,23 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
   const selectedWeight = watch('bodyMeasurements.weight');
   const selectedHeight = watch('bodyMeasurements.height');
 
-  const selectedBalanceTest = watch('balanceAndMobility.balanceTest');
-  const selectedMobilityTest = watch('balanceAndMobility.mobilityTest');
-  const selectedPostureTest = watch('posture.postureAssessment');
-
   const imcDescription = useMemo(() => {
     const alturaEmMetros =
       Number(String(selectedHeight).replace(',', '.')) / 100;
     const peso = Number(selectedWeight);
 
-    const resultadoIMC = calculateIMC(peso, alturaEmMetros || 0);
+    const resultadoIMC = calculateIMC(peso, alturaEmMetros || '0');
 
     return `${resultadoIMC.categoria} - ${resultadoIMC.imc}`;
   }, [selectedWeight, selectedHeight]);
 
   useEffect(() => {
-    setValue('bodyMeasurements.imc', imcDescription);
+    const currentIMC = getValues('bodyMeasurements.imc');
+    if (currentIMC !== imcDescription) {
+      setValue('bodyMeasurements.imc', imcDescription);
+    }
   }, [imcDescription]);
+
   const assessmentMutation = useMutation({
     mutationFn: async (data: Partial<AssessmentData>) => {
       if (assessmentsId) {
@@ -420,7 +521,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.weight"
                     right={<TextInput.Affix text=" kg" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -430,7 +531,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.height"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -440,7 +541,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.bodyFatPercentage"
                     right={<TextInput.Affix text=" %" />}
-                    type="number"
+                    type="text"
                   />
 
                   <Chip icon="information">{`${imcDescription} (IMC)`}</Chip>
@@ -458,7 +559,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.waistCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
 
                   <FormField
@@ -469,7 +570,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.hipCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -479,7 +580,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.chestCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -489,7 +590,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.neckCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                 </Card.Content>
               </Card>
@@ -505,7 +606,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.rightArmCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -515,7 +616,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.leftArmCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                 </Card.Content>
               </Card>
@@ -531,7 +632,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.rightThighCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -541,7 +642,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.leftThighCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -551,7 +652,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.rightCalfCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -561,7 +662,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMeasurements.leftCalfCircumference"
                     right={<TextInput.Affix text=" cm" />}
-                    type="number"
+                    type="text"
                   />
                 </Card.Content>
               </Card>
@@ -577,7 +678,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMass.muscleMass"
                     right={<TextInput.Affix text=" kg" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -587,7 +688,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="bodyMass.boneMass"
                     right={<TextInput.Affix text=" kg" />}
-                    type="number"
+                    type="text"
                   />
                 </Card.Content>
               </Card>
@@ -603,7 +704,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="heartRate.restingHeartRate"
                     right={<TextInput.Affix text=" bpm" />}
-                    type="number"
+                    type="text"
                   />
                   <FormField
                     control={control}
@@ -613,7 +714,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     mode="flat"
                     name="heartRate.maxHeartRate"
                     right={<TextInput.Affix text=" bpm" />}
-                    type="number"
+                    type="text"
                   />
                 </Card.Content>
               </Card>
@@ -650,14 +751,13 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
               <Card>
                 <Card.Title title="Equilíbrio, Mobilidade e Postura" />
                 <Card.Content style={{ gap: 10 }}>
-                  {selectedBalanceTest.value && (
-                    <Text>Teste de Equilíbrio</Text>
-                  )}
+                  <Text>Teste de Equilíbrio</Text>
+
                   <FormField
                     control={control}
                     getLabel={(option) => option.label}
                     label="Teste de Equilíbrio"
-                    name="balanceAndMobility.balanceTest.value"
+                    name="balanceAndMobility.balanceTest"
                     options={[
                       { label: 'Boa', value: 'Boa' },
                       { label: 'Regular', value: 'Regular' },
@@ -665,15 +765,13 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     ]}
                     type="select"
                   />
-                  {selectedMobilityTest.value && (
-                    <Text>Teste de Mobilidade</Text>
-                  )}
+                  <Text>Teste de Mobilidade</Text>
 
                   <FormField
                     control={control}
                     getLabel={(option) => option.label}
                     label="Teste de Mobilidade"
-                    name="balanceAndMobility.mobilityTest.value"
+                    name="balanceAndMobility.mobilityTest"
                     options={[
                       { label: 'Boa', value: 'Boa' },
                       { label: 'Regular', value: 'Regular' },
@@ -682,12 +780,12 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
                     type="select"
                   />
 
-                  {selectedPostureTest.value && <Text>Teste de Postura</Text>}
+                  <Text>Teste de Postura</Text>
                   <FormField
                     control={control}
                     getLabel={(option) => option.label}
                     label="Teste de Postura"
-                    name="posture.postureAssessment.value"
+                    name="posture.postureAssessment"
                     options={[
                       { label: 'Boa', value: 'Boa' },
                       { label: 'Regular', value: 'Regular' },
