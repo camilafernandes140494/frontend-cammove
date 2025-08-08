@@ -1,88 +1,88 @@
 // Definindo o tipo para a avaliação física
 type BodyMeasurements = {
-  weight?: number;
-  height?: number;
-  bodyFatPercentage?: number;
-  imc?: number | string;
-  waistCircumference?: number;
-  hipCircumference?: number;
-  chestCircumference?: number;
-  rightArmCircumference?: number;
-  leftArmCircumference?: number;
-  rightThighCircumference?: number;
-  leftThighCircumference?: number;
-  rightCalfCircumference?: number;
-  leftCalfCircumference?: number;
-  neckCircumference?: number;
+	weight?: string;
+	height?: string;
+	bodyFatPercentage?: string;
+	imc?: string;
+	waistCircumference?: string;
+	hipCircumference?: string;
+	chestCircumference?: string;
+	rightArmCircumference?: string;
+	leftArmCircumference?: string;
+	rightThighCircumference?: string;
+	leftThighCircumference?: string;
+	rightCalfCircumference?: string;
+	leftCalfCircumference?: string;
+	neckCircumference?: string;
 };
 
 type BodyMass = {
-  muscleMass?: number;
-  boneMass?: number;
+	muscleMass?: string;
+	boneMass?: string;
 };
 
 type PhysicalTests = {
-  pushUpTest?: number | string;
-  squatTest?: number | string;
-  flexibilityTest?: number | string;
-  cooperTestDistance?: number | string;
+	pushUpTest?: string;
+	squatTest?: string;
+	flexibilityTest?: string;
+	cooperTestDistance?: string;
 };
 
 type HeartRate = {
-  restingHeartRate?: number;
-  maxHeartRate?: number;
+	restingHeartRate?: string;
+	maxHeartRate?: string;
 };
 
 type BalanceAndMobility = {
-  balanceTest?: any;
-  mobilityTest?: any;
+	balanceTest?: any;
+	mobilityTest?: any;
 };
 
 type Posture = {
-  postureAssessment?: any;
+	postureAssessment?: any;
 };
 
 type MedicalHistory = {
-  injuryHistory?: number | string;
-  medicalConditions?: number | string;
-  chronicPain?: number | string;
+	injuryHistory?: string;
+	medicalConditions?: string;
+	chronicPain?: string;
 };
 
 export type AssessmentData = {
-  // Medições Corporais
-  studentName?: number | string;
-  studentId?: number | string;
+	// Medições Corporais
+	studentName?: string;
+	studentId?: string;
 
-  bodyMeasurements?: BodyMeasurements;
+	bodyMeasurements?: BodyMeasurements;
 
-  // Massa Corporal
-  bodyMass: BodyMass;
+	// Massa Corporal
+	bodyMass: BodyMass;
 
-  // Testes Físicos
-  physicalTests?: PhysicalTests;
+	// Testes Físicos
+	physicalTests?: PhysicalTests;
 
-  // Frequência Cardíaca
-  heartRate?: HeartRate;
+	// Frequência Cardíaca
+	heartRate?: HeartRate;
 
-  // Avaliações de Equilíbrio e Mobilidade
-  balanceAndMobility?: BalanceAndMobility;
+	// Avaliações de Equilíbrio e Mobilidade
+	balanceAndMobility?: BalanceAndMobility;
 
-  // Postura
-  posture?: Posture;
+	// Postura
+	posture?: Posture;
 
-  // Histórico de Lesões e Condições Médicas
-  medicalHistory?: MedicalHistory;
+	// Histórico de Lesões e Condições Médicas
+	medicalHistory?: MedicalHistory;
 
-  // Objetivos de Fitness
-  fitnessGoals?: string;
+	// Objetivos de Fitness
+	fitnessGoals?: string;
 
-  observations?: string;
-  // Data da avaliação
-  assessmentDate?: string;
-  createdAt: string;
+	observations?: string;
+	// Data da avaliação
+	assessmentDate?: string;
+	createdAt: string;
 };
 
 export type BasicAssessmentItem = {
-  id: string;
-  createdAt: string;
+	id: string;
+	createdAt: string;
 };
