@@ -51,8 +51,6 @@ const DetailsAssessmentsStudent = () => {
 		enabled: Boolean(assessmentsId && user?.id), // ✅ só ativa quando os dois existem
 	});
 
-	console.log(assessmentsByStudent);
-
 	return (
 		<>
 			<Appbar.Header>
