@@ -1,247 +1,257 @@
-import { LocaleConfig } from 'react-native-calendars';
-export function formatDate(dateString: string | Date): string {
-  const date = new Date(dateString);
+import { LocaleConfig } from "react-native-calendars";
 
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
+export function formatDate(
+	dateString: string | Date,
+	typeFormat: "date" | "datetime" = "date",
+): string {
+	const date = new Date(dateString);
 
-  return `${day}/${month}/${year}`;
+	const day = String(date.getDate()).padStart(2, "0");
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const year = date.getFullYear();
+
+	if (typeFormat === "datetime") {
+		const hours = String(date.getHours()).padStart(2, "0");
+		const minutes = String(date.getMinutes()).padStart(2, "0");
+		return `${day}/${month}/${year} - ${hours}:${minutes}`;
+	}
+
+	return `${day}/${month}/${year}`;
 }
 
 export const maskDateInput = (text: string) => {
-  // Remove tudo que não for número
-  const cleaned = text.replace(/\D/g, '');
+	// Remove tudo que não for número
+	const cleaned = text.replace(/\D/g, "");
 
-  // Aplica a máscara
-  let formatted = cleaned;
-  if (cleaned.length >= 3 && cleaned.length <= 4) {
-    formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
-  } else if (cleaned.length > 4) {
-    formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
-  }
+	// Aplica a máscara
+	let formatted = cleaned;
+	if (cleaned.length >= 3 && cleaned.length <= 4) {
+		formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+	} else if (cleaned.length > 4) {
+		formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
+	}
 
-  return formatted;
+	return formatted;
 };
 
 export function maskTimeInput(value: string): string {
-  const numeric = value.replace(/\D/g, '');
+	const numeric = value.replace(/\D/g, "");
 
-  if (numeric.length === 0) return '';
+	if (numeric.length === 0) return "";
 
-  if (numeric.length <= 2) return numeric;
+	if (numeric.length <= 2) return numeric;
 
-  const hours = numeric.slice(0, 2);
-  const minutes = numeric.slice(2, 4);
+	const hours = numeric.slice(0, 2);
+	const minutes = numeric.slice(2, 4);
 
-  return `${hours}:${minutes}`;
+	return `${hours}:${minutes}`;
 }
 
 export function convertTimestampsToString(obj: any): any {
-  if (obj === null || obj === undefined) return obj;
+	if (obj === null || obj === undefined) return obj;
 
-  if (typeof obj !== 'object') return obj;
+	if (typeof obj !== "object") return obj;
 
-  if (
-    '_seconds' in obj &&
-    '_nanoseconds' in obj &&
-    typeof obj._seconds === 'number' &&
-    typeof obj._nanoseconds === 'number'
-  ) {
-    const date = new Date(obj._seconds * 1000 + obj._nanoseconds / 1_000_000);
-    return date.toISOString();
-  }
+	if (
+		"_seconds" in obj &&
+		"_nanoseconds" in obj &&
+		typeof obj._seconds === "number" &&
+		typeof obj._nanoseconds === "number"
+	) {
+		const date = new Date(obj._seconds * 1000 + obj._nanoseconds / 1_000_000);
+		return date.toISOString();
+	}
 
-  if (Array.isArray(obj)) {
-    return obj.map(convertTimestampsToString);
-  }
+	if (Array.isArray(obj)) {
+		return obj.map(convertTimestampsToString);
+	}
 
-  const newObj: any = {};
-  for (const key in obj) {
-    if (Object.hasOwn(obj, key)) {
-      newObj[key] = convertTimestampsToString(obj[key]);
-    }
-  }
-  return newObj;
+	const newObj: any = {};
+	for (const key in obj) {
+		if (Object.hasOwn(obj, key)) {
+			newObj[key] = convertTimestampsToString(obj[key]);
+		}
+	}
+	return newObj;
 }
 
 export function getNextMonth(dateString: string): string {
-  const date = new Date(dateString);
-  date.setMonth(date.getMonth() + 1);
+	const date = new Date(dateString);
+	date.setMonth(date.getMonth() + 1);
 
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
+	const day = String(date.getDate()).padStart(2, "0");
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const year = date.getFullYear();
 
-  return `${day}/${month}/${year}`;
+	return `${day}/${month}/${year}`;
 }
 
 export type DateStatus =
-  | 'INVALID_DATE'
-  | 'TODAY'
-  | 'UPCOMING'
-  | 'PAST'
-  | 'FUTURE';
+	| "INVALID_DATE"
+	| "TODAY"
+	| "UPCOMING"
+	| "PAST"
+	| "FUTURE";
 
 export function checkDateStatus(dateString: string): DateStatus {
-  const hoje = new Date();
-  const targetDate = new Date(dateString); // Converte a string para um objeto Date
+	const hoje = new Date();
+	const targetDate = new Date(dateString); // Converte a string para um objeto Date
 
-  // Verifica se a conversão da data foi bem-sucedida
-  if (isNaN(targetDate.getTime())) {
-    return 'INVALID_DATE';
-  }
+	// Verifica se a conversão da data foi bem-sucedida
+	if (isNaN(targetDate.getTime())) {
+		return "INVALID_DATE";
+	}
 
-  const diffTime = targetDate.getTime() - hoje.getTime();
-  const diffDays = diffTime / (1000 * 3600 * 24);
+	const diffTime = targetDate.getTime() - hoje.getTime();
+	const diffDays = diffTime / (1000 * 3600 * 24);
 
-  if (diffDays === 0) {
-    return 'TODAY';
-  }
-  if (diffDays > 0 && diffDays <= 5) {
-    return 'UPCOMING';
-  }
-  if (diffDays < 0) {
-    return 'PAST';
-  }
-  return 'FUTURE';
+	if (diffDays === 0) {
+		return "TODAY";
+	}
+	if (diffDays > 0 && diffDays <= 5) {
+		return "UPCOMING";
+	}
+	if (diffDays < 0) {
+		return "PAST";
+	}
+	return "FUTURE";
 }
 
 export const getInitials = (name: string): string => {
-  if (!name) return '';
+	if (!name) return "";
 
-  const words = name.trim().split(/\s+/);
+	const words = name.trim().split(/\s+/);
 
-  if (words.length === 1) {
-    return words[0].charAt(0).toUpperCase();
-  }
+	if (words.length === 1) {
+		return words[0].charAt(0).toUpperCase();
+	}
 
-  const firstLetter = words[0].charAt(0);
-  const lastLetter = words[words.length - 1].charAt(0);
+	const firstLetter = words[0].charAt(0);
+	const lastLetter = words[words.length - 1].charAt(0);
 
-  return (firstLetter + lastLetter).toUpperCase();
+	return (firstLetter + lastLetter).toUpperCase();
 };
 
 export const getGender = (gender: string) => {
-  switch (gender) {
-    case 'MALE':
-      return 'Masculino';
-    case 'FEMALE':
-      return 'Feminino';
-    case 'OTHER':
-      return 'Outro';
-    case 'PREFER_NOT_TO_SAY':
-      return 'Prefiro não me identificar';
-    default:
-      return 'Não especificado';
-  }
+	switch (gender) {
+		case "MALE":
+			return "Masculino";
+		case "FEMALE":
+			return "Feminino";
+		case "OTHER":
+			return "Outro";
+		case "PREFER_NOT_TO_SAY":
+			return "Prefiro não me identificar";
+		default:
+			return "Não especificado";
+	}
 };
 
 const parseDate = (dateStr: string): Date => {
-  const [day, month, year] = dateStr.split('/');
-  return new Date(Number(year), Number(month) - 1, Number(day));
+	const [day, month, year] = dateStr.split("/");
+	return new Date(Number(year), Number(month) - 1, Number(day));
 };
 
 export const calculateAge = (birthdate: string | Date): number => {
-  const birth =
-    typeof birthdate === 'string' ? parseDate(birthdate) : birthdate;
-  const today = new Date();
+	const birth =
+		typeof birthdate === "string" ? parseDate(birthdate) : birthdate;
+	const today = new Date();
 
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-  const dayDiff = today.getDate() - birth.getDate();
+	let age = today.getFullYear() - birth.getFullYear();
+	const monthDiff = today.getMonth() - birth.getMonth();
+	const dayDiff = today.getDate() - birth.getDate();
 
-  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-    age--;
-  }
+	if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+		age--;
+	}
 
-  return age;
+	return age;
 };
 
 type IMCCategory =
-  | 'Abaixo do peso'
-  | 'Peso normal'
-  | 'Sobrepeso'
-  | 'Obesidade grau 1'
-  | 'Obesidade grau 2'
-  | 'Obesidade grau 3'
-  | 'Não definido';
+	| "Abaixo do peso"
+	| "Peso normal"
+	| "Sobrepeso"
+	| "Obesidade grau 1"
+	| "Obesidade grau 2"
+	| "Obesidade grau 3"
+	| "Não definido";
 
 export function calculateIMC(
-  peso: number,
-  altura: number | string
+	peso: number,
+	altura: number | string,
 ): { imc: number; categoria: IMCCategory } {
-  let categoria: IMCCategory;
-  const alturaNum = Number(altura);
-  const pesoNum = Number(peso);
+	let categoria: IMCCategory;
+	const alturaNum = Number(altura);
+	const pesoNum = Number(peso);
 
-  const imcCalculado =
-    pesoNum > 0 && alturaNum > 0 ? pesoNum / (alturaNum * alturaNum) : 0;
+	const imcCalculado =
+		pesoNum > 0 && alturaNum > 0 ? pesoNum / (alturaNum * alturaNum) : 0;
 
-  const imc = Number(imcCalculado.toFixed(2));
+	const imc = Number(imcCalculado.toFixed(2));
 
-  if (!isFinite(imc) || isNaN(imc) || imc === 0) {
-    categoria = 'Não definido';
-    return { imc: 0, categoria };
-  }
+	if (!isFinite(imc) || isNaN(imc) || imc === 0) {
+		categoria = "Não definido";
+		return { imc: 0, categoria };
+	}
 
-  if (imc < 18.5) {
-    categoria = 'Abaixo do peso';
-  } else if (imc < 24.9) {
-    categoria = 'Peso normal';
-  } else if (imc < 29.9) {
-    categoria = 'Sobrepeso';
-  } else if (imc < 34.9) {
-    categoria = 'Obesidade grau 1';
-  } else if (imc < 39.9) {
-    categoria = 'Obesidade grau 2';
-  } else {
-    categoria = 'Obesidade grau 3';
-  }
+	if (imc < 18.5) {
+		categoria = "Abaixo do peso";
+	} else if (imc < 24.9) {
+		categoria = "Peso normal";
+	} else if (imc < 29.9) {
+		categoria = "Sobrepeso";
+	} else if (imc < 34.9) {
+		categoria = "Obesidade grau 1";
+	} else if (imc < 39.9) {
+		categoria = "Obesidade grau 2";
+	} else {
+		categoria = "Obesidade grau 3";
+	}
 
-  return { imc, categoria };
+	return { imc, categoria };
 }
 
-LocaleConfig.locales['pt-br'] = {
-  monthNames: [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
-  ],
-  monthNamesShort: [
-    'Jan',
-    'Fev',
-    'Mar',
-    'Abr',
-    'Mai',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Set',
-    'Out',
-    'Nov',
-    'Dez',
-  ],
-  dayNames: [
-    'Domingo',
-    'Segunda-feira',
-    'Terça-feira',
-    'Quarta-feira',
-    'Quinta-feira',
-    'Sexta-feira',
-    'Sábado',
-  ],
-  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-  today: 'Hoje',
+LocaleConfig.locales["pt-br"] = {
+	monthNames: [
+		"Janeiro",
+		"Fevereiro",
+		"Março",
+		"Abril",
+		"Maio",
+		"Junho",
+		"Julho",
+		"Agosto",
+		"Setembro",
+		"Outubro",
+		"Novembro",
+		"Dezembro",
+	],
+	monthNamesShort: [
+		"Jan",
+		"Fev",
+		"Mar",
+		"Abr",
+		"Mai",
+		"Jun",
+		"Jul",
+		"Ago",
+		"Set",
+		"Out",
+		"Nov",
+		"Dez",
+	],
+	dayNames: [
+		"Domingo",
+		"Segunda-feira",
+		"Terça-feira",
+		"Quarta-feira",
+		"Quinta-feira",
+		"Sexta-feira",
+		"Sábado",
+	],
+	dayNamesShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+	today: "Hoje",
 };
 
-LocaleConfig.defaultLocale = 'pt-br';
+LocaleConfig.defaultLocale = "pt-br";
