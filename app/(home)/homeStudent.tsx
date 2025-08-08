@@ -73,36 +73,43 @@ const HomeStudent = () => {
 		enabled: !!user?.id,
 	});
 
-	const markedDates = {
-		...(Array.isArray(trainingDates)
-			? trainingDates.reduce(
-					(acc, date) => {
-						acc[date] = {
-							marked: true,
-							dotColor: theme.colors.card.feedback.button,
-							selected: true,
-							selectedColor: theme.colors.card.feedback.button,
-						};
-						return acc;
-					},
-					{} as Record<string, any>,
-				)
-			: {}),
-		...(Array.isArray(scheduleDates)
-			? scheduleDates.reduce(
-					(acc, date) => {
-						acc[date.date] = {
-							marked: true,
-							dotColor: theme.colors.card.purple.border.default,
-							selected: true,
-							selectedColor: theme.colors.card.purple.border.default,
-						};
-						return acc;
-					},
-					{} as Record<string, any>,
-				)
-			: {}),
-	};
+	const markedDates: Record<string, any> = {};
+
+	const allDates = new Set([
+		...(trainingDates || []),
+		...(scheduleDates?.map((d) => d.date) || []),
+	]);
+
+	allDates.forEach((date) => {
+		const hasTraining = trainingDates?.includes(date);
+		const hasSchedule = scheduleDates?.some((d) => d.date === date);
+
+		if (hasTraining && hasSchedule) {
+			markedDates[date] = {
+				marked: true,
+				dotColor: "#F9A825",
+				selected: true,
+				selectedColor: "#F9A825",
+			};
+		} else if (hasTraining) {
+			markedDates[date] = {
+				marked: true,
+				dotColor: theme.colors.card.feedback.button,
+				selected: true,
+				selectedColor: theme.colors.card.feedback.button,
+			};
+		} else if (hasSchedule) {
+			markedDates[date] = {
+				marked: true,
+				dotColor: theme.colors.card.purple.border.default,
+				selected: true,
+				selectedColor: theme.colors.card.purple.border.default,
+			};
+		}
+	});
+
+	console.log(scheduleDates, "scheduleDates");
+	console.log(trainingDates, "trainingDates");
 
 	const handleDayPress = (day: { dateString: string }) => {
 		const selectedDates = scheduleDates?.filter(
@@ -112,8 +119,12 @@ const HomeStudent = () => {
 		if (selectedDates && selectedDates.length > 0) {
 			setSelectedDate(selectedDates); // agora é uma lista
 			setModalVisible(true);
+		} else {
+			return;
 		}
 	};
+
+	//ajusta api do treino
 
 	const { count, message, icon } = useMemo(() => {
 		if (!trainingDates)
@@ -290,6 +301,7 @@ const HomeStudent = () => {
 								iconColor="#25D366"
 								onPress={() => {
 									const phone = teacherData?.phone?.replace(/\D/g, "");
+
 									if (phone) {
 										Linking.openURL(`https://wa.me/${phone}`);
 									}
@@ -334,6 +346,7 @@ const HomeStudent = () => {
 					}}
 				>
 					<Calendar
+						markingType="custom"
 						markedDates={markedDates}
 						monthFormat={"MMMM yyyy"}
 						onDayPress={handleDayPress}
@@ -468,7 +481,7 @@ const HomeStudent = () => {
 							}}
 						/>
 						<Text style={{ color: theme.colors.card.purple.text.primary }}>
-							Agendamentos
+							Agendamento
 						</Text>
 					</View>
 					<View
@@ -488,7 +501,27 @@ const HomeStudent = () => {
 							}}
 						/>
 						<Text style={{ color: theme.colors.card.feedback.text.primary }}>
-							Treinos realizados
+							Treino realizado
+						</Text>
+					</View>
+					<View
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							marginBottom: 8,
+						}}
+					>
+						<View
+							style={{
+								width: 12,
+								height: 12,
+								backgroundColor: "#F9A825",
+								borderRadius: 6,
+								marginRight: 6,
+							}}
+						/>
+						<Text style={{ color: "#C17900" }}>
+							Agendamento + Treino realizado
 						</Text>
 					</View>
 				</View>
