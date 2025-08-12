@@ -1,9 +1,15 @@
 // File: api.js
 import api from "../axios";
 
-export const logTrainingDay = async (studentId: string) => {
+export const logTrainingDay = async (
+	studentId: string,
+	workout: { nameWorkout: string; type?: string },
+) => {
 	try {
-		const response = await api.post(`/workouts-day/students/${studentId}`);
+		const response = await api.post(
+			`/workouts-day/students/${studentId}`,
+			workout,
+		);
 		return response.data; // Retorna os dados da resposta
 	} catch (error) {
 		console.error("Erro ao criar treino:", error);
@@ -13,9 +19,9 @@ export const logTrainingDay = async (studentId: string) => {
 
 export const getTrainingDays = async (studentId: string) => {
 	try {
-		const response = await api.get<string[]>(
-			`/workouts-day/students/${studentId}`,
-		);
+		const response = await api.get<
+			{ date: string; nameWorkout: string; type: string }[]
+		>(`/workouts-day/students/${studentId}`);
 		return response.data; // Retorna os dados da resposta
 	} catch (error) {
 		console.error("Erro no login:", error);

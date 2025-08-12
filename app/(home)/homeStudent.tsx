@@ -42,6 +42,8 @@ const HomeStudent = () => {
 	const { teacher } = useMyTeacher();
 	const [selectedDate, setSelectedDate] =
 		useState<SchedulesStudentDateData[]>();
+	const [selectedDateTraining, setSelectedDateTraining] =
+		useState<{ date: string; nameWorkout: string; type: string }[]>();
 	const [modalVisible, setModalVisible] = useState(false);
 	const navigation = useNavigation<NavigationProp<RootHomeStackParamList>>();
 
@@ -76,12 +78,12 @@ const HomeStudent = () => {
 	const markedDates: Record<string, any> = {};
 
 	const allDates = new Set([
-		...(trainingDates || []),
+		...(trainingDates?.map((d) => d.date) || []),
 		...(scheduleDates?.map((d) => d.date) || []),
 	]);
 
 	allDates.forEach((date) => {
-		const hasTraining = trainingDates?.includes(date);
+		const hasTraining = trainingDates?.some((d) => d.date === date);
 		const hasSchedule = scheduleDates?.some((d) => d.date === date);
 
 		if (hasTraining && hasSchedule) {
@@ -108,9 +110,6 @@ const HomeStudent = () => {
 		}
 	});
 
-	console.log(scheduleDates, "scheduleDates");
-	console.log(trainingDates, "trainingDates");
-
 	const handleDayPress = (day: { dateString: string }) => {
 		const selectedDates = scheduleDates?.filter(
 			(schedule) => schedule.date === day.dateString,
@@ -120,11 +119,19 @@ const HomeStudent = () => {
 			setSelectedDate(selectedDates); // agora é uma lista
 			setModalVisible(true);
 		} else {
-			return;
+			setSelectedDate([]);
+		}
+		const selectedDatesTraining = trainingDates?.filter(
+			(training) => training.date === day.dateString,
+		);
+
+		if (selectedDatesTraining && selectedDatesTraining.length > 0) {
+			setSelectedDateTraining(selectedDatesTraining); // agora é uma lista
+			setModalVisible(true);
+		} else {
+			setSelectedDateTraining([]);
 		}
 	};
-
-	//ajusta api do treino
 
 	const { count, message, icon } = useMemo(() => {
 		if (!trainingDates)
@@ -135,7 +142,7 @@ const HomeStudent = () => {
 
 		const uniqueWorkoutDays = new Set(
 			trainingDates
-				.map((dateStr) => parseISO(dateStr))
+				.map((dateStr) => parseISO(dateStr.date))
 				.filter(
 					(date) =>
 						date.getMonth() === currentMonth &&
@@ -366,99 +373,177 @@ const HomeStudent = () => {
 								}}
 							>
 								<ScrollView>
-									{selectedDate?.map((item, index) => (
-										<View key={index}>
-											<View
-												style={{
-													display: "flex",
-													flexDirection: "row",
-													justifyContent: "space-between",
-													alignItems: "flex-start",
-													marginBottom: 16,
-												}}
-											>
-												<View>
-													<Text variant="titleLarge">{item?.name}</Text>
-													<Text variant="bodySmall">{item?.description}</Text>
-												</View>
-												{index === 0 && (
-													<IconButton
-														icon="close"
-														size={20}
-														onPress={() => setModalVisible(false)}
-													/>
-												)}
-											</View>
+									<View
+										style={{
+											flexDirection: "row",
+											justifyContent: "space-between",
+											alignItems: "center",
+										}}
+									>
+										<Text variant="titleLarge">Detalhes do dia</Text>
+										<IconButton
+											icon="close"
+											onPress={() => setModalVisible(false)}
+										/>
+									</View>
 
+									{(selectedDateTraining?.length || 0) > 0 && (
+										<>
 											<View
 												style={{
 													display: "flex",
 													flexDirection: "row",
-													alignItems: "center",
-													gap: 12,
-													marginBottom: 10,
-												}}
-											>
-												<Ionicons
-													name={"time"}
-													size={18}
-													color={theme.colors.primary}
-												/>
-												<Text
-													variant="bodyMedium"
-													numberOfLines={1}
-													ellipsizeMode="tail"
-													style={{ fontSize: 14, flexShrink: 1 }}
-												>
-													{item?.time && item.time.length > 0
-														? item.time
-																.filter((t) => t !== "Personalizado")
-																.join(", ")
-														: "-"}
-												</Text>
-											</View>
-
-											<View
-												style={{
-													display: "flex",
-													flexDirection: "row",
-													gap: 12,
+													gap: 8,
 													alignItems: "center",
 												}}
 											>
 												<Ionicons
-													name={"calendar"}
-													size={18}
+													name="fitness"
+													size={16}
 													color={theme.colors.primary}
 												/>
 												<Text
-													variant="bodyMedium"
-													numberOfLines={1}
-													ellipsizeMode="tail"
-													style={{ fontSize: 14, flexShrink: 1 }}
-												>
-													{item?.date
-														? format(
-																parse(item.date, "yyyy-MM-dd", new Date()),
-																"EEEE, dd 'de' MMMM 'de' yyyy",
-																{ locale: ptBR },
-															)
-														: ""}
-												</Text>
-											</View>
-
-											{index + 1 < selectedDate.length && (
-												<Divider
+													variant="titleMedium"
 													style={{
-														width: "100%",
-														marginVertical: 16,
-														backgroundColor: theme.colors.outlineVariant,
-														height: 2,
+														marginVertical: 12,
+														// color: theme.colors.primary,
 													}}
+												>
+													Treinos realizados
+												</Text>
+											</View>
+
+											{selectedDateTraining?.map((item, index) => (
+												<Card
+													key={index}
+													style={{
+														marginBottom: 10,
+														backgroundColor: "#E3F2FD",
+													}}
+												>
+													<Card.Content>
+														<Text
+															variant="titleSmall"
+															style={{
+																color: theme.colors.shadow,
+															}}
+														>
+															{item.nameWorkout}
+														</Text>
+														<Text
+															variant="bodySmall"
+															style={{
+																color: theme.colors.shadow,
+															}}
+														>
+															{item.type}
+														</Text>
+													</Card.Content>
+												</Card>
+											))}
+										</>
+									)}
+
+									{(selectedDate?.length || 0) > 0 && (
+										<>
+											<View
+												style={{
+													display: "flex",
+													flexDirection: "row",
+													gap: 8,
+													alignItems: "center",
+												}}
+											>
+												<Ionicons
+													name="calendar"
+													size={16}
+													color={theme.colors.primary}
 												/>
-											)}
-										</View>
-									))}
+												<Text
+													variant="titleMedium"
+													style={{
+														marginVertical: 12,
+													}}
+												>
+													Agendamentos
+												</Text>
+											</View>
+											{selectedDate?.map((item, i) => (
+												<Card
+													key={i}
+													style={{
+														marginBottom: 10,
+														backgroundColor: "#F3E5F5",
+													}}
+												>
+													<Card.Content>
+														<Text
+															variant="titleSmall"
+															style={{
+																color: theme.colors.shadow,
+															}}
+														>
+															{item.name}
+														</Text>
+														<Text
+															variant="bodySmall"
+															style={{
+																color: theme.colors.shadow,
+															}}
+														>
+															{item.description}
+														</Text>
+														<View
+															style={{
+																flexDirection: "row",
+																alignItems: "center",
+																marginTop: 6,
+															}}
+														>
+															<Ionicons
+																name="time"
+																size={16}
+																color={theme.colors.primary}
+															/>
+															<Text
+																style={{
+																	marginLeft: 6,
+																	color: theme.colors.shadow,
+																}}
+															>
+																{item.time?.join(", ") || "-"}
+															</Text>
+														</View>
+														<View
+															style={{
+																flexDirection: "row",
+																alignItems: "center",
+																marginTop: 6,
+															}}
+														>
+															<Ionicons
+																name="calendar"
+																size={16}
+																color={theme.colors.primary}
+															/>
+															<Text
+																style={{
+																	marginLeft: 6,
+																	color: theme.colors.shadow,
+																}}
+															>
+																{format(
+																	parse(item.date, "yyyy-MM-dd", new Date()),
+																	"EEEE, dd 'de' MMMM",
+																	{ locale: ptBR },
+																)}
+															</Text>
+														</View>
+													</Card.Content>
+												</Card>
+											))}
+										</>
+									)}
 								</ScrollView>
 							</View>
 						</Modal>

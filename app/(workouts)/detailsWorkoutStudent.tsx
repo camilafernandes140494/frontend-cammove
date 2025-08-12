@@ -107,7 +107,10 @@ const DetailsWorkoutStudent = () => {
 
 	const mutation = useMutation({
 		mutationFn: async () => {
-			await logTrainingDay(user?.id || "");
+			await logTrainingDay(user?.id || "", {
+				nameWorkout: workoutByStudent?.nameWorkout || "",
+				type: workoutByStudent?.type,
+			});
 		},
 	});
 
