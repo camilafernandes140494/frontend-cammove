@@ -6,6 +6,7 @@ import {
 import type { AssessmentData } from "@/api/assessments/assessments.types";
 import { postEmail } from "@/api/email/email.api";
 import type { PostEmail } from "@/api/email/email.types";
+import { sendNotification } from "@/api/notifications/notifications.api";
 import { calculateIMC } from "@/common/common";
 import GeneratePDFBase64 from "@/common/GeneratePDFBase64";
 import { useStudent } from "@/context/StudentContext";
@@ -327,13 +328,19 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 				await postAssessments(user?.id || "", student?.id || "", data);
 			}
 		},
-		onSuccess: () => {
+		onSuccess: async () => {
 			if (assessmentsId) {
 				refetch();
 			} else {
 				navigation.navigate("Assessments" as never);
 			}
 			handleSendPDFEmail();
+			await sendNotification({
+				title: "📊 Avaliação física liberada!",
+				message:
+					"Sua avaliação chegou! Confira seus resultados e acompanhe seu progresso. 🚀",
+				token: student?.deviceToken || "",
+			});
 		},
 		onError: () => {
 			setVisible(true);

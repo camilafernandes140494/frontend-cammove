@@ -1,22 +1,23 @@
 export type Student = {
-  studentId: string;
-  studentName: string;
-  studentStatus: 'ACTIVE' | 'INACTIVE';
+	studentId: string;
+	studentName: string;
+	studentStatus: "ACTIVE" | "INACTIVE";
 };
 
 export type GetStudentsResponse = {
-  students: Student[];
+	students: Student[];
 };
 
 export type Relationship = {
-  createdAt: string;
-  status: 'ACTIVE' | 'INACTIVE';
-  studentId: string;
-  teacherId: string;
-  id: string;
+	createdAt: string;
+	status: "ACTIVE" | "INACTIVE";
+	studentId: string;
+	teacherId: string;
+	teacherDeviceToken?: string;
+	id: string;
 };
 
 export type getRelationshipFilter = {
-  status: string | null;
-  name?: string;
+	status: string | null;
+	name?: string;
 };
