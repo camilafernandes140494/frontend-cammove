@@ -27,8 +27,6 @@ function RootNavigator() {
 
 		registerForPushNotificationsAsync().then((token) => {
 			if (token) {
-				console.log("Token recebido:", token);
-
 				if (user?.deviceToken !== token) {
 					mutation.mutate(token);
 				}
