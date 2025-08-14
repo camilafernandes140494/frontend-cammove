@@ -1,5 +1,5 @@
 export type SendNotificationBody = {
-	token: string;
+	token: string[];
 	title: string;
 	message: string;
 };
