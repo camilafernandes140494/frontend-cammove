@@ -11,7 +11,7 @@ import { useStudent } from "@/context/StudentContext";
 import { useUser } from "@/context/UserContext";
 import { useWorkoutForm } from "@/context/WorkoutFormContext";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -33,19 +33,21 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 	const { student } = useStudent();
 	const { user } = useUser();
 	const navigation = useNavigation();
+	const isFocused = useIsFocused();
 
 	const { step, nextStep, prevStep, goToStep, isGeneratedByIA } =
 		useWorkoutForm();
 
 	useEffect(() => {
-		!!workoutId && goToStep(5);
+		!!workoutId && goToStep(4);
 	}, [workoutId]);
 
 	const { data: workoutByStudent } = useQuery({
 		queryKey: ["getWorkoutByStudentIdAndWorkoutId", workoutId, student?.id],
 		queryFn: () =>
 			getWorkoutByStudentIdAndWorkoutId(workoutId || "", student?.id || ""),
-		enabled: !!workoutId,
+		enabled:
+			isFocused && !!workoutId && !!student?.id && student.id !== user?.id,
 	});
 
 	const [exercisesList, setExercisesList] = useState<ExerciseWorkout[]>([]);
@@ -127,7 +129,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 				title: "💪 Treino liberado!",
 				message:
 					"Está na hora de se mexer! Confira seu novo treino e arrase! 🚀",
-				token: student?.deviceToken || "",
+				token: [student?.deviceToken || ""],
 			});
 			navigation.navigate("Workouts" as never);
 		},

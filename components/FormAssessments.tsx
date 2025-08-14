@@ -13,7 +13,7 @@ import { useStudent } from "@/context/StudentContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
@@ -42,6 +42,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 	const { theme } = useTheme();
 	const today = new Date();
 	const navigation = useNavigation();
+	const isFocused = useIsFocused();
 
 	const {
 		data: assessmentsByStudent,
@@ -58,7 +59,8 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 				assessmentsId || "",
 				student?.id || "",
 			),
-		enabled: Boolean(assessmentsId && student?.id), // ✅ só ativa quando os dois existem
+		enabled:
+			isFocused && !!assessmentsId && !!student?.id && student.id !== user?.id,
 	});
 
 	const [sendEmail, setSendEmail] = useState(false);
@@ -208,77 +210,86 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 		assessmentDate: z.string().optional(),
 	});
 
-	const mapAssessmentToForm = {
-		studentName: student?.name || "",
-		studentId: student?.id || "",
-		bodyMeasurements: {
-			weight: assessmentsByStudent?.bodyMeasurements?.weight || undefined,
-			height: assessmentsByStudent?.bodyMeasurements?.height || undefined,
-			bodyFatPercentage:
-				assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || undefined,
-			imc: assessmentsByStudent?.bodyMeasurements?.imc || "",
-			waistCircumference:
-				assessmentsByStudent?.bodyMeasurements?.waistCircumference || undefined,
-			hipCircumference:
-				assessmentsByStudent?.bodyMeasurements?.hipCircumference || undefined,
-			chestCircumference:
-				assessmentsByStudent?.bodyMeasurements?.chestCircumference || undefined,
-			rightArmCircumference:
-				assessmentsByStudent?.bodyMeasurements?.rightArmCircumference ||
-				undefined,
-			leftArmCircumference:
-				assessmentsByStudent?.bodyMeasurements?.leftArmCircumference ||
-				undefined,
-			rightThighCircumference:
-				assessmentsByStudent?.bodyMeasurements?.rightThighCircumference ||
-				undefined,
-			leftThighCircumference:
-				assessmentsByStudent?.bodyMeasurements?.leftThighCircumference ||
-				undefined,
-			rightCalfCircumference:
-				assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference ||
-				undefined,
-			leftCalfCircumference:
-				assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference ||
-				undefined,
-			neckCircumference:
-				assessmentsByStudent?.bodyMeasurements?.neckCircumference || undefined,
-		},
-		bodyMass: {
-			muscleMass: assessmentsByStudent?.bodyMass.muscleMass || undefined,
-			boneMass: assessmentsByStudent?.bodyMass.boneMass || undefined,
-		},
-		heartRate: {
-			restingHeartRate:
-				assessmentsByStudent?.heartRate?.restingHeartRate || undefined,
-			maxHeartRate: assessmentsByStudent?.heartRate?.maxHeartRate || undefined,
-		},
-		balanceAndMobility: {
-			balanceTest: {
-				label: assessmentsByStudent?.balanceAndMobility?.balanceTest || "",
-				value: assessmentsByStudent?.balanceAndMobility?.balanceTest || "",
+	const mapAssessmentToForm = useMemo(
+		() => ({
+			studentName: student?.name || "",
+			studentId: student?.id || "",
+			bodyMeasurements: {
+				weight: assessmentsByStudent?.bodyMeasurements?.weight || undefined,
+				height: assessmentsByStudent?.bodyMeasurements?.height || undefined,
+				bodyFatPercentage:
+					assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage ||
+					undefined,
+				imc: assessmentsByStudent?.bodyMeasurements?.imc || "",
+				waistCircumference:
+					assessmentsByStudent?.bodyMeasurements?.waistCircumference ||
+					undefined,
+				hipCircumference:
+					assessmentsByStudent?.bodyMeasurements?.hipCircumference || undefined,
+				chestCircumference:
+					assessmentsByStudent?.bodyMeasurements?.chestCircumference ||
+					undefined,
+				rightArmCircumference:
+					assessmentsByStudent?.bodyMeasurements?.rightArmCircumference ||
+					undefined,
+				leftArmCircumference:
+					assessmentsByStudent?.bodyMeasurements?.leftArmCircumference ||
+					undefined,
+				rightThighCircumference:
+					assessmentsByStudent?.bodyMeasurements?.rightThighCircumference ||
+					undefined,
+				leftThighCircumference:
+					assessmentsByStudent?.bodyMeasurements?.leftThighCircumference ||
+					undefined,
+				rightCalfCircumference:
+					assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference ||
+					undefined,
+				leftCalfCircumference:
+					assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference ||
+					undefined,
+				neckCircumference:
+					assessmentsByStudent?.bodyMeasurements?.neckCircumference ||
+					undefined,
 			},
-			mobilityTest: {
-				label: assessmentsByStudent?.balanceAndMobility?.mobilityTest || "",
-				value: assessmentsByStudent?.balanceAndMobility?.mobilityTest || "",
+			bodyMass: {
+				muscleMass: assessmentsByStudent?.bodyMass?.muscleMass || undefined,
+				boneMass: assessmentsByStudent?.bodyMass?.boneMass || undefined,
 			},
-		},
-		posture: {
-			postureAssessment: {
-				label: assessmentsByStudent?.posture?.postureAssessment || "",
-				value: assessmentsByStudent?.posture?.postureAssessment || "",
+			heartRate: {
+				restingHeartRate:
+					assessmentsByStudent?.heartRate?.restingHeartRate || undefined,
+				maxHeartRate:
+					assessmentsByStudent?.heartRate?.maxHeartRate || undefined,
 			},
-		},
-		medicalHistory: {
-			injuryHistory: assessmentsByStudent?.medicalHistory?.injuryHistory || "",
-			medicalConditions:
-				assessmentsByStudent?.medicalHistory?.medicalConditions || "",
-			chronicPain: assessmentsByStudent?.medicalHistory?.chronicPain || "",
-		},
-		fitnessGoals: assessmentsByStudent?.fitnessGoals || "",
-		observations: assessmentsByStudent?.observations || "",
-		assessmentDate: assessmentsByStudent?.assessmentDate || "",
-	};
+			balanceAndMobility: {
+				balanceTest: {
+					label: assessmentsByStudent?.balanceAndMobility?.balanceTest || "",
+					value: assessmentsByStudent?.balanceAndMobility?.balanceTest || "",
+				},
+				mobilityTest: {
+					label: assessmentsByStudent?.balanceAndMobility?.mobilityTest || "",
+					value: assessmentsByStudent?.balanceAndMobility?.mobilityTest || "",
+				},
+			},
+			posture: {
+				postureAssessment: {
+					label: assessmentsByStudent?.posture?.postureAssessment || "",
+					value: assessmentsByStudent?.posture?.postureAssessment || "",
+				},
+			},
+			medicalHistory: {
+				injuryHistory:
+					assessmentsByStudent?.medicalHistory?.injuryHistory || "",
+				medicalConditions:
+					assessmentsByStudent?.medicalHistory?.medicalConditions || "",
+				chronicPain: assessmentsByStudent?.medicalHistory?.chronicPain || "",
+			},
+			fitnessGoals: assessmentsByStudent?.fitnessGoals || "",
+			observations: assessmentsByStudent?.observations || "",
+			assessmentDate: assessmentsByStudent?.assessmentDate || "",
+		}),
+		[assessmentsByStudent, student],
+	);
 
 	const { control, handleSubmit, watch, setValue, getValues, reset } = useForm<
 		z.infer<typeof schema>
@@ -291,7 +302,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 		if (assessmentsByStudent) {
 			reset(mapAssessmentToForm);
 		}
-	}, [assessmentsByStudent]);
+	}, [mapAssessmentToForm, assessmentsByStudent, reset]);
 
 	const selectedWeight = watch("bodyMeasurements.weight");
 	const selectedHeight = watch("bodyMeasurements.height");
@@ -339,7 +350,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 				title: "📊 Avaliação física liberada!",
 				message:
 					"Sua avaliação chegou! Confira seus resultados e acompanhe seu progresso. 🚀",
-				token: student?.deviceToken || "",
+				token: [student?.deviceToken || ""],
 			});
 		},
 		onError: () => {
