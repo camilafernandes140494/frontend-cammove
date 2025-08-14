@@ -6,14 +6,16 @@ import {
 	getNextMonth,
 } from "@/common/common";
 import CustomChip from "@/components/CustomChip";
+import EmptyState from "@/components/EmptyState";
 import FilterInput from "@/components/FilterInput";
 import SelectStudent from "@/components/SelectStudent";
+import Skeleton from "@/components/Skeleton";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import { FlatList, View } from "react-native";
 import {
 	Appbar,
 	Button,
@@ -75,6 +77,23 @@ const Workouts = ({ navigation }: any) => {
 		setWorkoutsSummaryFilter(filteredData);
 	}, [workoutsSummary, params, dateStatus]);
 
+	const LoadingSkeleton = () => (
+		<View>
+			{Array.from({ length: 5 }).map((_, index) => (
+				<Skeleton
+					key={index}
+					style={{
+						width: "90%",
+						height: 60,
+						borderRadius: 4,
+						marginVertical: 8,
+						alignSelf: "center",
+					}}
+				/>
+			))}
+		</View>
+	);
+
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">
@@ -96,6 +115,20 @@ const Workouts = ({ navigation }: any) => {
 				keyboardShouldPersistTaps="handled"
 				refreshing={isLoading || isFetching}
 				onRefresh={refetch}
+				ListEmptyComponent={
+					!isLoading && !isFetching && value === "workouts" ? (
+						<EmptyState message="Nenhum treino encontrado." onRetry={refetch} />
+					) : (
+						<View />
+					)
+				}
+				ListFooterComponent={
+					(isLoading || isFetching) && value === "workouts" ? (
+						<LoadingSkeleton />
+					) : (
+						<View />
+					)
+				}
 				ListHeaderComponent={
 					<View style={{ padding: 16 }}>
 						<SegmentedButtons
@@ -172,63 +205,55 @@ const Workouts = ({ navigation }: any) => {
 				}
 				renderItem={({ item }) => (
 					<>
-						{isLoading && value === "workouts" ? (
-							<ActivityIndicator
-								animating={true}
-								style={{ marginTop: 16 }}
-								size="large"
-							/>
-						) : (
-							value === "workouts" && (
-								<Card
-									style={{
-										marginHorizontal: 16,
-										borderRadius: 12,
-										elevation: 5,
-										marginBottom: 16,
-									}}
-								>
-									<Card.Title
-										title={item?.studentName || ""}
-										subtitle={`Criado em: ${format(item?.createdAt, "dd/MM/yyyy - HH:mm")}`}
-										right={(props) => (
-											<IconButton
-												{...props}
-												icon="chevron-right"
-												size={24}
-												onPress={() => {
-													navigation.navigate("CreateWorkout", {
-														workoutId: item?.workoutId || "",
-														studentId: item?.studentId || "",
-													});
-												}}
-											/>
-										)}
-										titleStyle={{ fontSize: 18, fontWeight: "bold" }}
-										subtitleStyle={{ fontSize: 12, color: "gray" }}
-									/>
-									<Card.Content style={{ paddingVertical: 16 }}>
-										<Text
-											variant="bodyMedium"
-											style={{ fontSize: 14, marginBottom: 8 }}
-										>
-											Próxima atualização
-										</Text>
-										<Text
-											variant="bodySmall"
-											style={{
-												fontSize: 16,
-												color: theme.colors.primary,
-												fontWeight: "500",
-												marginBottom: 20,
+						{value === "workouts" && (
+							<Card
+								style={{
+									marginHorizontal: 16,
+									borderRadius: 12,
+									elevation: 5,
+									marginBottom: 16,
+								}}
+							>
+								<Card.Title
+									title={item?.studentName || ""}
+									subtitle={`Criado em: ${format(item?.createdAt, "dd/MM/yyyy - HH:mm")}`}
+									right={(props) => (
+										<IconButton
+											{...props}
+											icon="chevron-right"
+											size={24}
+											onPress={() => {
+												navigation.navigate("CreateWorkout", {
+													workoutId: item?.workoutId || "",
+													studentId: item?.studentId || "",
+												});
 											}}
-										>
-											{getNextMonth(item?.createdAt || "")}
-										</Text>
-										<Chip>{item?.workoutType || ""}</Chip>
-									</Card.Content>
-								</Card>
-							)
+										/>
+									)}
+									titleStyle={{ fontSize: 18, fontWeight: "bold" }}
+									subtitleStyle={{ fontSize: 12, color: "gray" }}
+								/>
+								<Card.Content style={{ paddingVertical: 16 }}>
+									<Text
+										variant="bodyMedium"
+										style={{ fontSize: 14, marginBottom: 8 }}
+									>
+										Próxima atualização
+									</Text>
+									<Text
+										variant="bodySmall"
+										style={{
+											fontSize: 16,
+											color: theme.colors.primary,
+											fontWeight: "500",
+											marginBottom: 20,
+										}}
+									>
+										{getNextMonth(item?.createdAt || "")}
+									</Text>
+									<Chip>{item?.workoutType || ""}</Chip>
+								</Card.Content>
+							</Card>
 						)}
 					</>
 				)}
