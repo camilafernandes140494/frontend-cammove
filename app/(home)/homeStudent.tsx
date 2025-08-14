@@ -503,7 +503,7 @@ const HomeStudent = () => {
 															<Ionicons
 																name="time"
 																size={16}
-																color={theme.colors.primary}
+																color={theme.colors.card.purple.text.secondary}
 															/>
 															<Text
 																style={{
@@ -524,7 +524,7 @@ const HomeStudent = () => {
 															<Ionicons
 																name="calendar"
 																size={16}
-																color={theme.colors.primary}
+																color={theme.colors.card.purple.text.secondary}
 															/>
 															<Text
 																style={{
