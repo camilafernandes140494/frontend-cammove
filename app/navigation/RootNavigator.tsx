@@ -16,8 +16,8 @@ function RootNavigator() {
 			shouldShowAlert: true,
 			shouldShowSound: true,
 			shouldSetBadge: false,
-			shouldShowBanner: true, // adiciona aqui
-			shouldShowList: true, // e aqui
+			shouldShowBanner: true,
+			shouldShowList: true,
 			shouldPlaySound: true,
 		}),
 	});
