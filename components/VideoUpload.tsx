@@ -1,113 +1,101 @@
-import { useState } from 'react';
-import { View, ActivityIndicator, Text } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { Button } from 'react-native-paper';
-import { deleteFiles, postFiles } from '@/api/files/files.api';
+import { postVideos } from "@/api/files/files.api";
+import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
+import { Button } from "react-native-paper";
 
 interface VideoUploadProps {
-  onSelect: (urls: string[]) => void;
-  labelButton?: string;
-  deletePreviousVideo?: string | null;
-  storageFolder: string;
+	onSelect: (url: string) => void;
+	labelButton?: string;
 }
 
 export default function VideoUpload({
-  onSelect,
-  deletePreviousVideo,
-  labelButton = 'Escolher vídeo',
-  storageFolder,
+	onSelect,
+	labelButton = "Escolher vídeo",
 }: VideoUploadProps) {
-  const [videoUri, setVideoUri] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const pickVideo = async () => {
-    setError(null);
+	const getVideoMimeType = (filename: string) => {
+		const extension = filename.split(".").pop()?.toLowerCase();
+		switch (extension) {
+			case "mp4":
+				return "video/mp4";
+			case "mov":
+				return "video/quicktime";
+			case "avi":
+				return "video/x-msvideo";
+			default:
+				return "application/octet-stream";
+		}
+	};
 
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      setError('Permissão para acessar vídeos foi negada.');
-      return;
-    }
+	const pickVideo = async () => {
+		setError(null);
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: false,
-      quality: 1,
-    });
+		// pede permissão
+		const permissionResult =
+			await ImagePicker.requestMediaLibraryPermissionsAsync();
+		if (!permissionResult.granted) {
+			setError("Permissão para acessar a galeria foi negada.");
+			return;
+		}
 
-    if (!result.canceled && result.assets.length > 0) {
-      const selectedVideo = result.assets[0];
-      setVideoUri(selectedVideo.uri);
-      await handleSave(selectedVideo);
-    }
-  };
+		// seleciona vídeo
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+			allowsEditing: false,
+			quality: 1,
+			videoMaxDuration: 30, // limita a 60 segundos
+		});
 
-  const getMimeType = (filename: string) => {
-    const extension = filename.split('.').pop()?.toLowerCase();
-    switch (extension) {
-      case 'mp4':
-        return 'video/mp4';
-      case 'mov':
-        return 'video/quicktime';
-      case 'webm':
-        return 'video/webm';
-      default:
-        return 'application/octet-stream';
-    }
-  };
+		if (!result.canceled && result.assets.length > 0) {
+			setIsLoading(true);
+			try {
+				const video = result.assets[0];
 
-  const handleSave = async (asset: ImagePicker.ImagePickerAsset) => {
-    setIsLoading(true);
+				// cria caminho local acessível (importante no iOS)
+				const localUri =
+					FileSystem.cacheDirectory +
+					(video.fileName || `video_${Date.now()}.mp4`);
+				await FileSystem.copyAsync({ from: video.uri, to: localUri });
 
-    try {
-      if (deletePreviousVideo) {
-        const parts = deletePreviousVideo.split('/');
-        await deleteFiles(parts[3], parts[4]);
-      }
+				// monta FormData
+				const formData = new FormData();
+				formData.append("file", {
+					uri: localUri,
+					name: video.fileName || `video_${Date.now()}.mp4`,
+					type: getVideoMimeType(video.fileName || ""),
+				} as any);
+				formData.append("title", video.fileName || "Vídeo de teste");
+				formData.append("description", "Descrição do vídeo");
 
-      const file = {
-        uri: asset.uri,
-        name: asset.fileName || `video_${Date.now()}.mp4`,
-        type: getMimeType(asset.fileName || ''),
-      } as any;
+				// envia para o backend
+				const uploadResult = await postVideos("videos", formData);
+				console.log("Upload bem-sucedido:", uploadResult);
+				onSelect(uploadResult.url); // assume que postVideos retorna { videoUrl }
+			} catch (err) {
+				console.error("Erro ao enviar vídeo:", err);
+				setError("Erro ao enviar vídeo.");
+			} finally {
+				setIsLoading(false);
+			}
+		}
+	};
 
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const uploadResult = await postFiles(storageFolder, formData);
-      const { url } = uploadResult;
-      onSelect([url]);
-    } catch (error) {
-      console.error('Erro ao fazer upload:', error);
-      setError('Erro ao enviar vídeo.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <View>
-      <Button mode="contained" onPress={pickVideo}>
-        {labelButton}
-      </Button>
-
-      {videoUri && (
-        <View style={{ marginTop: 20 }}>
-          {/* Pode substituir por componente de vídeo do expo-av se quiser controle */}
-          {/* <Video
-            source={{ uri: videoUri }}
-            style={{ width: 300, height: 200 }}
-            useNativeControls
-            resizeMode="contain"
-          /> */}
-          {isLoading && <ActivityIndicator animating={true} size="large" />}
-        </View>
-      )}
-
-      {error && (
-        <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>
-      )}
-    </View>
-  );
+	return (
+		<View>
+			<Button
+				mode="contained"
+				onPress={pickVideo}
+				disabled={isLoading}
+				icon="play-circle-outline"
+			>
+				{labelButton}
+			</Button>
+			{isLoading && <ActivityIndicator style={{ marginTop: 10 }} />}
+			{error && <Text style={{ color: "red", marginTop: 10 }}>{error}</Text>}
+		</View>
+	);
 }
