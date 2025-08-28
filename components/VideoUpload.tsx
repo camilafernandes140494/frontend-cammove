@@ -2,7 +2,12 @@ import { postVideos } from "@/api/files/files.api";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import {
+	ActivityIndicator,
+	InteractionManager,
+	Text,
+	View,
+} from "react-native";
 import { Button } from "react-native-paper";
 
 interface VideoUploadProps {
@@ -51,7 +56,9 @@ export default function VideoUpload({
 		});
 
 		if (!result.canceled && result.assets.length > 0) {
-			setIsLoading(true);
+			InteractionManager.runAfterInteractions(() => {
+				setIsLoading(true);
+			});
 			try {
 				const video = result.assets[0];
 
@@ -65,7 +72,9 @@ export default function VideoUpload({
 				const formData = new FormData();
 				formData.append("file", {
 					uri: localUri,
-					name: video.fileName || `video_${Date.now()}.mp4`,
+					name:
+						`video_${video.fileName}_${Date.now()}` ||
+						`video_${Date.now()}.mp4`,
 					type: getVideoMimeType(video.fileName || ""),
 				} as any);
 				formData.append("title", video.fileName || "Vídeo de teste");
