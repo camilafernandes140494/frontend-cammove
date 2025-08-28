@@ -76,6 +76,7 @@ const StepExerciseIA = ({
 						images: [],
 						createdAt: "",
 						updatedAt: "",
+						video: "",
 					},
 				}),
 			);
