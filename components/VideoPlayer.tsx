@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Video } from "expo-av";
 import React from "react";
 import { View } from "react-native";
+import { Button } from "react-native-paper";
 import CustomModal from "./CustomModal";
 
 interface VideoPlayerProps {
@@ -34,25 +35,31 @@ export default function VideoPlayer({
 		<View
 			style={{
 				width: "100%",
-				backgroundColor: "black",
-				alignItems: "flex-end",
+				// backgroundColor: "black",
+				alignItems: "center",
 				padding: 12,
 				borderRadius: 18,
+				gap: 10,
 			}}
 		>
-			{showDeleteButton && (
-				<CustomModal
-					onPress={mutation.mutate}
-					primaryButtonLabel="Deletar vídeo"
-					title="Tem certeza que deseja deletar o vídeo?"
-				/>
-			)}
 			<Video
 				source={{ uri: source }}
 				style={{ width: "100%", height: 250 }}
 				useNativeControls // habilita play/pause, barra de progresso
 				// shouldPlay // começa tocando
 			/>
+			{showDeleteButton && (
+				<CustomModal
+					onPress={mutation.mutate}
+					primaryButtonLabel="Deletar vídeo"
+					title="Tem certeza que deseja deletar o vídeo?"
+					trigger={
+						<Button icon={"delete"} mode="text">
+							Deletar vídeo
+						</Button>
+					}
+				/>
+			)}
 		</View>
 	);
 }
