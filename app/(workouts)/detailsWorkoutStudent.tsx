@@ -3,9 +3,11 @@ import { getWorkoutByStudentIdAndWorkoutId } from "@/api/workout/workout.api";
 import { logTrainingDay } from "@/api/workoutsDay/workoutsDay.api";
 import CongratsConfetti from "@/components/CongratsConfetti ";
 import EmptyState from "@/components/EmptyState";
+import { ImageWithActions } from "@/components/ImageWithActions";
 import InfoField from "@/components/InfoField";
 import Skeleton from "@/components/Skeleton";
 import StudentCard from "@/components/StudentCard";
+import VideoPlayer from "@/components/VideoPlayer";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,7 +20,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import React, { useState } from "react";
-import { ActivityIndicator, FlatList, Image, View } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import {
 	Appbar,
 	Badge,
@@ -433,19 +435,29 @@ const DetailsWorkoutStudent = () => {
 																alignItems: "center",
 															}}
 														>
-															{item?.exerciseId?.images?.[0] && (
-																<Image
-																	source={{
-																		uri: item?.exerciseId?.images?.[0],
-																	}}
+															{item.exerciseId?.video && (
+																<View
 																	style={{
-																		width: 200,
-																		height: 200,
-																		borderRadius: 10,
-																		marginBottom: 10,
+																		width: "100%",
 																	}}
-																/>
+																>
+																	<VideoPlayer
+																		source={item.exerciseId?.video}
+																	/>
+																</View>
 															)}
+															<Card
+																style={{
+																	width: "100%",
+																	alignItems: "flex-start",
+																	marginVertical: 16,
+																	padding: 8,
+																}}
+															>
+																{item?.exerciseId?.images?.map((uri, index) => (
+																	<ImageWithActions key={index} uri={uri} />
+																))}
+															</Card>
 
 															<Text variant="bodySmall">
 																{item.exerciseId.description}
