@@ -216,7 +216,7 @@ const Workouts = ({ navigation }: any) => {
 							>
 								<Card.Title
 									title={item?.studentName || ""}
-									subtitle={`Criado em: ${format(item?.createdAt, "dd/MM/yyyy - HH:mm")}`}
+									subtitle={item?.nameWorkout || ""}
 									right={(props) => (
 										<IconButton
 											{...props}
@@ -233,25 +233,44 @@ const Workouts = ({ navigation }: any) => {
 									titleStyle={{ fontSize: 18, fontWeight: "bold" }}
 									subtitleStyle={{ fontSize: 12, color: "gray" }}
 								/>
-								<Card.Content style={{ paddingVertical: 16 }}>
-									<Text
-										variant="bodyMedium"
-										style={{ fontSize: 14, marginBottom: 8 }}
-									>
-										Próxima atualização
-									</Text>
-									<Text
-										variant="bodySmall"
+
+								<Card.Content style={{ paddingVertical: 12 }}>
+									{/* Infos em linha */}
+									<View
 										style={{
-											fontSize: 16,
-											color: theme.colors.primary,
-											fontWeight: "500",
-											marginBottom: 20,
+											flexDirection: "row",
+											justifyContent: "space-between",
+											marginBottom: 16,
 										}}
 									>
-										{getNextMonth(item?.createdAt || "")}
-									</Text>
-									<Chip>{item?.workoutType || ""}</Chip>
+										<View>
+											<Text style={{ fontSize: 12, color: "gray" }}>
+												Criado em
+											</Text>
+											<Text>
+												{format(item?.createdAt, "dd/MM/yyyy - HH:mm")}
+											</Text>
+										</View>
+										<View>
+											<Text style={{ fontSize: 12, color: "gray" }}>
+												Próxima atualização
+											</Text>
+											<Text
+												style={{
+													fontSize: 14,
+													color: theme.colors.primary,
+													fontWeight: "600",
+												}}
+											>
+												{getNextMonth(item?.createdAt || "")}
+											</Text>
+										</View>
+									</View>
+
+									{/* Chip destacado no fim */}
+									<Chip style={{ alignSelf: "flex-start" }}>
+										{item?.workoutType || ""}
+									</Chip>
 								</Card.Content>
 							</Card>
 						)}
