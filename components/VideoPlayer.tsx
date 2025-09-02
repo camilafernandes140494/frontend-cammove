@@ -1,10 +1,11 @@
 import { deleteFiles } from "@/api/files/files.api";
 import { useMutation } from "@tanstack/react-query";
 import { Video } from "expo-av";
-import React from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
 import { Button } from "react-native-paper";
 import CustomModal from "./CustomModal";
+import Skeleton from "./Skeleton";
 
 interface VideoPlayerProps {
 	source: string;
@@ -17,6 +18,8 @@ export default function VideoPlayer({
 	showDeleteButton = false,
 	onDelete,
 }: VideoPlayerProps) {
+	const [loading, setLoading] = useState(true);
+
 	const mutation = useMutation({
 		mutationFn: async () => {
 			await deleteFiles("videos", source.split("/").pop() || "");
@@ -35,19 +38,44 @@ export default function VideoPlayer({
 		<View
 			style={{
 				width: "100%",
-				// backgroundColor: "black",
 				alignItems: "center",
 				padding: 12,
 				borderRadius: 18,
 				gap: 10,
 			}}
 		>
-			<Video
-				source={{ uri: source }}
-				style={{ width: "100%", height: 250 }}
-				useNativeControls // habilita play/pause, barra de progresso
-				// shouldPlay // começa tocando
-			/>
+			<View
+				style={{
+					width: "100%",
+					height: 250,
+					borderRadius: 18,
+					justifyContent: "center",
+					alignItems: "center",
+				}}
+			>
+				{loading && (
+					<Skeleton
+						style={{
+							width: "100%",
+							height: "100%",
+							borderRadius: 18,
+						}}
+					/>
+				)}
+				<Video
+					source={{ uri: source }}
+					style={{
+						width: "100%",
+						height: 250,
+						borderRadius: 18,
+						position: loading ? "absolute" : "relative",
+					}}
+					useNativeControls
+					onLoadStart={() => setLoading(true)}
+					onLoad={() => setLoading(false)}
+				/>
+			</View>
+
 			{showDeleteButton && (
 				<CustomModal
 					onPress={mutation.mutate}
