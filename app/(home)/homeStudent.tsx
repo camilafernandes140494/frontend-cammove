@@ -137,18 +137,16 @@ const HomeStudent = () => {
 		if (!trainingDates)
 			return { count: 0, message: "", icon: "emoticon-neutral-outline" };
 
-		const currentMonth = new Date().getMonth();
-		const currentYear = new Date().getFullYear();
+		const today = new Date();
+		const thirtyDaysAgo = new Date();
+		thirtyDaysAgo.setDate(today.getDate() - 31);
 
+		// cria um set de dias únicos nos últimos 30 dias
 		const uniqueWorkoutDays = new Set(
 			trainingDates
 				.map((dateStr) => parseISO(dateStr.date))
-				.filter(
-					(date) =>
-						date.getMonth() === currentMonth &&
-						date.getFullYear() === currentYear,
-				)
-				.map((date) => date.getDate()), // pegando só o dia para contar os únicos
+				.filter((date) => date >= thirtyDaysAgo && date <= today)
+				.map((date) => date.toDateString()), // converte para string para garantir unicidade
 		);
 
 		const count = uniqueWorkoutDays.size;
@@ -156,16 +154,16 @@ const HomeStudent = () => {
 		let message = "";
 		let icon = "emoticon-happy-outline";
 
-		if (count >= 3) {
+		if (count >= 15) {
 			message = "Incrível! Você está se superando! 💥";
 			icon = "fire";
-		} else if (count >= 15) {
+		} else if (count >= 10) {
 			message = "Muito bem! Continue nesse ritmo! 🙌";
 			icon = "emoticon-excited-outline";
-		} else if (count <= 6) {
-			message = "Você começou, e isso é o mais importante! 💪";
-			icon = "star-outline";
-		} else if (count === 1) {
+		} else if (count >= 4) {
+			message = "Ótimo progresso! Continue firme nos treinos! 🚀";
+			icon = "emoticon-happy-outline";
+		} else if (count >= 1) {
 			message = "Você começou, e isso é o mais importante! 💪";
 			icon = "star-outline";
 		} else {
