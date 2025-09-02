@@ -82,7 +82,6 @@ export default function VideoUpload({
 
 				// envia para o backend
 				const uploadResult = await postVideos("videos", formData);
-				console.log("Upload bem-sucedido:", uploadResult);
 				onSelect(uploadResult.url); // assume que postVideos retorna { videoUrl }
 			} catch (err) {
 				console.error("Erro ao enviar vídeo:", err);
