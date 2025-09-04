@@ -446,18 +446,22 @@ const DetailsWorkoutStudent = () => {
 																	/>
 																</View>
 															)}
-															<Card
-																style={{
-																	width: "100%",
-																	alignItems: "flex-start",
-																	marginVertical: 16,
-																	padding: 8,
-																}}
-															>
-																{item?.exerciseId?.images?.map((uri, index) => (
-																	<ImageWithActions key={index} uri={uri} />
-																))}
-															</Card>
+															{(item?.exerciseId?.images?.length || 0) >= 1 && (
+																<Card
+																	style={{
+																		width: "100%",
+																		alignItems: "flex-start",
+																		marginVertical: 16,
+																		padding: 8,
+																	}}
+																>
+																	{item?.exerciseId?.images?.map(
+																		(uri, index) => (
+																			<ImageWithActions key={index} uri={uri} />
+																		),
+																	)}
+																</Card>
+															)}
 
 															<Text variant="bodySmall">
 																{item.exerciseId.description}
