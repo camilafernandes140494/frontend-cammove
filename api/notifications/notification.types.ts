@@ -3,3 +3,9 @@ export type SendNotificationBody = {
 	title: string;
 	message: string;
 };
+
+export type NotificationsDataTypes = {
+	assessments: boolean;
+	workout: boolean;
+	schedule: boolean;
+};
