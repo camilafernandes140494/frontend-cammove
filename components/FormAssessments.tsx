@@ -6,7 +6,11 @@ import {
 import type { AssessmentData } from "@/api/assessments/assessments.types";
 import { postEmail } from "@/api/email/email.api";
 import type { PostEmail } from "@/api/email/email.types";
-import { sendNotification } from "@/api/notifications/notifications.api";
+import {
+	getNotifications,
+	sendNotification,
+	sendNotificationsData,
+} from "@/api/notifications/notifications.api";
 import { calculateIMC } from "@/common/common";
 import GeneratePDFBase64 from "@/common/GeneratePDFBase64";
 import { useStudent } from "@/context/StudentContext";
@@ -43,6 +47,11 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 	const today = new Date();
 	const navigation = useNavigation();
 	const isFocused = useIsFocused();
+	const { data } = useQuery({
+		queryKey: ["getNotifications", student?.id],
+		queryFn: () => getNotifications(student?.id || ""),
+		enabled: !!student?.id,
+	});
 
 	const {
 		data: assessmentsByStudent,
@@ -351,6 +360,11 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 				message:
 					"Sua avaliação chegou! Confira seus resultados e acompanhe seu progresso. 🚀",
 				token: [student?.deviceToken || ""],
+			});
+			await sendNotificationsData(student?.id || "", {
+				assessments: true,
+				workout: data?.workout || false,
+				schedule: data?.schedule || false,
 			});
 		},
 		onError: () => {

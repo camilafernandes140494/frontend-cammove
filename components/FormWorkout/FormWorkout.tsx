@@ -1,6 +1,10 @@
 /** biome-ignore-all lint/suspicious/noConsole: <explanation> 1213*/
 
-import { sendNotification } from "@/api/notifications/notifications.api";
+import {
+	getNotifications,
+	sendNotification,
+	sendNotificationsData,
+} from "@/api/notifications/notifications.api";
 import {
 	getWorkoutByStudentIdAndWorkoutId,
 	patchWorkout,
@@ -34,6 +38,12 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 	const { user } = useUser();
 	const navigation = useNavigation();
 	const isFocused = useIsFocused();
+
+	const { data } = useQuery({
+		queryKey: ["getNotifications", student?.id],
+		queryFn: () => getNotifications(student?.id || ""),
+		enabled: !!student?.id,
+	});
 
 	const { step, nextStep, prevStep, goToStep, isGeneratedByIA } =
 		useWorkoutForm();
@@ -130,6 +140,11 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 				message:
 					"Está na hora de se mexer! Confira seu novo treino e arrase! 🚀",
 				token: [student?.deviceToken || ""],
+			});
+			await sendNotificationsData(student?.id || "", {
+				assessments: data?.assessments || false,
+				workout: true,
+				schedule: data?.schedule || false,
 			});
 			navigation.navigate("Workouts" as never);
 		},
