@@ -4,6 +4,7 @@ import {
 	getNotifications,
 	sendNotification,
 	sendNotificationsData,
+	updateNotificationsData,
 } from "@/api/notifications/notifications.api";
 import {
 	getWorkoutByStudentIdAndWorkoutId,
@@ -141,11 +142,25 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 					"Está na hora de se mexer! Confira seu novo treino e arrase! 🚀",
 				token: [student?.deviceToken || ""],
 			});
-			await sendNotificationsData(student?.id || "", {
-				assessments: data?.assessments || false,
-				workout: true,
-				schedule: data?.schedule || false,
-			});
+			const getIdNotifications = await getNotifications(student?.id || "");
+			if (getIdNotifications.length === 0) {
+				await sendNotificationsData(student?.id || "", {
+					assessments: data?.[0]?.assessments || false,
+					workout: true,
+					schedule: data?.[0].schedule || false,
+				});
+			} else {
+				await updateNotificationsData(
+					student?.id || "",
+					getIdNotifications[0].id || "",
+					{
+						assessments: data?.[0]?.assessments || false,
+						workout: true,
+						schedule: data?.[0].schedule || false,
+					},
+				);
+			}
+
 			navigation.navigate("Workouts" as never);
 		},
 		onError: () => {
