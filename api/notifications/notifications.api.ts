@@ -52,9 +52,25 @@ export const sendNotificationsData = async (
 	}
 };
 
+export const updateNotificationsData = async (
+	id: string,
+	idNotification: string,
+	params: NotificationsDataTypes,
+) => {
+	try {
+		const response = await api.patch(
+			`/notifications/${id}/${idNotification}`,
+			params,
+		);
+		return response.data;
+	} catch (error) {
+		throw error;
+	}
+};
+
 export const getNotifications = async (id: string) => {
 	try {
-		const response = await api.get<NotificationsDataTypes>(
+		const response = await api.get<NotificationsDataTypes[]>(
 			`/notifications/${id}`,
 		);
 		return response.data;
