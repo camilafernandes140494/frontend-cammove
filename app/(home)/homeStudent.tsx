@@ -178,7 +178,6 @@ const HomeStudent = () => {
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">
 				<Appbar.Content title="CamMove" />
-				<Appbar.Action icon="bell-outline" onPress={() => {}} />
 				<Appbar.Action
 					icon="menu"
 					onPress={() => setVisibleConfig(!visibleConfig)}
