@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import React, { createContext, type ReactNode, useContext } from "react";
 
 type NotificationsContextType = {
-	data: NotificationsDataTypes;
+	data: NotificationsDataTypes[];
 	loading: boolean;
 	refetch: () => void;
 };
@@ -28,6 +28,7 @@ export const NotificationsProvider = ({
 		queryKey: ["getNotifications", userId],
 		queryFn: () => getNotifications(userId),
 		enabled: !!userId,
+		refetchInterval: 10 * 60 * 1000,
 	});
 
 	const isLoading = isLoadingStudent || isFetchingStudent;
