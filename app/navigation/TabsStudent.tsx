@@ -139,7 +139,6 @@ function TabsContent() {
 	);
 }
 function TabsStudent() {
-	const { isDarkMode, theme } = useTheme();
 	const { user } = useUser();
 
 	return (
