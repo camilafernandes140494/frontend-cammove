@@ -8,9 +8,9 @@ import Skeleton from "@/components/Skeleton";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { WorkoutFormProvider } from "@/context/WorkoutFormContext";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { Appbar, Button, Text } from "react-native-paper";
 import { useStudent } from "../../context/StudentContext";
@@ -33,11 +33,11 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
 	const [newStudent, setNewStudent] = useState(!studentId);
 	const { theme } = useTheme();
 
-	useFocusEffect(
-		useCallback(() => {
-			studentId ? refetchStudent(studentId) : refetchStudent("");
-		}, [studentId]),
-	);
+	// useFocusEffect(
+	// 	useCallback(() => {
+	// 		studentId ? refetchStudent(studentId) : refetchStudent("");
+	// 	}, [studentId]),
+	// );
 
 	const { data: review } = useQuery({
 		queryKey: ["getReviewById", user?.id, workoutId],
