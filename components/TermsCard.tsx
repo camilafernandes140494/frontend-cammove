@@ -15,7 +15,7 @@ const TermsCard = () => {
 	const mutation = useMutation({
 		mutationFn: async () => {
 			await patchUser(user?.id!, {
-				termsOfUse: user?.termsOfUse,
+				termsOfUse: termsOfUse,
 			} as Partial<PostUser>);
 		},
 		onSuccess: () => {
