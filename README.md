@@ -121,3 +121,5 @@ Para um commit em inglês enquanto ainda está trabalhando na tela, algo genéri
 🔹 "WIP: ongoing development for [screen name]" (se quiser algo mais abrangente)
 
 O "WIP" (Work In Progress) indica que o trabalho ainda não está finalizado.
+
+É uma plataforma mobile para personal trainer, onde o professor consegue se cadastrar e ter varios alunos, todos fazem o onboarding, porém cada um tem um acesso diferente com permissões diferentes. A tela do professor permite que ele *CRUD treino *CRUD avaliação fisica *CRUD exercicio *CRUD agendamento *CRUD aluno A tela do aluno permite que ele *Visualize e avalia o treino *Visualize a avaliação fisica *visualize o agendamento e possa se inscrever em algo que interessa
