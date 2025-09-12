@@ -217,7 +217,6 @@ const Home = () => {
 					</Text>
 				</View>
 			</View>
-			{!user?.termsOfUse && <TermsCard />}
 
 			<ScrollView
 				style={{ flex: 1 }}
@@ -237,6 +236,8 @@ const Home = () => {
 					/>
 				}
 			>
+				{!user?.termsOfUse && <TermsCard />}
+
 				<View
 					style={{
 						display: "flex",
@@ -484,7 +485,7 @@ const Home = () => {
 						<Text variant="titleMedium">Gerenciar Alunos</Text>
 					</Card.Content>
 					<Card.Cover
-						style={{ height: 300, backgroundColor: "transparent" }}
+						style={{ height: 300, backgroundColor: "transparent", padding: 16 }}
 						source={require("@/assets/images/student.png")}
 					/>
 					<Card.Actions>
