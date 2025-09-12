@@ -315,7 +315,7 @@ const HomeStudent = () => {
 						)}
 					/>
 				</Card>
-				{user?.termsOfUse === "" && <TermsCard />}
+				{!user?.termsOfUse && <TermsCard />}
 				{user?.status !== "ACTIVE" && (
 					<Card style={{ backgroundColor: theme.colors.onErrorContainer }}>
 						<Card.Title

@@ -30,7 +30,7 @@ const SchedulesStudent = ({ navigation }: any) => {
 		enabled: !!teacher?.teacherId,
 	});
 
-	if (user?.termsOfUse === "") {
+	if (!user?.termsOfUse) {
 		return (
 			<View
 				style={{

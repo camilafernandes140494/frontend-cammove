@@ -26,7 +26,7 @@ const AssessmentsStudent = ({ navigation }: any) => {
 		queryFn: () => getAssessmentsByStudentId(user?.id || ""),
 		enabled: !!user?.id,
 	});
-	if (user?.termsOfUse === "") {
+	if (!user?.termsOfUse) {
 		return (
 			<View
 				style={{

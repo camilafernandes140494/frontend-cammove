@@ -206,7 +206,7 @@ const CreateSchedules = ({ route }: CreateWorkoutProps) => {
 			studentsSelected?.filter((s) => s.studentId !== studentId),
 		);
 	};
-	if (user?.termsOfUse === "") {
+	if (!user?.termsOfUse) {
 		return (
 			<View
 				style={{

@@ -95,7 +95,7 @@ const Workouts = ({ navigation }: any) => {
 		</View>
 	);
 
-	if (user?.termsOfUse === "") {
+	if (!user?.termsOfUse) {
 		return (
 			<View
 				style={{

@@ -217,7 +217,7 @@ const Home = () => {
 					</Text>
 				</View>
 			</View>
-			{user?.termsOfUse === "" && <TermsCard />}
+			{!user?.termsOfUse && <TermsCard />}
 
 			<ScrollView
 				style={{ flex: 1 }}
