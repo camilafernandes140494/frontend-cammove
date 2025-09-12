@@ -21,6 +21,7 @@ export type UserType = {
 	phone: string | null;
 	onboarding_completed: boolean;
 	deviceToken: string | null;
+	termsOfUse: string | null;
 };
 
 type UserContextType = {
@@ -71,6 +72,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 				phone: prevUser?.phone ?? null,
 				onboarding_completed: false,
 				deviceToken: prevUser?.deviceToken ?? null,
+				termsOfUse: prevUser?.termsOfUse ?? null,
 				...newUser,
 			};
 

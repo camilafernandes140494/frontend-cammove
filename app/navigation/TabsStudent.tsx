@@ -21,7 +21,6 @@ function TabsContent() {
 	const { isDarkMode, theme } = useTheme();
 	const { data, refetch } = useNotifications();
 	const { user } = useUser();
-	console.log(data);
 
 	const mutation = useMutation({
 		mutationFn: async (type: string) => {

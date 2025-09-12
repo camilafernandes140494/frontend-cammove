@@ -4,6 +4,7 @@ import { getUserById } from "@/api/users/users.api";
 import { getTrainingDays } from "@/api/workoutsDay/workoutsDay.api";
 import { getInitials } from "@/common/common";
 import CustomModal from "@/components/CustomModal";
+import TermsCard from "@/components/TermsCard";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -78,8 +79,8 @@ const HomeStudent = () => {
 	const markedDates: Record<string, any> = {};
 
 	const allDates = new Set([
-		...(trainingDates?.map((d) => d.date) || []),
-		...(scheduleDates?.map((d) => d.date) || []),
+		...(Array.isArray(trainingDates) ? trainingDates.map((d) => d.date) : []),
+		...(Array.isArray(scheduleDates) ? scheduleDates.map((d) => d.date) : []),
 	]);
 
 	allDates.forEach((date) => {
@@ -111,9 +112,9 @@ const HomeStudent = () => {
 	});
 
 	const handleDayPress = (day: { dateString: string }) => {
-		const selectedDates = scheduleDates?.filter(
-			(schedule) => schedule.date === day.dateString,
-		);
+		const selectedDates = Array.isArray(scheduleDates)
+			? scheduleDates.filter((schedule) => schedule.date === day.dateString)
+			: [];
 
 		if (selectedDates && selectedDates.length > 0) {
 			setSelectedDate(selectedDates); // agora é uma lista
@@ -314,7 +315,7 @@ const HomeStudent = () => {
 						)}
 					/>
 				</Card>
-
+				{user?.termsOfUse === "" && <TermsCard />}
 				{user?.status !== "ACTIVE" && (
 					<Card style={{ backgroundColor: theme.colors.onErrorContainer }}>
 						<Card.Title

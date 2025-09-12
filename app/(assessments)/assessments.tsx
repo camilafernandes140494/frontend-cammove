@@ -4,6 +4,7 @@ import EmptyState from "@/components/EmptyState";
 import FilterInput from "@/components/FilterInput";
 import SelectStudent from "@/components/SelectStudent";
 import Skeleton from "@/components/Skeleton";
+import TermsCard from "@/components/TermsCard";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +36,21 @@ const Assessments = ({ navigation }: any) => {
 		enabled: !!user?.id,
 	});
 
+	if (user?.termsOfUse === "") {
+		return (
+			<View
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					flex: 1,
+					marginHorizontal: 16,
+				}}
+			>
+				<TermsCard />
+			</View>
+		);
+	}
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">

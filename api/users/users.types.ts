@@ -12,6 +12,7 @@ export type PostUser = {
 	status: STATUS;
 	phone: string;
 	deviceToken?: string;
+	termsOfUse?: string;
 };
 
 export type Users = {
@@ -28,4 +29,5 @@ export type Users = {
 	image: string;
 	status: STATUS;
 	deviceToken?: string;
+	termsOfUse?: string;
 };

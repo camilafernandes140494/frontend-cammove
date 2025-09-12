@@ -5,6 +5,7 @@ import type { SchedulesStudentDateData } from "@/api/schedules/schedules.types";
 import { getInitials } from "@/common/common";
 import CustomModal from "@/components/CustomModal";
 import Skeleton from "@/components/Skeleton";
+import TermsCard from "@/components/TermsCard";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -216,6 +217,7 @@ const Home = () => {
 					</Text>
 				</View>
 			</View>
+			{user?.termsOfUse === "" && <TermsCard />}
 
 			<ScrollView
 				style={{ flex: 1 }}

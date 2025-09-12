@@ -1,6 +1,7 @@
 import { getSchedule } from "@/api/schedules/schedules.api";
 import EmptyState from "@/components/EmptyState";
 import Skeleton from "@/components/Skeleton";
+import TermsCard from "@/components/TermsCard";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -28,6 +29,22 @@ const SchedulesStudent = ({ navigation }: any) => {
 		queryFn: () => getSchedule(teacher?.teacherId!, params),
 		enabled: !!teacher?.teacherId,
 	});
+
+	if (user?.termsOfUse === "") {
+		return (
+			<View
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					flex: 1,
+					marginHorizontal: 16,
+				}}
+			>
+				<TermsCard />
+			</View>
+		);
+	}
 
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>

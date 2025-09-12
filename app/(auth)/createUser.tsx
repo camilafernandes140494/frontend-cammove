@@ -23,7 +23,7 @@ const CreateUser = () => {
 	const { theme } = useTheme();
 	const navigation =
 		useNavigation<NavigationProp<RootOnboardingStackParamList>>();
-	const { user, setUser } = useUser();
+	const { setUser } = useUser();
 	const [showPassword, setShowPassword] = useState(false);
 	const [visible, setVisible] = useState(false);
 
@@ -36,13 +36,15 @@ const CreateUser = () => {
 			.string()
 			.min(6, "A senha deve ter pelo menos 6 caracteres")
 			.nonempty("A senha é obrigatória"),
+		termsOfUse: z.string().nonempty("É necessário aceitar os termos de uso"),
 	});
 
-	const { control, handleSubmit } = useForm<z.infer<typeof schema>>({
+	const { control, handleSubmit, setValue } = useForm<z.infer<typeof schema>>({
 		resolver: zodResolver(schema),
 		defaultValues: {
 			email: "",
 			password: "",
+			termsOfUse: "",
 		},
 	});
 
@@ -52,7 +54,11 @@ const CreateUser = () => {
 			return { createResult };
 		},
 		onSuccess: async ({ createResult }, variables) => {
-			setUser({ id: createResult.uid, email: variables.email });
+			setUser({
+				id: createResult.uid,
+				email: variables.email,
+				termsOfUse: variables.termsOfUse,
+			});
 			await postUser(createResult.uid!, {
 				name: "",
 				gender: null,
@@ -151,7 +157,14 @@ const CreateUser = () => {
 							/>
 						}
 					/>
-					<TermsScreen />
+					<FormField
+						control={control}
+						name="termsOfUse"
+						type="custom"
+						customRender={({ value, onChange }) => (
+							<TermsScreen onAcceptChange={onChange} />
+						)}
+					/>
 					<Button
 						mode="contained"
 						onPress={handleSubmit(onSubmit)}
