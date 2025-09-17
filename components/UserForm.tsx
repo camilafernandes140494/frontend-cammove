@@ -52,8 +52,9 @@ const UserForm = ({ userData, children }: UserFormProps) => {
 				...values,
 				termsOfUse: user?.termsOfUse,
 			} as Partial<PostUser>);
-			await postEmail({
-				body: `Olá ${values.name}, <br><br>
+			if (!user?.onboarding_completed) {
+				await postEmail({
+					body: `Olá ${values.name}, <br><br>
                             
                                     Seja bem-vindo(a) à CamMove! 🎉<br><br>
                             
@@ -66,16 +67,17 @@ const UserForm = ({ userData, children }: UserFormProps) => {
                                     Atenciosamente,<br>
                                     Equipe CamMove 🚀`,
 
-				subject: "Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!",
-				to: [user?.email || ""],
-			});
+					subject: "Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!",
+					to: [user?.email || ""],
+				});
+			}
 			return values;
 		},
 		onSuccess: (data) => {
 			setUser({
 				...user,
 				...(data ?? {}),
-				onboarding_completed: user?.permission === "TEACHER" ? true : false,
+				onboarding_completed: true,
 			});
 
 			if (!userData) {
