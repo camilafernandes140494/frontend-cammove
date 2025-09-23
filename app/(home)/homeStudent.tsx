@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parse, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import React, { useMemo, useState } from "react";
-import { Linking, RefreshControl, ScrollView, View } from "react-native";
+import { Image, Linking, RefreshControl, ScrollView, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import {
 	Appbar,
@@ -178,7 +178,19 @@ const HomeStudent = () => {
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">
-				<Appbar.Content title="CamMove" />
+				<Appbar.Content
+					title={
+						<View
+							style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+						>
+							<Image
+								source={require("@/assets/images/logo_1024.png")} // seu logo
+								style={{ width: 24, height: 24, resizeMode: "contain" }}
+							/>
+							<Text style={{ fontSize: 18, fontWeight: "bold" }}>CamMove</Text>
+						</View>
+					}
+				/>
 				<Appbar.Action
 					icon="menu"
 					onPress={() => setVisibleConfig(!visibleConfig)}
