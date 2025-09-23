@@ -15,6 +15,7 @@ import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import React, { useState } from "react";
 import {
+	Image,
 	RefreshControl,
 	ScrollView,
 	TouchableOpacity,
@@ -134,8 +135,19 @@ const Home = () => {
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">
-				<Appbar.Content title="CamMove" />
-				<Appbar.Action icon="bell-outline" onPress={() => {}} />
+				<Appbar.Content
+					title={
+						<View
+							style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+						>
+							<Image
+								source={require("@/assets/images/logo_1024.png")} // seu logo
+								style={{ width: 24, height: 24, resizeMode: "contain" }}
+							/>
+							<Text style={{ fontSize: 18, fontWeight: "bold" }}>CamMove</Text>
+						</View>
+					}
+				/>
 				<Appbar.Action
 					icon="menu"
 					onPress={() => setVisibleConfig(!visibleConfig)}
