@@ -34,6 +34,7 @@ function TabsContent() {
 					assessments: type === "assessments" ? false : data?.[0]?.assessments,
 					workout: type === "workout" ? false : data?.[0]?.workout,
 					schedule: type === "schedule" ? false : data?.[0]?.schedule,
+					reviews: type === "reviews" ? false : data?.[0]?.reviews,
 				},
 			);
 		},
@@ -151,7 +152,7 @@ function TabsStudent() {
 
 export default TabsStudent;
 
-const TabBadge = ({
+export const TabBadge = ({
 	visible = false,
 	size = 12,
 	color = "red",

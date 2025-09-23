@@ -368,6 +368,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 					assessments: data?.[0]?.assessments || false,
 					workout: true,
 					schedule: data?.[0].schedule || false,
+					reviews: data?.[0].reviews || false,
 				});
 			} else {
 				await updateNotificationsData(
@@ -377,6 +378,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 						assessments: data?.[0]?.assessments || false,
 						workout: true,
 						schedule: data?.[0].schedule || false,
+						reviews: data?.[0].reviews || false,
 					},
 				);
 			}
