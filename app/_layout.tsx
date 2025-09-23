@@ -1,5 +1,4 @@
 import i18n from "@/locales/i18n";
-import { NavigationContainer } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -38,9 +37,7 @@ export default function RootLayout() {
 					<ThemeProvider>
 						<TranslationProvider>
 							<StatusBar style="auto" />
-							<NavigationContainer>
-								<RootNavigator />
-							</NavigationContainer>
+							<RootNavigator />
 						</TranslationProvider>
 					</ThemeProvider>
 				</UserProvider>
