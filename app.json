@@ -1,60 +1,73 @@
 {
-  "expo": {
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "permissions": [
-          "INTERNET"
-        ]
-      }
-    },
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "eas": {
-        "projectId": "ce64223f-77d5-480a-abd6-aafe0cc90a5f"
-      },
-      "router": {
-        "origin": false
-      }
-    },
-    "icon": "./assets/images/icon.png",
-    "ios": {
-      "bundleIdentifier": "com.camilafernandessilva.frontendcammove",
-      "infoPlist": {
-        "NSCameraUsageDescription": "Precisamos de acesso à sua câmera para tirar fotos.",
-        "NSPhotoLibraryUsageDescription": "Precisamos de acesso à sua galeria para selecionar imagens."
-      },
-      "supportsTablet": true
-    },
-    "name": "frontend-cammove",
-    "newArchEnabled": true,
-    "orientation": "portrait",
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#ffffff",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain"
-        }
-      ],
-      "expo-font",
-      "expo-web-browser",
-      "react-native-video"
-    ],
-    "scheme": "myapp",
-    "slug": "frontend-cammove",
-    "userInterfaceStyle": "automatic",
-    "version": "1.0.0",
-    "web": {
-      "bundler": "metro",
-      "favicon": "./assets/images/favicon.png",
-      "output": "static"
-    }
-  }
+	"expo": {
+		"name": "Cammove",
+		"slug": "cammove",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/images/logo_1024.png",
+		"userInterfaceStyle": "automatic",
+
+		"splash": {
+			"image": "./assets/images/logo_name_1024.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#EEE1FF"
+		},
+
+		"ios": {
+			"bundleIdentifier": "com.camilafernandessilva.cammove",
+			"supportsTablet": true,
+			"infoPlist": {
+				"NSCameraUsageDescription": "Precisamos de acesso à sua câmera para tirar fotos.",
+				"NSPhotoLibraryUsageDescription": "Precisamos de acesso à sua galeria para selecionar imagens."
+			},
+			"buildNumber": "1"
+		},
+
+		"android": {
+			"package": "com.camilafernandessilva.cammove",
+			"versionCode": 1,
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/images/logo_1024.png",
+				"backgroundColor": "#EEE1FF"
+			},
+			"permissions": ["INTERNET"]
+		},
+
+		"web": {
+			"bundler": "metro",
+			"favicon": "./assets/images/logo_1024.png",
+			"output": "static"
+		},
+
+		"plugins": [
+			"expo-router",
+			[
+				"expo-splash-screen",
+				{
+					"backgroundColor": "#EEE1FF",
+					"image": "./assets/images/logo_name_1024.png",
+					"imageWidth": 200,
+					"resizeMode": "contain"
+				}
+			],
+			"expo-font",
+			"expo-web-browser",
+			"react-native-video"
+		],
+
+		"scheme": "cammove",
+		"extra": {
+			"eas": {
+				"projectId": "ce64223f-77d5-480a-abd6-aafe0cc90a5f"
+			},
+			"router": {
+				"origin": false
+			}
+		},
+
+		"newArchEnabled": true,
+		"experiments": {
+			"typedRoutes": true
+		}
+	}
 }
