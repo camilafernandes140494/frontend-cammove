@@ -1,3 +1,9 @@
+import {
+	getNotifications,
+	sendNotification,
+	sendNotificationsData,
+	updateNotificationsData,
+} from "@/api/notifications/notifications.api";
 import { getReviewById, postReview } from "@/api/reviews/reviews.api";
 import type { ReviewData } from "@/api/reviews/reviews.types";
 import { FormField } from "@/components/FormField";
@@ -25,7 +31,7 @@ type ReviewsStudentProps = {
 const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
 	const { theme } = useTheme();
 	const { user } = useUser();
-	const { teacher } = useMyTeacher();
+	const { teacher, teacherData } = useMyTeacher();
 	const { workoutId } = route.params || {};
 
 	const [selectedEvaluation, setSelectedEvaluation] = useState<string | null>(
@@ -134,13 +140,35 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
 			};
 			await postReview(teacher?.teacherId || "", user?.id || "", reviewData);
 		},
-		onSuccess: () => {
-			// await sendNotification({
-			// 	title: "🎉 Novo feedback!",
-			// 	message:
-			// 		" Você recebeu o feedback do treino do seu aluno(a). Hora de analisar e motivar ainda mais! 💪",
-			// 	token: teacher?.deviceToken || "",
-			// });
+		onSuccess: async () => {
+			await sendNotification({
+				title: "🎉 Novo feedback!",
+				message:
+					" Você recebeu o feedback do treino do seu aluno(a). Hora de analisar e motivar ainda mais! 💪",
+				token: [teacherData?.deviceToken || ""],
+			});
+			const getIdNotifications = await getNotifications(
+				teacher?.teacherId || "",
+			);
+			if (getIdNotifications.length === 0) {
+				await sendNotificationsData(teacher?.teacherId || "", {
+					assessments: false,
+					workout: false,
+					schedule: false,
+					reviews: true,
+				});
+			} else {
+				await updateNotificationsData(
+					teacher?.teacherId || "",
+					getIdNotifications[0].id || "",
+					{
+						assessments: getIdNotifications[0].assessments || false,
+						workout: getIdNotifications[0].workout || false,
+						schedule: getIdNotifications[0].schedule || false,
+						reviews: true,
+					},
+				);
+			}
 			navigation.navigate("WorkoutsStudent" as never);
 		},
 		onError: () => {
