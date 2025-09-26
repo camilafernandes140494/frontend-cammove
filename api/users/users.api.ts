@@ -7,7 +7,7 @@ export const postUser = async (IdUser: string, params: Partial<PostUser>) => {
 		const response = await api.post(`/users/${IdUser}`, params);
 		return response.data; // Retorna os dados da resposta
 	} catch (error) {
-		console.error("Erro no login:", error);
+		console.error("Erro no postUser:", error);
 		throw error; // Propaga o erro para quem chamar a função
 	}
 };
@@ -30,7 +30,7 @@ export const patchUser = async (IdUser: string, params: Partial<PostUser>) => {
 		const response = await api.patch(`/users/${IdUser}`, params);
 		return response.data; // Retorna os dados da resposta
 	} catch (error) {
-		console.error("Erro no login:", error);
+		console.error("Erro no patchUser:", error);
 		throw error; // Propaga o erro para quem chamar a função
 	}
 };
@@ -40,7 +40,7 @@ export const getUserById = async (IdUser: string) => {
 		const response = await api.get<Users>(`/users/${IdUser}`);
 		return response.data; // Retorna os dados da resposta
 	} catch (error) {
-		console.error("Erro no login:", error);
+		console.error("Erro no getUserById:", error);
 		throw error; // Propaga o erro para quem chamar a função
 	}
 };
@@ -50,7 +50,7 @@ export const getUsers = async (params?: Record<string, string>) => {
 		const response = await api.get<Users[]>(`/users`, { params });
 		return response.data; // Retorna os dados da resposta
 	} catch (error) {
-		console.error("Erro no login:", error);
+		console.error("Erro no getUsers:", error);
 		throw error; // Propaga o erro para quem chamar a função
 	}
 };

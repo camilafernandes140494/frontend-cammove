@@ -24,7 +24,7 @@ export const getTrainingDays = async (studentId: string) => {
 		>(`/workouts-day/students/${studentId}`);
 		return response.data; // Retorna os dados da resposta
 	} catch (error) {
-		console.error("Erro no login:", error);
+		console.error("Erro no getTrainingDays:", error);
 		throw error; // Propaga o erro para quem chamar a função
 	}
 };
