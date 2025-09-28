@@ -181,8 +181,6 @@ const HomeStudent = () => {
 		}
 	}, [user]);
 
-	// console.log(user?.termsOfUse, "user in home student");
-
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">
