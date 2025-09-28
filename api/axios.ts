@@ -1,10 +1,16 @@
 // api.ts
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios, { type AxiosRequestConfig } from "axios";
+import axios from "axios";
+import { authService } from "./auth/auth.service";
 
 // Rotas públicas que não precisam de token
-const publicPaths = ["/auth/login", "/auth/register", "/auth/forgot-password"];
+const publicPaths = [
+	"/auth/login",
+	"/auth/register",
+	"/auth/forgot-password",
+	"/terms-of-use",
+	"/terms-of-use/all",
+];
 
 const api = axios.create({
 	baseURL: "https://backend-cammove.vercel.app",
@@ -15,22 +21,15 @@ const api = axios.create({
 
 // Interceptor de requisição
 api.interceptors.request.use(
-	async (config: AxiosRequestConfig) => {
-		try {
-			const isPublic = publicPaths.some((path) => config.url?.includes(path));
-			if (isPublic) return config;
+	async (config) => {
+		const isPublic = publicPaths.some((path) => config.url?.includes(path));
+		if (isPublic) return config;
 
-			const storedUser = await AsyncStorage.getItem("@user_data");
-			const user = storedUser ? JSON.parse(storedUser) : null;
-
-			if (user?.token) {
-				if (!config.headers) {
-					config.headers = {};
-				}
-				config.headers["Authorization"] = `Bearer ${user.token}`;
+		const token = authService.getToken();
+		if (token) {
+			if (config.headers) {
+				config.headers["Authorization"] = `Bearer ${token}`;
 			}
-		} catch (err) {
-			console.error("Erro ao pegar token do AsyncStorage:", err);
 		}
 
 		return config;
@@ -45,12 +44,9 @@ api.interceptors.response.use(
 		const requestUrl = error.config?.url || "";
 		const isPublic = publicPaths.some((path) => requestUrl.includes(path));
 
-		// Só remove usuário se for rota protegida
 		if (!isPublic && error.response?.status === 401) {
-			console.log(
-				"Token inválido ou expirado. Removendo usuário do AsyncStorage.",
-			);
-			await AsyncStorage.removeItem("@user_data");
+			await authService.clearToken(); // limpa memória + AsyncStorage
+			// opcional: notificar contexto / navegação
 		}
 
 		return Promise.reject(error);
