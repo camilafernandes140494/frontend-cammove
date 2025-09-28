@@ -1,6 +1,7 @@
 import { patchUser } from "@/api/users/users.api";
 import type { PostUser } from "@/api/users/users.types";
 import { getInitials } from "@/common/common";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import InfoField from "@/components/InfoField";
 import Skeleton from "@/components/Skeleton";
 import UserForm from "@/components/UserForm";
@@ -8,9 +9,16 @@ import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { useNavigation } from "@react-navigation/native";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React from "react";
+import React, { useState } from "react";
 import { FlatList, View } from "react-native";
-import { Appbar, Avatar, Divider, Surface, Text } from "react-native-paper";
+import {
+	Appbar,
+	Avatar,
+	Button,
+	Divider,
+	Surface,
+	Text,
+} from "react-native-paper";
 
 const MyProfile = () => {
 	const { user } = useUser();
@@ -26,6 +34,8 @@ const MyProfile = () => {
 			queryClient.invalidateQueries({ queryKey: ["getRelationship"] });
 		},
 	});
+
+	const [modalVisible, setModalVisible] = useState(false);
 
 	return (
 		<>
@@ -79,12 +89,29 @@ const MyProfile = () => {
 										{user?.name}
 									</Text>
 								</View>
+
 								<UserForm userData={user}>
 									<InfoField
 										title="E-mail"
 										description={user?.email || ""}
 										style={{ marginVertical: 16 }}
 									/>
+									{user?.email && (
+										<View style={{ marginBottom: 16 }}>
+											<Button
+												mode="outlined"
+												onPress={() => setModalVisible(true)}
+											>
+												Alterar senha
+											</Button>
+
+											<ChangePasswordModal
+												visible={modalVisible}
+												onClose={() => setModalVisible(false)}
+												userEmail={user?.email || ""}
+											/>
+										</View>
+									)}
 								</UserForm>
 							</>
 						)}
