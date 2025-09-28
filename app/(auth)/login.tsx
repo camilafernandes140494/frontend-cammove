@@ -49,8 +49,7 @@ const Login = () => {
 			};
 
 			setUser(userData);
-			login(userData);
-			await getUserById(userCredential.user_id);
+			await login(userData);
 
 			return userCredential;
 		},
@@ -65,7 +64,6 @@ const Login = () => {
 			};
 
 			setUser(userData);
-			login(userData);
 		},
 		onError: () => {
 			setVisible(true);
