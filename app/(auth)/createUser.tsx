@@ -1,4 +1,4 @@
-import { postCreateUser } from "@/api/auth/auth.api";
+import { postCreateUser, postLogin } from "@/api/auth/auth.api";
 import type { PostCreateUser } from "@/api/auth/auth.types";
 import { postUser } from "@/api/users/users.api";
 import { FormField } from "@/components/FormField";
@@ -23,7 +23,7 @@ const CreateUser = () => {
 	const { theme } = useTheme();
 	const navigation =
 		useNavigation<NavigationProp<RootOnboardingStackParamList>>();
-	const { setUser } = useUser();
+	const { setUser, login } = useUser();
 	const [showPassword, setShowPassword] = useState(false);
 	const [visible, setVisible] = useState(false);
 
@@ -51,11 +51,18 @@ const CreateUser = () => {
 	const mutation = useMutation({
 		mutationFn: async (values: PostCreateUser) => {
 			const createResult = await postCreateUser(values);
-			return { createResult };
+			const userCredential = await postLogin({
+				email: values.email,
+				password: values.password,
+			});
+			await login({ id: userCredential.user_id, token: userCredential.token });
+
+			return { createResult, userCredential };
 		},
-		onSuccess: async ({ createResult }, variables) => {
+		onSuccess: async ({ createResult, userCredential }, variables) => {
 			setUser({
-				id: createResult.uid,
+				id: userCredential.user_id,
+				token: userCredential.token,
 				email: variables.email,
 				termsOfUse: variables.termsOfUse,
 			});
@@ -73,6 +80,7 @@ const CreateUser = () => {
 		},
 		onError: (error) => {
 			console.error("Erro ao criar usuário:", error);
+
 			setVisible(true);
 		},
 	});
@@ -116,7 +124,7 @@ const CreateUser = () => {
 					visible={visible}
 					onDismiss={() => setVisible(false)}
 					action={{
-						label: "",
+						label: "Fechar",
 						icon: "close",
 						onPress: () => setVisible(false),
 					}}

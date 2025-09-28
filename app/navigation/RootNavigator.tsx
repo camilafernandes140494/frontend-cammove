@@ -9,7 +9,7 @@ import TabsStudent from "./TabsStudent";
 import TabsTeacher from "./TabsTeacher";
 
 function RootNavigator() {
-	const { user, setUser } = useUser();
+	const { user } = useUser();
 
 	Notifications.setNotificationHandler({
 		handleNotification: async () => ({
@@ -38,12 +38,15 @@ function RootNavigator() {
 		mutationFn: (token: string) =>
 			postDeviceToken(user?.id || "", { deviceToken: token }),
 		onSuccess: (_, variables) => {
-			setUser({ ...user, deviceToken: variables });
+			console.log("Carregado");
+			// setUser({ ...(user || {}), deviceToken: variables });
 		},
 		onError: (error) => {
 			console.error("Erro ao enviar token:", error);
 		},
 	});
+
+	console.log(user, "user in root navigator");
 
 	return (
 		<>
@@ -54,7 +57,7 @@ function RootNavigator() {
 					<TabsStudent />
 				)
 			) : (
-				<AuthNavigator />
+				<AuthNavigator user={user} />
 			)}
 		</>
 	);

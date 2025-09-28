@@ -1,5 +1,8 @@
+import { authService } from "@/api/auth/auth.service";
+import { getUserById } from "@/api/users/users.api";
 import type { PERMISSION } from "@/api/users/users.types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQuery } from "@tanstack/react-query";
 import React, {
 	createContext,
 	type ReactNode,
@@ -29,12 +32,25 @@ type UserContextType = {
 	setUser: (user: Partial<UserType>) => void;
 	login: (userData: Partial<UserType>) => Promise<void>;
 	logout: () => Promise<void>;
+	loading: boolean;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<Partial<UserType> | null>(null);
+
+	const { data: userById, isLoading: loading } = useQuery({
+		queryKey: ["userById", user?.id],
+		queryFn: () => getUserById(user?.id!),
+		enabled: !!user?.id && !user?.email,
+	});
+
+	useEffect(() => {
+		if (userById) {
+			setUser((prevUser) => ({ ...prevUser, ...userById }));
+		}
+	}, [userById]);
 
 	useEffect(() => {
 		const loadUser = async () => {
@@ -49,11 +65,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 	const login = async (userData: Partial<UserType>) => {
 		await AsyncStorage.setItem("@user_data", JSON.stringify(userData));
+		await authService.setToken(userData.token!);
 		setUser(userData);
 	};
 
 	const logout = async () => {
 		await AsyncStorage.removeItem("@user_data");
+		await authService.clearToken();
 		setUser(null);
 	};
 
@@ -77,12 +95,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 			};
 
 			AsyncStorage.setItem("@user_data", JSON.stringify(updatedUser));
+
 			return updatedUser;
 		});
 	};
 
 	return (
-		<UserContext.Provider value={{ user, setUser: updateUser, login, logout }}>
+		<UserContext.Provider
+			value={{ user, setUser: updateUser, login, logout, loading }}
+		>
 			{children}
 		</UserContext.Provider>
 	);

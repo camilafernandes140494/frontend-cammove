@@ -12,7 +12,7 @@ import { type NavigationProp, useNavigation } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { format, parse, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Image, Linking, RefreshControl, ScrollView, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import {
@@ -37,7 +37,7 @@ export type RootHomeStackParamList = {
 };
 
 const HomeStudent = () => {
-	const { user, logout } = useUser();
+	const { user, logout, setUser } = useUser();
 	const { theme, toggleTheme, isDarkMode } = useTheme();
 	const [visibleConfig, setVisibleConfig] = useState(false);
 	const { teacher } = useMyTeacher();
@@ -174,6 +174,14 @@ const HomeStudent = () => {
 
 		return { count, message, icon };
 	}, [trainingDates]);
+
+	useEffect(() => {
+		if (user?.onboarding_completed && !user?.permission) {
+			setUser({ ...user, onboarding_completed: false });
+		}
+	}, [user]);
+
+	// console.log(user?.termsOfUse, "user in home student");
 
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>

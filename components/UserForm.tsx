@@ -52,9 +52,8 @@ const UserForm = ({ userData, children }: UserFormProps) => {
 				...values,
 				termsOfUse: user?.termsOfUse,
 			} as Partial<PostUser>);
-			if (!user?.onboarding_completed) {
-				await postEmail({
-					body: `Olá ${values.name}, <br><br>
+			await postEmail({
+				body: `Olá ${values.name}, <br><br>
                             
                                     Seja bem-vindo(a) à CamMove! 🎉<br><br>
                             
@@ -67,25 +66,25 @@ const UserForm = ({ userData, children }: UserFormProps) => {
                                     Atenciosamente,<br>
                                     Equipe CamMove 🚀`,
 
-					subject: "Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!",
-					to: [user?.email || ""],
-				});
-			}
+				subject: "Bem-vindo(a) à CamMove – Cadastro Realizado com Sucesso!",
+				to: [user?.email || ""],
+			});
+
 			return values;
 		},
 		onSuccess: (data) => {
 			setUser({
 				...user,
 				...(data ?? {}),
-				onboarding_completed: true,
+				onboarding_completed: user?.permission === "STUDENT" ? false : true,
 			});
 
-			if (!userData) {
+			if (user?.permission === "STUDENT") {
 				setShowListTeacher(true);
 			}
 		},
 		onError: (error) => {
-			console.error("Erro ao criar usuário:", error);
+			console.error("Erro ao atualizar usuário:", error);
 			setVisible(true);
 		},
 	});

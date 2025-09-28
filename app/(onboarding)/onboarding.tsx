@@ -5,8 +5,8 @@ import Skeleton from "@/components/Skeleton";
 import UserForm from "@/components/UserForm";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
-import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { Animated, ScrollView, View } from "react-native";
 import { Card, IconButton, Text } from "react-native-paper";
 import type { AvatarImageSource } from "react-native-paper/lib/typescript/components/Avatar/AvatarImage";
 
@@ -42,7 +42,7 @@ const Onboarding = () => {
 		},
 	];
 
-	const handleLogin = async (values: Partial<PostUser>) => {
+	const updateUserProfile = async (values: Partial<PostUser>) => {
 		try {
 			await patchUser(user?.id!, values);
 			setUser({
@@ -52,6 +52,26 @@ const Onboarding = () => {
 		} catch (error) {
 			console.error("Erro ao editar usuario", error);
 		}
+	};
+
+	const fadeAnim = useRef(new Animated.Value(1)).current;
+
+	const handleChangeProfile = (next: number) => {
+		// fade out
+		Animated.timing(fadeAnim, {
+			toValue: 0,
+			duration: 150,
+			useNativeDriver: true,
+		}).start(() => {
+			setProfile(next);
+
+			// fade in
+			Animated.timing(fadeAnim, {
+				toValue: 1,
+				duration: 150,
+				useNativeDriver: true,
+			}).start();
+		});
 	};
 
 	return (
@@ -72,7 +92,10 @@ const Onboarding = () => {
 					<View style={{ marginTop: 50 }}>
 						{!user?.permission ? (
 							<>
-								<Text variant="headlineLarge" style={{ textAlign: "center" }}>
+								<Text
+									variant="headlineLarge"
+									style={{ textAlign: "center", marginVertical: 20 }}
+								>
 									Escolha seu perfil para começar
 								</Text>
 								<Card
@@ -92,24 +115,26 @@ const Onboarding = () => {
 											alignItems: "center",
 										}}
 									>
-										<CardProfile
-											title={carouselItems[profile].title}
-											description={carouselItems[profile].description}
-											image={carouselItems[profile].image}
-											color={carouselItems[profile].color}
-											status={carouselItems[profile].status}
-											onStatus={(status) =>
-												handleLogin({
-													permission: status as PERMISSION,
-												})
-											}
-										/>
+										<Animated.View style={{ opacity: fadeAnim }}>
+											<CardProfile
+												title={carouselItems[profile].title}
+												description={carouselItems[profile].description}
+												image={carouselItems[profile].image}
+												color={carouselItems[profile].color}
+												status={carouselItems[profile].status}
+												onStatus={(status) =>
+													updateUserProfile({
+														permission: status as PERMISSION,
+													})
+												}
+											/>
+										</Animated.View>
 									</Card.Content>
 									<Card.Actions>
 										<IconButton
 											icon="chevron-left"
 											size={20}
-											onPress={() => setProfile(profile - 1)}
+											onPress={() => handleChangeProfile(profile - 1)}
 											disabled={profile === 0}
 											theme={{
 												colors: {
@@ -138,7 +163,7 @@ const Onboarding = () => {
 												theme.colors.card[carouselItems[profile].color].text
 													.primary
 											}
-											onPress={() => setProfile(profile + 1)}
+											onPress={() => handleChangeProfile(profile + 1)}
 											disabled={profile === carouselItems.length - 1}
 										/>
 									</Card.Actions>
