@@ -1,3 +1,4 @@
+import { SnackbarProvider } from "@/context/SnackbarContext";
 import i18n from "@/locales/i18n";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
@@ -35,10 +36,12 @@ export default function RootLayout() {
 			<QueryClientProvider client={queryClient}>
 				<UserProvider>
 					<ThemeProvider>
-						<TranslationProvider>
-							<StatusBar style="auto" />
-							<RootNavigator />
-						</TranslationProvider>
+						<SnackbarProvider>
+							<TranslationProvider>
+								<StatusBar style="auto" />
+								<RootNavigator />
+							</TranslationProvider>
+						</SnackbarProvider>
 					</ThemeProvider>
 				</UserProvider>
 			</QueryClientProvider>
