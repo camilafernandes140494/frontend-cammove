@@ -11,23 +11,24 @@ import ImageUpload from "@/components/ImageUpload ";
 import { ImageWithActions } from "@/components/ImageWithActions";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoUpload from "@/components/VideoUpload";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FlatList, ScrollView, View } from "react-native";
-import { Appbar, Button, Snackbar, Text } from "react-native-paper";
+import { Appbar, Button } from "react-native-paper";
 import * as z from "zod";
 
 const CreateExercise = () => {
 	const { theme } = useTheme();
 	const navigation = useNavigation();
-	const [visible, setVisible] = useState(false);
 	const route = useRoute();
 	const { exerciseId } = route.params as { exerciseId: string | undefined };
 
+	const { showSnackbar } = useSnackbar();
 	const {
 		data: exerciseById,
 		isLoading,
@@ -150,7 +151,7 @@ const CreateExercise = () => {
 			navigation.navigate("Exercises" as never);
 		},
 		onError: () => {
-			setVisible(true);
+			showSnackbar("Erro ao criar exercícios", "error");
 		},
 	});
 
@@ -180,17 +181,7 @@ const CreateExercise = () => {
 				<Appbar.BackAction onPress={() => navigation.goBack()} />
 				<Appbar.Content title="Cadastrar exercício" />
 			</Appbar.Header>
-			<Snackbar
-				visible={visible}
-				onDismiss={() => setVisible(false)}
-				action={{
-					label: "",
-					icon: "close",
-					onPress: () => setVisible(false),
-				}}
-			>
-				<Text>Erro ao cadastrar</Text>
-			</Snackbar>
+
 			<FlatList
 				style={{ flex: 1, backgroundColor: theme.colors.background }}
 				contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}

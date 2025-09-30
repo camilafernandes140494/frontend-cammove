@@ -1,6 +1,7 @@
 import { postLogin } from "@/api/auth/auth.api";
 import { getUserById } from "@/api/users/users.api";
 import { FormField } from "@/components/FormField";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
-import { Button, Snackbar, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 import * as z from "zod";
 
 const Login = () => {
@@ -18,7 +19,8 @@ const Login = () => {
 	const { theme } = useTheme();
 
 	const [showPassword, setShowPassword] = useState(false);
-	const [visible, setVisible] = useState(false);
+
+	const { showSnackbar } = useSnackbar();
 
 	const schema = z.object({
 		email: z
@@ -66,7 +68,7 @@ const Login = () => {
 			setUser(userData);
 		},
 		onError: () => {
-			setVisible(true);
+			showSnackbar("Erro ao logar", "error");
 		},
 	});
 
@@ -103,17 +105,6 @@ const Login = () => {
 					paddingTop: 50,
 				}}
 			>
-				<Snackbar
-					visible={visible}
-					onDismiss={() => setVisible(false)}
-					action={{
-						label: "",
-						icon: "close",
-						onPress: () => setVisible(false),
-					}}
-				>
-					<Text>Erro ao logar</Text>
-				</Snackbar>
 				<View
 					style={{
 						display: "flex",

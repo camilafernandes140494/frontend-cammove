@@ -1,17 +1,10 @@
 import { postResetPassword } from "@/api/auth/auth.api";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useMutation } from "@tanstack/react-query";
 import type React from "react";
-import { useState } from "react";
 import { View } from "react-native";
-import {
-	Button,
-	Dialog,
-	Icon,
-	Portal,
-	Snackbar,
-	Text,
-} from "react-native-paper";
+import { Button, Dialog, Icon, Portal, Text } from "react-native-paper";
 
 interface ChangePasswordModalProps {
 	visible: boolean;
@@ -25,21 +18,19 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 	userEmail,
 }) => {
 	const { theme } = useTheme();
-	const [snackbarVisible, setSnackbarVisible] = useState(false);
-	const [snackbarMsg, setSnackbarMsg] = useState("");
+
+	const { showSnackbar } = useSnackbar();
 
 	const mutation = useMutation({
 		mutationFn: async () => {
 			await postResetPassword({ email: userEmail });
 		},
 		onSuccess: () => {
-			setSnackbarMsg("E-mail de redefinição enviado com sucesso!");
-			setSnackbarVisible(true);
+			showSnackbar("E-mail de redefinição enviado com sucesso!", "success");
 			onClose();
 		},
 		onError: () => {
-			setSnackbarMsg("Erro ao enviar e-mail de redefinição.");
-			setSnackbarVisible(true);
+			showSnackbar("Erro ao enviar e-mail de redefinição.", "error");
 		},
 	});
 
@@ -98,18 +89,6 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 					</Button>
 				</Dialog.Actions>
 			</Dialog>
-
-			<Snackbar
-				visible={snackbarVisible}
-				onDismiss={() => setSnackbarVisible(false)}
-				duration={3000}
-				action={{
-					label: "Fechar",
-					onPress: () => setSnackbarVisible(false),
-				}}
-			>
-				{snackbarMsg}
-			</Snackbar>
 		</Portal>
 	);
 };

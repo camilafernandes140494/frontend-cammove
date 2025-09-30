@@ -14,6 +14,7 @@ import {
 } from "@/api/notifications/notifications.api";
 import { calculateIMC } from "@/common/common";
 import GeneratePDFBase64 from "@/common/GeneratePDFBase64";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useStudent } from "@/context/StudentContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
@@ -24,14 +25,7 @@ import { format } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FlatList, View } from "react-native";
-import {
-	Button,
-	Card,
-	Chip,
-	Snackbar,
-	Text,
-	TextInput,
-} from "react-native-paper";
+import { Button, Card, Chip, Text, TextInput } from "react-native-paper";
 import * as z from "zod";
 import { FormField } from "./FormField";
 import Skeleton from "./Skeleton";
@@ -41,7 +35,6 @@ interface FormAssessmentsProps {
 }
 
 const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
-	const [visible, setVisible] = useState(false);
 	const { student, resetStudent } = useStudent();
 	const { user } = useUser();
 	const { theme } = useTheme();
@@ -53,6 +46,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 		queryFn: () => getNotifications(student?.id || ""),
 		enabled: !!student?.id,
 	});
+	const { showSnackbar } = useSnackbar();
 
 	const {
 		data: assessmentsByStudent,
@@ -384,7 +378,7 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 			}
 		},
 		onError: () => {
-			setVisible(true);
+			showSnackbar("Erro ao cadastrar avaliação", "error");
 		},
 		onSettled: () => {
 			resetStudent();
@@ -775,17 +769,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 									</Card.Content>
 								</Card>
 
-								<Snackbar
-									action={{
-										label: "Close",
-										icon: "close",
-										onPress: () => setVisible(false),
-									}}
-									onDismiss={() => setVisible(false)}
-									visible={visible}
-								>
-									<Text>Erro ao cadastrar treino</Text>
-								</Snackbar>
 								<Button
 									disabled={assessmentMutation.isPending}
 									loading={assessmentMutation.isPending}

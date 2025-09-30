@@ -7,6 +7,7 @@ import CustomModal from "@/components/CustomModal";
 import EmptyState from "@/components/EmptyState";
 import Skeleton from "@/components/Skeleton";
 import StudentCard from "@/components/StudentCard";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { type NavigationProp, useNavigation } from "@react-navigation/native";
@@ -14,15 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
-import {
-	Appbar,
-	Button,
-	Card,
-	Chip,
-	IconButton,
-	Snackbar,
-	Text,
-} from "react-native-paper";
+import { Appbar, Button, Card, Chip, IconButton } from "react-native-paper";
 import { useStudent } from "../../context/StudentContext";
 
 export type RootStackParamList = {
@@ -39,13 +32,13 @@ type DetailsWorkoutProps = {
 };
 
 const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
-	const [visible, setVisible] = useState(false);
 	const { student, refetchStudent } = useStudent();
 	const { studentId } = route.params || {};
 
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 	const [isLoadingButton, setIsLoadingButton] = useState(false);
 	const { theme } = useTheme();
+	const { showSnackbar } = useSnackbar();
 
 	const [isLoadingButtonDelete, setIsLoadingButtonDelete] = useState(false);
 	const { user } = useUser();
@@ -81,7 +74,7 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
 			);
 			refetch();
 		} catch (error) {
-			console.error("Erro ao criar exercício:", error);
+			showSnackbar("Erro ao deletar treino", "error");
 		} finally {
 			setIsLoadingButtonDelete(false);
 		}
@@ -93,7 +86,7 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
 			await duplicateWorkout(workoutId, activeStudentId, user?.id || "");
 			refetch();
 		} catch (error) {
-			console.error("Erro ao criar exercício:", error);
+			showSnackbar("Erro ao duplicar treino", "error");
 		} finally {
 			setIsLoadingButton(false);
 		}
@@ -114,18 +107,6 @@ const DetailsWorkout = ({ route }: DetailsWorkoutProps) => {
 				</Button>
 			</Appbar.Header>
 			<StudentCard />
-
-			<Snackbar
-				action={{
-					label: "",
-					icon: "close",
-					onPress: () => setVisible(false),
-				}}
-				onDismiss={() => setVisible(false)}
-				visible={visible}
-			>
-				<Text>Erro ao cadastrar</Text>
-			</Snackbar>
 
 			<FlatList
 				contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}

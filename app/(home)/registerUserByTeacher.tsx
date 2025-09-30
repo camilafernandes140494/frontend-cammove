@@ -4,6 +4,7 @@ import { postRelationship } from "@/api/relationships/relationships.api";
 import { postUser } from "@/api/users/users.api";
 import type { GENDER, PERMISSION } from "@/api/users/users.types";
 import { FormField } from "@/components/FormField";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,14 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FlatList } from "react-native";
-import {
-	Appbar,
-	Button,
-	Snackbar,
-	Surface,
-	Text,
-	TextInput,
-} from "react-native-paper";
+import { Appbar, Button, Surface, Text, TextInput } from "react-native-paper";
 import * as z from "zod";
 
 const RegisterUserByTeacher = () => {
@@ -28,6 +22,7 @@ const RegisterUserByTeacher = () => {
 	const [visible, setVisible] = useState(false);
 	const navigation = useNavigation();
 	const queryClient = useQueryClient();
+	const { showSnackbar } = useSnackbar();
 
 	const schema = z.object({
 		name: z.string().nonempty("Obrigatório"),
@@ -111,7 +106,7 @@ const RegisterUserByTeacher = () => {
 
 			navigation.goBack();
 		} catch (error) {
-			console.error("Erro ao criar usuário:", error);
+			showSnackbar("Erro ao cadastrar usuário", "error");
 		}
 	};
 
@@ -125,17 +120,6 @@ const RegisterUserByTeacher = () => {
 						<Appbar.BackAction onPress={() => navigation.goBack()} />
 						<Appbar.Content title="Cadastrar aluno" />
 					</Appbar.Header>
-					<Snackbar
-						visible={visible}
-						onDismiss={() => setVisible(false)}
-						action={{
-							label: "",
-							icon: "close",
-							onPress: () => setVisible(false),
-						}}
-					>
-						<Text>Erro ao cadastrar</Text>
-					</Snackbar>
 				</>
 			}
 			data={[{}]}

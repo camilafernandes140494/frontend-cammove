@@ -3,6 +3,7 @@ import type { PostCreateUser } from "@/api/auth/auth.types";
 import { postUser } from "@/api/users/users.api";
 import { FormField } from "@/components/FormField";
 import TermsScreen from "@/components/TermsScreen";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
-import { Button, Snackbar, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 import * as z from "zod";
 
 export type RootOnboardingStackParamList = {
@@ -25,7 +26,7 @@ const CreateUser = () => {
 		useNavigation<NavigationProp<RootOnboardingStackParamList>>();
 	const { setUser, login } = useUser();
 	const [showPassword, setShowPassword] = useState(false);
-	const [visible, setVisible] = useState(false);
+	const { showSnackbar } = useSnackbar();
 
 	const schema = z.object({
 		email: z
@@ -78,10 +79,8 @@ const CreateUser = () => {
 			});
 			navigation.navigate("Onboarding", { email: variables.email });
 		},
-		onError: (error) => {
-			console.error("Erro ao criar usuário:", error);
-
-			setVisible(true);
+		onError: () => {
+			showSnackbar("Erro ao criar usuário", "error");
 		},
 	});
 
@@ -120,17 +119,6 @@ const CreateUser = () => {
 					paddingTop: 50,
 				}}
 			>
-				<Snackbar
-					visible={visible}
-					onDismiss={() => setVisible(false)}
-					action={{
-						label: "Fechar",
-						icon: "close",
-						onPress: () => setVisible(false),
-					}}
-				>
-					<Text>Erro ao cadastrar</Text>
-				</Snackbar>
 				<View
 					style={{
 						display: "flex",

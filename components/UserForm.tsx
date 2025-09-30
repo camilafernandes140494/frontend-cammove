@@ -1,6 +1,7 @@
 import { postEmail } from "@/api/email/email.api";
 import { patchUser } from "@/api/users/users.api";
 import type { PostUser } from "@/api/users/users.types";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { type UserType, useUser } from "@/context/UserContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigation } from "@react-navigation/native";
@@ -9,7 +10,7 @@ import type React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
-import { Button, Card, Snackbar, Text, TextInput } from "react-native-paper";
+import { Button, Card, Text, TextInput } from "react-native-paper";
 import * as z from "zod";
 import { FormField } from "./FormField";
 import ImageUpload from "./ImageUpload ";
@@ -21,9 +22,9 @@ interface UserFormProps {
 }
 
 const UserForm = ({ userData, children }: UserFormProps) => {
-	const [visible, setVisible] = useState(false);
 	const [showListTeacher, setShowListTeacher] = useState(false);
 	const navigation = useNavigation();
+	const { showSnackbar } = useSnackbar();
 
 	const { user, setUser } = useUser();
 
@@ -84,8 +85,7 @@ const UserForm = ({ userData, children }: UserFormProps) => {
 			}
 		},
 		onError: (error) => {
-			console.error("Erro ao atualizar usuário:", error);
-			setVisible(true);
+			showSnackbar("Erro ao atualizar usuário", "error");
 		},
 	});
 
@@ -99,18 +99,6 @@ const UserForm = ({ userData, children }: UserFormProps) => {
 				marginTop: 24,
 			}}
 		>
-			<Snackbar
-				visible={visible}
-				onDismiss={() => setVisible(false)}
-				action={{
-					label: "",
-					icon: "close",
-					onPress: () => setVisible(false),
-				}}
-			>
-				<Text>Não foi possível cadastrar</Text>
-			</Snackbar>
-
 			{!showListTeacher && (
 				<Card
 					mode="contained"

@@ -8,6 +8,7 @@ import { getReviewById, postReview } from "@/api/reviews/reviews.api";
 import type { ReviewData } from "@/api/reviews/reviews.types";
 import { FormField } from "@/components/FormField";
 import SelectableCard from "@/components/SelectableCard";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +16,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ScrollView, View } from "react-native";
-import { Appbar, Button, Snackbar, Text } from "react-native-paper";
+import { Appbar, Button, Text } from "react-native-paper";
 import * as z from "zod";
 import { useMyTeacher } from "../../context/MyTeacherContext";
 
@@ -37,7 +38,8 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
 	const [selectedEvaluation, setSelectedEvaluation] = useState<string | null>(
 		null,
 	);
-	const [visible, setVisible] = useState(false);
+
+	const { showSnackbar } = useSnackbar();
 
 	const { data: review } = useQuery({
 		queryKey: ["getReviewById", user?.id, teacher?.teacherId, workoutId],
@@ -172,7 +174,7 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
 			navigation.navigate("WorkoutsStudent" as never);
 		},
 		onError: () => {
-			setVisible(true);
+			showSnackbar("Erro ao enviar feedback", "error");
 		},
 	});
 
@@ -196,17 +198,6 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
 					gap: 16,
 				}}
 			>
-				<Snackbar
-					visible={visible}
-					onDismiss={() => setVisible(false)}
-					action={{
-						label: "",
-						icon: "close",
-						onPress: () => setVisible(false),
-					}}
-				>
-					<Text>Erro ao avaliar</Text>
-				</Snackbar>
 				<Text variant="titleLarge">O que você achou desse treino?</Text>
 				<View>
 					{evaluations.map((evaluation) => (

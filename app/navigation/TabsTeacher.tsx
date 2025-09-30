@@ -62,7 +62,7 @@ function TabsContent() {
 				component={HomeNavigator}
 				options={{
 					headerShown: false,
-					tabBarLabel: "Avaliação",
+					tabBarLabel: "Início",
 					tabBarIcon: ({ color, size }) => (
 						<View>
 							<Ionicons name="home" size={size} color={color} />
