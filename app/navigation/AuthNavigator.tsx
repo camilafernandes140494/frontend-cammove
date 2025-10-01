@@ -25,7 +25,7 @@ function AuthNavigator(user: AuthNavigatorProps) {
 			<Stack.Screen
 				name="Login"
 				component={Login}
-				options={{ headerShown: false }}
+				options={{ headerShown: false, gestureEnabled: false }}
 			/>
 			<Stack.Screen
 				name="CreateUser"

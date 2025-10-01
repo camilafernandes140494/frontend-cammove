@@ -3,6 +3,7 @@ import type { PERMISSION, PostUser } from "@/api/users/users.types";
 import CardProfile from "@/components/CardProfile";
 import Skeleton from "@/components/Skeleton";
 import UserForm from "@/components/UserForm";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import React, { useRef, useState } from "react";
@@ -14,7 +15,7 @@ const Onboarding = () => {
 	const { theme } = useTheme();
 	const [profile, setProfile] = useState(0);
 	const { user, setUser } = useUser();
-
+	const { showSnackbar } = useSnackbar();
 	type CarouselItem = {
 		title: string;
 		description: string;
@@ -45,12 +46,9 @@ const Onboarding = () => {
 	const updateUserProfile = async (values: Partial<PostUser>) => {
 		try {
 			await patchUser(user?.id!, values);
-			setUser({
-				...user,
-				...values,
-			});
+			setUser(values);
 		} catch (error) {
-			console.error("Erro ao editar usuario", error);
+			showSnackbar("Erro ao editar usuário", "error");
 		}
 	};
 

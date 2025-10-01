@@ -1,5 +1,6 @@
 import { registerForPushNotificationsAsync } from "@/api/notifications/notifications.api";
 import { postDeviceToken } from "@/api/users/users.api";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useUser } from "@/context/UserContext";
 import { useMutation } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
@@ -10,6 +11,7 @@ import TabsTeacher from "./TabsTeacher";
 
 function RootNavigator() {
 	const { user } = useUser();
+	const { showSnackbar } = useSnackbar();
 
 	Notifications.setNotificationHandler({
 		handleNotification: async () => ({
@@ -37,16 +39,10 @@ function RootNavigator() {
 	const mutation = useMutation({
 		mutationFn: (token: string) =>
 			postDeviceToken(user?.id || "", { deviceToken: token }),
-		onSuccess: (_, variables) => {
-			console.log("Carregado");
-			// setUser({ ...(user || {}), deviceToken: variables });
-		},
 		onError: (error) => {
-			console.error("Erro ao enviar token:", error);
+			showSnackbar("Erro ao enviar token", "error");
 		},
 	});
-
-	console.log(user, "user in root navigator");
 
 	return (
 		<>

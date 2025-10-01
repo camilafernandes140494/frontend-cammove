@@ -66,6 +66,7 @@ const CreateUser = () => {
 				token: userCredential.token,
 				email: variables.email,
 				termsOfUse: variables.termsOfUse,
+				status: "ACTIVE",
 			});
 			await postUser(createResult.uid!, {
 				name: "",

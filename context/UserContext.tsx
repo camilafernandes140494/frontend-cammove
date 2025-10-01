@@ -33,6 +33,7 @@ type UserContextType = {
 	login: (userData: Partial<UserType>) => Promise<void>;
 	logout: () => Promise<void>;
 	loading: boolean;
+	refetch: () => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -40,7 +41,11 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<Partial<UserType> | null>(null);
 
-	const { data: userById, isLoading: loading } = useQuery({
+	const {
+		data: userById,
+		isLoading: loading,
+		refetch,
+	} = useQuery({
 		queryKey: ["userById", user?.id],
 		queryFn: () => getUserById(user?.id!),
 		enabled: !!user?.id && !user?.email,
@@ -102,7 +107,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 	return (
 		<UserContext.Provider
-			value={{ user, setUser: updateUser, login, logout, loading }}
+			value={{ user, setUser: updateUser, login, logout, loading, refetch }}
 		>
 			{children}
 		</UserContext.Provider>

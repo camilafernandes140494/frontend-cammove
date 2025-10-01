@@ -177,10 +177,11 @@ const HomeStudent = () => {
 
 	useEffect(() => {
 		if (user?.onboarding_completed && !user?.permission) {
-			setUser({ ...user, onboarding_completed: false });
+			setUser({ onboarding_completed: false });
 		}
 	}, [user]);
 
+	console.log(user, "user in home student");
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">

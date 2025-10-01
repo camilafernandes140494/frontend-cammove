@@ -1,5 +1,6 @@
 import { patchUser } from "@/api/users/users.api";
 import type { PostUser } from "@/api/users/users.types";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { useMutation } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ const TermsCard = () => {
 	const { theme } = useTheme();
 	const [termsOfUse, setTermsOfUse] = useState<string | undefined>(undefined);
 	const { user, setUser } = useUser();
+	const { showSnackbar } = useSnackbar();
 
 	const mutation = useMutation({
 		mutationFn: async () => {
@@ -20,12 +22,11 @@ const TermsCard = () => {
 		},
 		onSuccess: () => {
 			setUser({
-				...user,
 				termsOfUse: termsOfUse,
 			});
 		},
 		onError: (error) => {
-			console.error("Erro ao criar usuário:", error);
+			showSnackbar("Erro ao aceitar os termos de uso", "error");
 		},
 	});
 

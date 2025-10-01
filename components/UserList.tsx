@@ -54,7 +54,7 @@ const UserList = ({ params, navigation }: UserListProps) => {
 			await postRelationship(getValues().teacherId.id!, user?.id!);
 		},
 		onSuccess: () => {
-			setUser({ ...user, onboarding_completed: true });
+			setUser({ onboarding_completed: true });
 		},
 		onError: () => {
 			showSnackbar("Erro ao selecionar o professor", "error");
