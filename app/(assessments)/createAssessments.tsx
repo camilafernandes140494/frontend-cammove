@@ -49,24 +49,34 @@ const CreateAssessments = ({ route }: CreateAssessmentsProps) => {
 
 			{student?.id !== user?.id && <StudentCard />}
 
-			<View
-				style={{
-					flex: 1,
-					backgroundColor: theme.colors.background,
-				}}
-			>
-				{newStudent ? (
-					<View style={{ marginHorizontal: 12, marginTop: 24 }}>
-						<Text variant="titleMedium">Escolha um aluno(a)</Text>
-						<FilterInput
-							onChange={setParams}
-							placeholder="Pesquisar aluno(a)"
-						/>
-						<SelectStudent
-							filterName={params}
-							onSelect={(student) => refetchStudent(student.studentId)}
-							teacherId={user?.id || ""}
-						/>
+			{newStudent ? (
+				<>
+					<View
+						style={{
+							flex: 1,
+							backgroundColor: theme.colors.background,
+						}}
+					>
+						<View style={{ marginHorizontal: 12, marginTop: 24 }}>
+							<Text variant="titleMedium">Escolha um aluno(a)</Text>
+							<FilterInput
+								onChange={setParams}
+								placeholder="Pesquisar aluno(a)"
+							/>
+
+							<SelectStudent
+								filterName={params}
+								onSelect={(student) => refetchStudent(student.studentId)}
+								teacherId={user?.id || ""}
+							/>
+						</View>
+					</View>
+					<View
+						style={{
+							padding: 16,
+							backgroundColor: theme.colors.background,
+						}}
+					>
 						<Button
 							mode="contained"
 							onPress={() => setNewStudent(false)}
@@ -75,10 +85,10 @@ const CreateAssessments = ({ route }: CreateAssessmentsProps) => {
 							Continuar
 						</Button>
 					</View>
-				) : (
-					<FormAssessments assessmentsId={assessmentsId} />
-				)}
-			</View>
+				</>
+			) : (
+				<FormAssessments assessmentsId={assessmentsId} />
+			)}
 		</>
 	);
 };

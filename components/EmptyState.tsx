@@ -1,25 +1,48 @@
 // src/components/EmptyState.tsx
-import type React from 'react';
-import { Text, View } from 'react-native';
-import { Button } from 'react-native-paper';
+
+import { useTheme } from "@/context/ThemeContext";
+import type React from "react";
+import { Button, Card, Icon, Text } from "react-native-paper";
 
 type EmptyStateProps = {
-  message?: string;
-  onRetry: () => void;
+	message?: string;
+	onRetry: () => void;
 };
 
 const EmptyState = ({
-  message = 'Nenhum dado encontrado.',
-  onRetry,
+	message = "Nenhum dado encontrado.",
+	onRetry,
 }: EmptyStateProps) => {
-  return (
-    <View style={{ alignItems: 'center', padding: 40 }}>
-      <Text style={{ fontSize: 16, marginBottom: 12, color: '#555' }}>
-        {message}
-      </Text>
-      <Button onPress={onRetry}>Tentar novamente</Button>
-    </View>
-  );
+	const { theme } = useTheme();
+
+	return (
+		<Card
+			style={{
+				margin: 24,
+				alignItems: "center",
+			}}
+			mode="outlined"
+		>
+			<Card.Content
+				style={{
+					margin: 16,
+					padding: 16,
+					alignItems: "center",
+					gap: 12,
+				}}
+			>
+				<Icon
+					source={"file-search-outline"}
+					size={48}
+					color={theme.colors.primary}
+				/>
+				<Text variant="titleMedium">{message}</Text>
+				<Button icon={"refresh"} onPress={onRetry}>
+					Tentar novamente
+				</Button>
+			</Card.Content>
+		</Card>
+	);
 };
 
 export default EmptyState;

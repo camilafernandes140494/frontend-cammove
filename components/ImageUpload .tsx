@@ -10,6 +10,7 @@ interface ImageUploadProps {
 	labelButton?: string;
 	deletePreviousImage?: string | null;
 	storageFolder: string;
+	multiple?: boolean;
 }
 
 export default function ImageUpload({
@@ -17,6 +18,7 @@ export default function ImageUpload({
 	deletePreviousImage,
 	labelButton = "Escolher imagens",
 	storageFolder,
+	multiple = true,
 }: ImageUploadProps) {
 	const [images, setImages] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +37,7 @@ export default function ImageUpload({
 		const result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: ImagePicker.MediaTypeOptions.Images,
 			allowsEditing: false,
-			allowsMultipleSelection: true,
+			allowsMultipleSelection: multiple,
 			quality: 1,
 		});
 

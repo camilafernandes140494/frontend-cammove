@@ -142,7 +142,11 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 					"Está na hora de se mexer! Confira seu novo treino e arrase! 🚀",
 				token: [student?.deviceToken || ""],
 			});
-			const getIdNotifications = await getNotifications(student?.id || "");
+			const responseNotifications = await getNotifications(student?.id || "");
+			const getIdNotifications = Array.isArray(responseNotifications)
+				? responseNotifications
+				: [];
+
 			if (getIdNotifications.length === 0) {
 				await sendNotificationsData(student?.id || "", {
 					assessments: data?.[0]?.assessments || false,

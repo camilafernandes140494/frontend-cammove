@@ -149,9 +149,8 @@ const ReviewsStudent = ({ route, navigation }: ReviewsStudentProps) => {
 					" Você recebeu o feedback do treino do seu aluno(a). Hora de analisar e motivar ainda mais! 💪",
 				token: [teacherData?.deviceToken || ""],
 			});
-			const getIdNotifications = await getNotifications(
-				teacher?.teacherId || "",
-			);
+			const response = await getNotifications(teacher?.teacherId || "");
+			const getIdNotifications = Array.isArray(response) ? response : [];
 			if (getIdNotifications.length === 0) {
 				await sendNotificationsData(teacher?.teacherId || "", {
 					assessments: false,

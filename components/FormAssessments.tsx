@@ -71,96 +71,6 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 
 	const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-	const handleSendPDFEmail = async () => {
-		try {
-			setSendEmail(true);
-			const pdfBase64 = await GeneratePDFBase64(
-				`
-        Medições Corporais
-    
-        Peso: ${assessmentsByStudent?.bodyMeasurements?.weight || ""} kg
-        Altura: ${assessmentsByStudent?.bodyMeasurements?.height || ""} cm
-        Porcentagem de Gordura Corporal: ${assessmentsByStudent?.bodyMeasurements?.bodyFatPercentage || ""}%
-        IMC: ${assessmentsByStudent?.bodyMeasurements?.imc || ""}
-    
-        Circunferências 
-        Cintura: ${assessmentsByStudent?.bodyMeasurements?.waistCircumference || ""} cm
-        Quadril: ${assessmentsByStudent?.bodyMeasurements?.hipCircumference || ""} cm
-        Peito: ${assessmentsByStudent?.bodyMeasurements?.chestCircumference || ""} cm
-        Braço Direita: ${assessmentsByStudent?.bodyMeasurements?.rightArmCircumference || ""} cm | Braço Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftArmCircumference || ""} cm
-        Coxa Direita: ${assessmentsByStudent?.bodyMeasurements?.rightThighCircumference || ""} cm | Coxa Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftThighCircumference || ""} cm
-        Panturrilha Direita: ${assessmentsByStudent?.bodyMeasurements?.rightCalfCircumference || ""} cm | Panturrilha Esquerda: ${assessmentsByStudent?.bodyMeasurements?.leftCalfCircumference || ""} cm
-        Pescoço: ${assessmentsByStudent?.bodyMeasurements?.neckCircumference || ""} cm
-    
-        Composição Corporal
-        Massa Muscular: ${assessmentsByStudent?.bodyMass.muscleMass || ""} kg
-        Massa Óssea: ${assessmentsByStudent?.bodyMass.boneMass || ""} kg
-    
-        Frequência Cardíaca
-        Em repouso: ${assessmentsByStudent?.heartRate?.restingHeartRate || ""} bpm
-        Máxima: ${assessmentsByStudent?.heartRate?.maxHeartRate || ""} bpm
-    
-        Equilíbrio e Mobilidade 
-        Teste de Equilíbrio: ${assessmentsByStudent?.balanceAndMobility?.balanceTest || ""}
-        Teste de Mobilidade: ${assessmentsByStudent?.balanceAndMobility?.mobilityTest || ""}
-    
-        Postura 
-        Avaliação Postural: ${assessmentsByStudent?.posture?.postureAssessment || ""}
-    
-        Histórico Médico 
-        Lesões Anteriores: ${assessmentsByStudent?.medicalHistory?.injuryHistory || ""}
-        Condições Médicas: ${assessmentsByStudent?.medicalHistory?.medicalConditions || ""}
-        Dores Crônicas: ${assessmentsByStudent?.medicalHistory?.chronicPain || ""}
-    
-        Objetivos 
-        ${assessmentsByStudent?.fitnessGoals || ""}
-    
-        Observações
-        ${assessmentsByStudent?.observations || ""}
-    
-        Caso tenha dúvidas ou precise de ajustes no seu plano de treino, me avise! Vamos juntos alcançar seus objetivos.
-    
-        Atenciosamente,
-        ${user?.name}
-        Equipe CamMove 
-    `,
-				student,
-			);
-
-			const emailData: PostEmail = {
-				to: [student?.email || ""],
-				subject: " Sua Avaliação Física – Resultados e Análise",
-				body: `Olá ${student?.name} <br><br>
-
-        Tudo bem? Segue em anexo sua avaliação física com todos os detalhes sobre seu progresso e pontos de melhoria. <br><br>
-
-        Com base nesses resultados, podemos ajustar seu treino e estabelecer novas metas para que você continue evoluindo.<br><br>
-        
-        Se tiver dúvidas ou quiser marcar uma conversa para discutirmos os próximos passos, me avise! Estou à disposição.<br><br>
-
-        Vamos juntos alcançar seus objetivos! 💪<br><br>
-
-        Atenciosamente,
-        ${user?.name}<br><br>
-        Equipe CamMove 🚀 `,
-				attachments: [
-					{
-						filename: `avaliacao-${formattedDate}.pdf`,
-						content: pdfBase64, // Conteúdo em base64
-						encoding: "base64", // Valor fixo para 'base64'
-					},
-				],
-			};
-
-			// Chamando a função da API
-			await postEmail(emailData);
-		} catch (error) {
-			console.error("Erro ao gerar/enviar PDF:", error);
-		} finally {
-			setSendEmail(false);
-		}
-	};
-
 	const schema = z.object({
 		studentName: z.string(),
 		studentId: z.string(),
@@ -302,6 +212,104 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 		defaultValues: mapAssessmentToForm,
 	});
 
+	const bodyEmail = (values: any) => {
+		return `
+		Medições Corporais
+
+		Peso: ${values?.bodyMeasurements?.weight || ""} kg
+		Altura: ${values?.bodyMeasurements?.height || ""} cm
+		Porcentagem de Gordura Corporal: ${values?.bodyMeasurements?.bodyFatPercentage || ""}%
+		IMC: ${values?.bodyMeasurements?.imc || ""}
+
+		Circunferências
+		Cintura: ${values?.bodyMeasurements?.waistCircumference || ""} cm
+		Quadril: ${values?.bodyMeasurements?.hipCircumference || ""} cm
+		Peito: ${values?.bodyMeasurements?.chestCircumference || ""} cm
+		Braço Direito: ${values?.bodyMeasurements?.rightArmCircumference || ""} cm | Braço Esquerdo: ${values?.bodyMeasurements?.leftArmCircumference || ""} cm
+		Coxa Direita: ${values?.bodyMeasurements?.rightThighCircumference || ""} cm | Coxa Esquerda: ${values?.bodyMeasurements?.leftThighCircumference || ""} cm
+		Panturrilha Direita: ${values?.bodyMeasurements?.rightCalfCircumference || ""} cm | Panturrilha Esquerda: ${values?.bodyMeasurements?.leftCalfCircumference || ""} cm
+		Pescoço: ${values?.bodyMeasurements?.neckCircumference || ""} cm
+
+		Composição Corporal
+		Massa Muscular: ${values?.bodyMass?.muscleMass || ""} kg
+		Massa Óssea: ${values?.bodyMass?.boneMass || ""} kg
+
+		Frequência Cardíaca
+		Em repouso: ${values?.heartRate?.restingHeartRate || ""} bpm
+		Máxima: ${values?.heartRate?.maxHeartRate || ""} bpm
+
+		Equilíbrio e Mobilidade
+		Teste de Equilíbrio: ${values?.balanceAndMobility?.balanceTest?.value || ""}
+		Teste de Mobilidade: ${values?.balanceAndMobility?.mobilityTest?.value || ""}
+
+		Postura
+		Avaliação Postural: ${values?.posture?.postureAssessment?.value || ""}
+
+		Histórico Médico
+		Lesões Anteriores: ${values?.medicalHistory?.injuryHistory || ""}
+		Condições Médicas: ${values?.medicalHistory?.medicalConditions || ""}
+		Dores Crônicas: ${values?.medicalHistory?.chronicPain || ""}
+
+		Objetivos
+		${values?.fitnessGoals || ""}
+
+		Observações
+		${values?.observations || ""}
+
+		Caso tenha dúvidas ou precise de ajustes no seu plano de treino, me avise!
+		Vamos juntos alcançar seus objetivos.
+
+		Atenciosamente,
+		${user?.name}
+		Equipe CamMove
+		`.trim();
+	};
+
+	const handleSendPDFEmail = async () => {
+		try {
+			setSendEmail(true);
+			const values = getValues();
+			const cleanValues = JSON.parse(JSON.stringify(values));
+
+			const pdfBase64 = await GeneratePDFBase64(
+				bodyEmail(cleanValues),
+				student,
+			);
+
+			const emailData: PostEmail = {
+				to: [student?.email || ""],
+				subject: " Sua Avaliação Física – Resultados e Análise",
+				body: `Olá ${student?.name} <br><br>
+
+        Tudo bem? Segue em anexo sua avaliação física com todos os detalhes sobre seu progresso e pontos de melhoria. <br><br>
+
+        Com base nesses resultados, podemos ajustar seu treino e estabelecer novas metas para que você continue evoluindo.<br><br>
+        
+        Se tiver dúvidas ou quiser marcar uma conversa para discutirmos os próximos passos, me avise! Estou à disposição.<br><br>
+
+        Vamos juntos alcançar seus objetivos! 💪<br><br>
+
+        Atenciosamente,
+        ${user?.name}<br><br>
+        Equipe CamMove 🚀 `,
+				attachments: [
+					{
+						filename: `avaliacao-${formattedDate}.pdf`,
+						content: pdfBase64, // Conteúdo em base64
+						encoding: "base64", // Valor fixo para 'base64'
+					},
+				],
+			};
+
+			// Chamando a função da API
+			await postEmail(emailData);
+		} catch (error) {
+			showSnackbar("Erro ao gerar/enviar PDF", "error");
+		} finally {
+			setSendEmail(false);
+		}
+	};
+
 	useEffect(() => {
 		if (assessmentsByStudent) {
 			reset(mapAssessmentToForm);
@@ -343,43 +351,61 @@ const FormAssessments = ({ assessmentsId }: FormAssessmentsProps) => {
 				await postAssessments(user?.id || "", student?.id || "", data);
 			}
 		},
+
 		onSuccess: async () => {
-			if (assessmentsId) {
-				refetch();
-			} else {
-				navigation.navigate("Assessments" as never);
+			try {
+				await handleSendPDFEmail();
+				showSnackbar("E-mail enviado com sucesso 📩", "success");
+			} catch (error) {
+				showSnackbar("Falha ao enviar e-mail da avaliação", "error");
 			}
-			handleSendPDFEmail();
-			await sendNotification({
-				title: "📊 Avaliação física liberada!",
-				message:
-					"Sua avaliação chegou! Confira seus resultados e acompanhe seu progresso. 🚀",
-				token: [student?.deviceToken || ""],
-			});
-			const getIdNotifications = await getNotifications(student?.id || "");
-			if (getIdNotifications.length === 0) {
-				await sendNotificationsData(student?.id || "", {
-					assessments: data?.[0]?.assessments || false,
-					workout: true,
-					schedule: data?.[0].schedule || false,
-					reviews: data?.[0].reviews || false,
+
+			try {
+				// 🔔 Envio de notificação push
+				await sendNotification({
+					title: "📊 Avaliação física liberada!",
+					message:
+						"Sua avaliação chegou! Confira seus resultados e acompanhe seu progresso. 🚀",
+					token: [student?.deviceToken || ""],
 				});
-			} else {
-				await updateNotificationsData(
-					student?.id || "",
-					getIdNotifications[0].id || "",
-					{
-						assessments: data?.[0]?.assessments || false,
-						workout: true,
-						schedule: data?.[0].schedule || false,
-						reviews: data?.[0].reviews || false,
-					},
-				);
+			} catch (error) {
+				showSnackbar("Falha ao enviar notificação", "error");
 			}
+
+			try {
+				const response = await getNotifications(student?.id || "");
+				const notifications = Array.isArray(response) ? response : [];
+				if (notifications.length === 0) {
+					await sendNotificationsData(student?.id || "", {
+						assessments: true,
+						workout: true,
+						schedule: false,
+						reviews: false,
+					});
+				} else {
+					await updateNotificationsData(
+						student?.id || "",
+						notifications[0].id || "",
+						{
+							assessments: true,
+							workout: true,
+							schedule: false,
+							reviews: false,
+						},
+					);
+				}
+			} catch (error) {
+				showSnackbar("Falha ao atualizar notificações", "error");
+			}
+
+			// Navegação final
+			navigation.navigate("Assessments" as never);
 		},
-		onError: () => {
+
+		onError: (error) => {
 			showSnackbar("Erro ao cadastrar avaliação", "error");
 		},
+
 		onSettled: () => {
 			resetStudent();
 		},

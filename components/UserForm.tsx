@@ -117,6 +117,7 @@ const UserForm = ({ userData, children }: UserFormProps) => {
 						labelButton="Escolher foto de perfil"
 						storageFolder="users"
 						deletePreviousImage={userData?.image}
+						multiple={false}
 					/>
 
 					<FormField
