@@ -77,10 +77,11 @@ const UserForm = ({ userData, children }: UserFormProps) => {
 		onSuccess: (data) => {
 			setUser({
 				...(data ?? {}),
-				onboarding_completed: user?.permission === "STUDENT" ? false : true,
+				onboarding_completed:
+					user?.permission === "STUDENT" ? user?.status === "ACTIVE" : true,
 			});
 
-			if (user?.permission === "STUDENT") {
+			if (user?.permission === "STUDENT" && user?.status !== "ACTIVE") {
 				setShowListTeacher(true);
 			}
 			showSnackbar("Dados atualizados", "success");
