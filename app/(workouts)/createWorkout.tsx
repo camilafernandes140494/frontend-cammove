@@ -11,7 +11,7 @@ import { WorkoutFormProvider } from "@/context/WorkoutFormContext";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { FlatList, View } from "react-native";
+import { View } from "react-native";
 import { Appbar, Button, Text } from "react-native-paper";
 import { useStudent } from "../../context/StudentContext";
 
@@ -33,18 +33,68 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
 	const [newStudent, setNewStudent] = useState(!studentId);
 	const { theme } = useTheme();
 
-	// useFocusEffect(
-	// 	useCallback(() => {
-	// 		studentId ? refetchStudent(studentId) : refetchStudent("");
-	// 	}, [studentId]),
-	// );
-
 	const { data: review } = useQuery({
 		queryKey: ["getReviewById", user?.id, workoutId],
 		queryFn: () =>
 			getReviewById(user?.id || "", workoutId || "", studentId || ""),
 		enabled: !!user?.id && !!workoutId && !!studentId,
 	});
+
+	const renderStudentSelection = () => (
+		<>
+			<View
+				style={{
+					flex: 1,
+					backgroundColor: theme.colors.background,
+				}}
+			>
+				<View style={{ marginHorizontal: 12, marginTop: 24 }}>
+					<Text variant="titleMedium">Escolha um aluno(a)</Text>
+					<FilterInput onChange={setParams} placeholder="Pesquisar aluno(a)" />
+
+					<SelectStudent
+						filterName={params}
+						onSelect={(student) => refetchStudent(student.studentId)}
+						teacherId={user?.id || ""}
+					/>
+				</View>
+			</View>
+			<View
+				style={{
+					padding: 16,
+					backgroundColor: theme.colors.background,
+				}}
+			>
+				<Button
+					disabled={student?.permission !== "STUDENT"}
+					mode="contained"
+					style={{ marginTop: 16 }}
+					onPress={() => setNewStudent(false)}
+				>
+					Continuar
+				</Button>
+			</View>
+		</>
+	);
+
+	const renderWorkoutForm = () => {
+		if (isLoading) {
+			return (
+				<View style={{ alignItems: "center", gap: 16, marginTop: 16 }}>
+					<Skeleton style={{ width: "90%", height: 50, borderRadius: 20 }} />
+					<Skeleton style={{ width: "90%", height: 50, borderRadius: 20 }} />
+					<Skeleton style={{ width: "90%", height: 150, borderRadius: 20 }} />
+					<Skeleton style={{ width: "90%", height: 50, borderRadius: 20 }} />
+				</View>
+			);
+		}
+
+		return (
+			<WorkoutFormProvider>
+				<FormWorkout workoutId={workoutId} />
+			</WorkoutFormProvider>
+		);
+	};
 
 	return (
 		<>
@@ -53,84 +103,30 @@ const CreateWorkout = ({ route }: CreateWorkoutProps) => {
 					onPress={() => navigation.navigate("Workouts" as never)}
 				/>
 				<Appbar.Content title="Cadastrar treino" />
-
 				{review?.review && (
 					<CustomModal
-						cancelButtonLabel={"Fechar"}
+						cancelButtonLabel="Fechar"
 						onPress={() => {}}
 						showPrimaryButton={false}
 						title="Avaliação do treino"
 						trigger={
-							<Button icon={"star"} mode="elevated">
+							<Button icon="star" mode="elevated">
 								Ver avaliação
 							</Button>
 						}
 					>
 						<CardReview
 							navigation={navigation}
-							reviewData={review!}
+							reviewData={review}
 							showButtonWorkout={false}
 						/>
 					</CustomModal>
 				)}
 			</Appbar.Header>
 
-			<FlatList
-				data={[{}]}
-				keyExtractor={() => "header"}
-				nestedScrollEnabled
-				renderItem={() => (
-					<>
-						{newStudent ? (
-							<View style={{ margin: 20 }}>
-								<Text variant="titleMedium">Escolha um aluno(a)</Text>
-								<FilterInput
-									onChange={setParams}
-									placeholder="Pesquisar aluno(a)"
-								/>
-								<SelectStudent
-									filterName={params}
-									onSelect={(student) => refetchStudent(student.studentId)}
-									teacherId={user?.id || ""}
-								/>
-								<Button
-									disabled={student?.permission !== "STUDENT"}
-									mode="contained"
-									onPress={() => setNewStudent(false)}
-								>
-									Continuar
-								</Button>
-							</View>
-						) : (
-							<>
-								{isLoading ? (
-									<View
-										style={{ alignItems: "center", gap: 16, marginTop: 16 }}
-									>
-										<Skeleton
-											style={{ width: "90%", height: 50, borderRadius: 20 }}
-										/>
-										<Skeleton
-											style={{ width: "90%", height: 50, borderRadius: 20 }}
-										/>
-										<Skeleton
-											style={{ width: "90%", height: 150, borderRadius: 20 }}
-										/>
-										<Skeleton
-											style={{ width: "90%", height: 50, borderRadius: 20 }}
-										/>
-									</View>
-								) : (
-									<WorkoutFormProvider>
-										<FormWorkout workoutId={workoutId} />
-									</WorkoutFormProvider>
-								)}
-							</>
-						)}
-					</>
-				)}
-				style={{ flex: 1, backgroundColor: theme.colors.background }}
-			/>
+			<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+				{newStudent ? renderStudentSelection() : renderWorkoutForm()}
+			</View>
 		</>
 	);
 };
