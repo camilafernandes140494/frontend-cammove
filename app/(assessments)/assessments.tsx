@@ -65,10 +65,40 @@ const Assessments = ({ navigation }: any) => {
 					Nova Avaliação
 				</Button>
 			</Appbar.Header>
+			<View style={{ padding: 16 }}>
+				<SegmentedButtons
+					buttons={[
+						{
+							value: "assessments",
+							label: "Avaliações",
+							icon: "chart-bar",
+						},
+						{ value: "students", label: "Alunos", icon: "account-group" },
+					]}
+					onValueChange={setValue}
+					value={value}
+				/>
+				<FilterInput
+					onChange={(value) => setParams({ name: value })}
+					placeholder="Pesquisar aluno(a)"
+				/>
 
+				{value === "students" && (
+					<SelectStudent
+						filterName={params?.name}
+						onSelect={(student) => {
+							navigation.navigate("DetailsAssessments", {
+								studentId: student.studentId,
+							});
+						}}
+						teacherId={user?.id!}
+					/>
+				)}
+			</View>
 			<FlatList
 				data={value === "students" ? [] : assessmentsSummary}
 				keyExtractor={(item) => `${item.studentName}-${item.id}`}
+				inverted
 				ListEmptyComponent={
 					isLoading ? (
 						<View>
@@ -93,38 +123,6 @@ const Assessments = ({ navigation }: any) => {
 					) : (
 						<View />
 					)
-				}
-				ListHeaderComponent={
-					<View style={{ padding: 16 }}>
-						<SegmentedButtons
-							buttons={[
-								{
-									value: "assessments",
-									label: "Avaliações",
-									icon: "chart-bar",
-								},
-								{ value: "students", label: "Alunos", icon: "account-group" },
-							]}
-							onValueChange={setValue}
-							value={value}
-						/>
-						<FilterInput
-							onChange={(value) => setParams({ name: value })}
-							placeholder="Pesquisar aluno(a)"
-						/>
-
-						{value === "students" && (
-							<SelectStudent
-								filterName={params?.name}
-								onSelect={(student) => {
-									navigation.navigate("DetailsAssessments", {
-										studentId: student.studentId,
-									});
-								}}
-								teacherId={user?.id!}
-							/>
-						)}
-					</View>
 				}
 				onRefresh={refetch}
 				refreshing={isLoading || isFetching}
