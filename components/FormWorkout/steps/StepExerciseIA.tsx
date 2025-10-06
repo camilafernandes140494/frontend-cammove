@@ -8,12 +8,13 @@ import { calculateAge } from "@/common/common";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import ExerciseModal from "@/components/ExerciseModal";
 import { FormField } from "@/components/FormField";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useStudent } from "@/context/StudentContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useWatch } from "react-hook-form";
-import { FlatList, View } from "react-native";
+import { View } from "react-native";
 import { Button, Card } from "react-native-paper";
 
 interface StepExerciseIAProps {
@@ -36,6 +37,7 @@ const StepExerciseIA = ({
 	const [match, setMatch] = useState<Exercise | null>(null);
 	const { theme } = useTheme();
 	const allValues = useWatch({ control });
+	const { showSnackbar } = useSnackbar();
 
 	const { data: exercises } = useQuery({
 		queryKey: ["getExercises"],
@@ -57,7 +59,7 @@ const StepExerciseIA = ({
 				type: allValues.type.value || allValues.customType || "",
 				level: allValues.level,
 				muscleGroup: allValues.muscleGroup || [],
-				amountExercises: allValues.amountExercises || 4,
+				amountExercises: Number(allValues.amountExercises) || 4,
 			});
 		},
 		onSuccess: (data) => {
@@ -84,8 +86,8 @@ const StepExerciseIA = ({
 			setExercisesList(exercisesMapped);
 		},
 
-		onError: (error) => {
-			console.error("Erro ao processar o objeto do treino:", error);
+		onError: () => {
+			showSnackbar("Erro ao gerar sugestão", "error");
 		},
 	});
 
@@ -134,14 +136,10 @@ const StepExerciseIA = ({
 			{exercisesList && exercisesList.length !== 0 && (
 				<Card mode="outlined">
 					<Card.Content>
-						<FlatList
-							data={exercisesList}
-							initialNumToRender={10}
-							keyExtractor={(item) =>
-								`temp-${item.exerciseId.id}-${item.exerciseId.name}-${item.exerciseId.createdAt}`
-							}
-							renderItem={renderExerciseItem}
-						/>
+						{exercisesList?.map((exercise) =>
+							renderExerciseItem({ item: exercise }),
+						)}
+
 						<ExerciseModal
 							onSave={(exercise) =>
 								setExercisesList((prev) => [...prev, exercise])

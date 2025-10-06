@@ -1,4 +1,5 @@
 import { deleteFiles } from "@/api/files/files.api";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useMutation } from "@tanstack/react-query";
 import { Video } from "expo-av";
 import React, { useState } from "react";
@@ -19,6 +20,7 @@ export default function VideoPlayer({
 	onDelete,
 }: VideoPlayerProps) {
 	const [loading, setLoading] = useState(true);
+	const { showSnackbar } = useSnackbar();
 
 	const mutation = useMutation({
 		mutationFn: async () => {
@@ -30,7 +32,7 @@ export default function VideoPlayer({
 			}
 		},
 		onError: () => {
-			console.log("erro");
+			showSnackbar("Erro ao deletar video", "error");
 		},
 	});
 

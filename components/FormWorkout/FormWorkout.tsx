@@ -12,15 +12,16 @@ import {
 	postWorkout,
 } from "@/api/workout/workout.api";
 import type { ExerciseWorkout } from "@/api/workout/workout.types";
+import { useSnackbar } from "@/context/SnackbarContext";
 import { useStudent } from "@/context/StudentContext";
 import { useUser } from "@/context/UserContext";
 import { useWorkoutForm } from "@/context/WorkoutFormContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FlatList, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { Button, Icon, ProgressBar, Text } from "react-native-paper";
 import * as z from "zod";
 import StudentCard from "../StudentCard";
@@ -34,11 +35,12 @@ interface FormWorkoutProps {
 	workoutId?: string;
 }
 const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
-	const [visible, setVisible] = useState(false);
 	const { student } = useStudent();
 	const { user } = useUser();
 	const navigation = useNavigation();
 	const isFocused = useIsFocused();
+	const { showSnackbar } = useSnackbar();
+	const scrollViewRef = useRef<ScrollView>(null);
 
 	const { data } = useQuery({
 		queryKey: ["getNotifications", student?.id],
@@ -83,7 +85,7 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 		nameWorkout: z.string(),
 		level: z.string().optional(),
 		muscleGroup: z.array(z.string()).optional(),
-		amountExercises: z.number().optional().default(4),
+		amountExercises: z.union([z.number(), z.string()]).optional().default(4),
 	});
 
 	const { control, handleSubmit, watch, reset } = useForm<
@@ -104,7 +106,6 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 			amountExercises: 4,
 		},
 	});
-
 	useEffect(() => {
 		if (workoutByStudent) {
 			reset({
@@ -136,6 +137,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 			return await postWorkout(user?.id || "", student?.id || "", workoutData);
 		},
 		onSuccess: async () => {
+			navigation.navigate("Workouts" as never);
+
 			await sendNotification({
 				title: "💪 Treino liberado!",
 				message:
@@ -166,11 +169,9 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 					},
 				);
 			}
-
-			navigation.navigate("Workouts" as never);
 		},
 		onError: () => {
-			setVisible(true);
+			showSnackbar("Erro ao cadastrar treino", "error");
 		},
 	});
 
@@ -244,6 +245,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 	];
 
 	const handleNext = () => {
+		scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+
 		if (isGeneratedByIA) {
 			// Fluxo IA
 			if (step === 2) return goToStep(4);
@@ -259,6 +262,8 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 	};
 
 	const handlePrev = () => {
+		scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+
 		if (isGeneratedByIA) {
 			if (step === 4) {
 				setExercisesList([]);
@@ -277,94 +282,81 @@ const FormWorkout = ({ workoutId }: FormWorkoutProps) => {
 		<>
 			<StudentCard />
 
-			<FlatList
-				contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-				data={[{}]}
-				keyboardShouldPersistTaps="handled"
-				keyExtractor={() => "FormWorkout"}
-				renderItem={() => (
-					<>
-						<View style={{ padding: 20 }}>
-							<ProgressBar progress={step / 5} />
-							<View
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-									gap: 8,
-									marginVertical: 8,
-								}}
-							>
-								<Icon size={20} source={stepItems[step - 1].icon ?? ""} />
-								<Text variant="titleMedium">
-									{stepItems[step - 1].label ?? ""}
-								</Text>
-							</View>
-							<View style={{ marginVertical: 20 }}>
-								{step === 1 && (
-									<StepTrainingData
-										control={control}
-										selectedType={selectedType.value}
-									/>
-								)}
+			<ScrollView ref={scrollViewRef} style={{ padding: 20 }}>
+				<ProgressBar progress={step / 5} />
+				<View
+					style={{
+						flexDirection: "row",
+						alignItems: "center",
+						gap: 8,
+						marginVertical: 8,
+					}}
+				>
+					<Icon size={20} source={stepItems[step - 1].icon ?? ""} />
+					<Text variant="titleMedium">{stepItems[step - 1].label ?? ""}</Text>
+				</View>
+				<View style={{ marginVertical: 20 }}>
+					{step === 1 && (
+						<StepTrainingData
+							control={control}
+							selectedType={selectedType.value}
+						/>
+					)}
 
-								{step === 2 && <StepChooseType />}
+					{step === 2 && <StepChooseType />}
 
-								{step === 3 && (
-									<StepManualExercise
-										exercisesList={exercisesList}
-										removeExercise={removeExercise}
-										setExercisesList={setExercisesList}
-										updateExerciseList={updateExerciseList}
-									/>
-								)}
-								{step === 4 && (
-									<StepExerciseIA
-										control={control}
-										exercisesList={exercisesList}
-										removeExercise={removeExercise}
-										setExercisesList={setExercisesList}
-										updateExerciseList={(exerciseData) =>
-											updateExerciseList(exerciseData, "name")
-										}
-									/>
-								)}
-								{step === 5 && (
-									<StepReviewAndSubmit
-										control={control}
-										exercisesList={exercisesList}
-										removeExercise={removeExercise}
-										setExercisesList={setExercisesList}
-										updateExerciseList={(exerciseData) =>
-											updateExerciseList(
-												exerciseData,
-												isGeneratedByIA ? "name" : "id",
-											)
-										}
-									/>
-								)}
-								<Button
-									disabled={step === 1}
-									mode="outlined"
-									onPress={handlePrev}
-									style={{ marginTop: 16 }}
-								>
-									Voltar
-								</Button>
-								<Button
-									disabled={!isStepValid() || mutation?.isPending}
-									loading={mutation?.isPending}
-									mode="contained"
-									onPress={handleNext}
-									style={{ marginTop: 16 }}
-								>
-									{step === 5 ? "Enviar" : "Próximo"}
-								</Button>
-							</View>
-						</View>
-					</>
-				)}
-				style={{ flex: 1 }}
-			/>
+					{step === 3 && (
+						<StepManualExercise
+							exercisesList={exercisesList}
+							removeExercise={removeExercise}
+							setExercisesList={setExercisesList}
+							updateExerciseList={updateExerciseList}
+						/>
+					)}
+					{step === 4 && (
+						<StepExerciseIA
+							control={control}
+							exercisesList={exercisesList}
+							removeExercise={removeExercise}
+							setExercisesList={setExercisesList}
+							updateExerciseList={(exerciseData) =>
+								updateExerciseList(exerciseData, "name")
+							}
+						/>
+					)}
+					{step === 5 && (
+						<StepReviewAndSubmit
+							control={control}
+							exercisesList={exercisesList}
+							removeExercise={removeExercise}
+							setExercisesList={setExercisesList}
+							updateExerciseList={(exerciseData) =>
+								updateExerciseList(
+									exerciseData,
+									isGeneratedByIA ? "name" : "id",
+								)
+							}
+						/>
+					)}
+					<Button
+						disabled={step === 1}
+						mode="outlined"
+						onPress={handlePrev}
+						style={{ marginTop: 16 }}
+					>
+						Voltar
+					</Button>
+					<Button
+						disabled={!isStepValid() || mutation?.isPending}
+						loading={mutation?.isPending}
+						mode="contained"
+						onPress={handleNext}
+						style={{ marginTop: 16 }}
+					>
+						{step === 5 ? "Enviar" : "Próximo"}
+					</Button>
+				</View>
+			</ScrollView>
 		</>
 	);
 };
