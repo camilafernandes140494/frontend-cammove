@@ -19,7 +19,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import {
 	Appbar,
@@ -115,6 +115,15 @@ const DetailsWorkoutStudent = () => {
 			});
 		},
 	});
+
+	useEffect(() => {
+		if (
+			workoutByStudent?.exercises.length === Object.keys(checkedItems).length
+		) {
+			mutation.mutate();
+			setShowCongrats(true);
+		}
+	}, [checkedItems, workoutByStudent?.exercises.length]);
 
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
