@@ -1,123 +1,117 @@
-import type { ExerciseWorkout } from '@/api/workout/workout.types';
-import { ExerciseCard } from '@/components/ExerciseCard';
-import InfoField from '@/components/InfoField';
-import { useTheme } from '@/context/ThemeContext';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useCallback } from 'react';
-import { useWatch } from 'react-hook-form';
-import { FlatList, View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
+import type { ExerciseWorkout } from "@/api/workout/workout.types";
+import { ExerciseCard } from "@/components/ExerciseCard";
+import InfoField from "@/components/InfoField";
+import { useTheme } from "@/context/ThemeContext";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useCallback } from "react";
+import { useWatch } from "react-hook-form";
+import { View } from "react-native";
+import { Card, Text } from "react-native-paper";
 
 interface StepReviewAndSubmitProps {
-  control?: any;
-  removeExercise: (exerciseId: string) => void;
-  exercisesList: ExerciseWorkout[];
-  setExercisesList: React.Dispatch<React.SetStateAction<ExerciseWorkout[]>>;
-  updateExerciseList: (exercise: ExerciseWorkout) => void;
+	control?: any;
+	removeExercise: (exerciseId: string) => void;
+	exercisesList: ExerciseWorkout[];
+	setExercisesList: React.Dispatch<React.SetStateAction<ExerciseWorkout[]>>;
+	updateExerciseList: (exercise: ExerciseWorkout) => void;
 }
 
 const StepReviewAndSubmit = ({
-  control,
-  removeExercise,
-  exercisesList,
-  updateExerciseList,
+	control,
+	removeExercise,
+	exercisesList,
+	updateExerciseList,
 }: StepReviewAndSubmitProps) => {
-  const allValues = useWatch({ control });
-  const { theme } = useTheme();
+	const allValues = useWatch({ control });
+	const { theme } = useTheme();
 
-  const renderExerciseItem = useCallback(
-    ({ item }: { item: ExerciseWorkout }) => {
-      const isLinked = Boolean(
-        item.exerciseId?.id && item.exerciseId.id.trim() !== ''
-      );
+	const renderExerciseItem = useCallback(
+		({ item }: { item: ExerciseWorkout }) => {
+			const isLinked = Boolean(
+				item.exerciseId?.id && item.exerciseId.id.trim() !== "",
+			);
 
-      return (
-        <ExerciseCard
-          isLinked={isLinked}
-          item={item}
-          removeExercise={removeExercise}
-          updateExerciseList={updateExerciseList}
-        />
-      );
-    },
-    [exercisesList, theme]
-  );
+			return (
+				<ExerciseCard
+					isLinked={isLinked}
+					item={item}
+					removeExercise={removeExercise}
+					updateExerciseList={updateExerciseList}
+				/>
+			);
+		},
+		[exercisesList, theme],
+	);
 
-  return (
-    <View style={{ marginVertical: 20, gap: 24 }}>
-      <Card mode="outlined">
-        <Card.Title title="Dados do treino" />
-        <Card.Content>
-          <InfoField
-            description={allValues.nameWorkout || ''}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-            title="Nome do treino"
-          />
+	return (
+		<View style={{ marginVertical: 20, gap: 24 }}>
+			<Card mode="outlined">
+				<Card.Title title="Dados do treino" />
+				<Card.Content>
+					<InfoField
+						description={allValues.nameWorkout || ""}
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							justifyContent: "space-between",
+						}}
+						title="Nome do treino"
+					/>
 
-          <InfoField
-            description={allValues.level || ''}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-            title="Intesidade"
-          />
-          <InfoField
-            description={allValues.type.value || allValues.customType || ''}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-            title="Objetivo"
-          />
-          <InfoField
-            description={
-              Array.isArray(allValues.muscleGroup)
-                ? allValues.muscleGroup.join(', ')
-                : ''
-            }
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-            title="Grupo muscular"
-          />
-        </Card.Content>
-      </Card>
-      <Card mode="outlined">
-        <Card.Content>
-          <FlatList
-            contentOffset={{ x: 0, y: 0 }}
-            data={exercisesList}
-            initialNumToRender={10}
-            keyExtractor={(item) => item.exerciseId.name}
-            ListEmptyComponent={
-              <View style={{ alignItems: 'center', padding: 40 }}>
-                <MaterialCommunityIcons
-                  color="#999"
-                  name="playlist-remove"
-                  size={48}
-                />
-                <Text
-                  style={{ fontSize: 16, marginVertical: 12, color: '#555' }}
-                >
-                  Nenhuma exercício encontrado.
-                </Text>
-              </View>
-            }
-            nestedScrollEnabled
-            renderItem={renderExerciseItem}
-          />
-        </Card.Content>
-      </Card>
-    </View>
-  );
+					<InfoField
+						description={allValues.level || ""}
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							justifyContent: "space-between",
+						}}
+						title="Intesidade"
+					/>
+					<InfoField
+						description={allValues.type.value || allValues.customType || ""}
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							justifyContent: "space-between",
+						}}
+						title="Objetivo"
+					/>
+					<InfoField
+						description={
+							Array.isArray(allValues.muscleGroup)
+								? allValues.muscleGroup.join(", ")
+								: ""
+						}
+						style={{
+							flexDirection: "column",
+							alignItems: "flex-start",
+							justifyContent: "flex-start",
+						}}
+						title="Grupo muscular"
+					/>
+				</Card.Content>
+			</Card>
+			<Card mode="outlined">
+				<Card.Content>
+					{exercisesList && exercisesList.length !== 0 ? (
+						exercisesList?.map((exercise) =>
+							renderExerciseItem({ item: exercise }),
+						)
+					) : (
+						<View style={{ alignItems: "center", padding: 40 }}>
+							<MaterialCommunityIcons
+								color="#999"
+								name="playlist-remove"
+								size={48}
+							/>
+							<Text style={{ fontSize: 16, marginVertical: 12, color: "#555" }}>
+								Nenhuma exercício encontrado.
+							</Text>
+						</View>
+					)}
+				</Card.Content>
+			</Card>
+		</View>
+	);
 };
 export default StepReviewAndSubmit;
