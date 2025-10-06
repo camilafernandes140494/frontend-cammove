@@ -84,8 +84,13 @@ const HomeStudent = () => {
 	]);
 
 	allDates.forEach((date) => {
-		const hasTraining = trainingDates?.some((d) => d.date === date);
-		const hasSchedule = scheduleDates?.some((d) => d.date === date);
+		const hasTraining = Array.isArray(trainingDates)
+			? trainingDates.some((d) => d.date === date)
+			: false;
+
+		const hasSchedule = Array.isArray(scheduleDates)
+			? scheduleDates.some((d) => d.date === date)
+			: false;
 
 		if (hasTraining && hasSchedule) {
 			markedDates[date] = {
@@ -181,7 +186,6 @@ const HomeStudent = () => {
 		}
 	}, [user]);
 
-	console.log(user, "user in home student");
 	return (
 		<View style={{ flex: 1, backgroundColor: theme.colors.background }}>
 			<Appbar.Header mode="small">
