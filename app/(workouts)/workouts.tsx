@@ -11,6 +11,7 @@ import FilterInput from "@/components/FilterInput";
 import SelectStudent from "@/components/SelectStudent";
 import Skeleton from "@/components/Skeleton";
 import TermsCard from "@/components/TermsCard";
+import { useStudent } from "@/context/StudentContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@/context/UserContext";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +36,7 @@ const Workouts = ({ navigation }: any) => {
 	const [value, setValue] = useState("workouts");
 	const { user } = useUser();
 	const { theme } = useTheme();
+	const { resetStudent } = useStudent();
 
 	const {
 		data: workoutsSummary,
@@ -117,20 +119,94 @@ const Workouts = ({ navigation }: any) => {
 				<Button
 					icon="plus"
 					mode="contained"
-					onPress={() =>
-						navigation.navigate("CreateWorkout", { workoutId: undefined })
-					}
+					onPress={() => {
+						resetStudent(),
+							navigation.navigate("CreateWorkout", { workoutId: undefined });
+					}}
 				>
 					Novo treino
 				</Button>
 			</Appbar.Header>
 
+			<View style={{ padding: 16 }}>
+				<SegmentedButtons
+					value={value}
+					onValueChange={setValue}
+					buttons={[
+						{ value: "workouts", label: "Treinos", icon: "dumbbell" },
+						{ value: "students", label: "Alunos", icon: "account-group" },
+					]}
+				/>
+
+				{value === "workouts" && (
+					<View
+						style={{
+							flexDirection: "row",
+							flexWrap: "wrap",
+							padding: 10,
+							gap: 10,
+						}}
+					>
+						<CustomChip
+							color="primary"
+							label="Expirado"
+							icon="alert-circle-outline"
+							onSelect={(selected) =>
+								setDateStatus(selected ? "PAST" : "INVALID_DATE")
+							}
+						/>
+						<CustomChip
+							color="error"
+							label="Prestes a Expirar"
+							icon="clock-alert-outline"
+							onSelect={(selected) =>
+								setDateStatus(selected ? "UPCOMING" : "INVALID_DATE")
+							}
+						/>
+						<CustomChip
+							color="tertiary"
+							label="Em dia"
+							icon="check-circle-outline"
+							onSelect={(selected) =>
+								setDateStatus(selected ? "FUTURE" : "INVALID_DATE")
+							}
+						/>
+					</View>
+				)}
+
+				<FilterInput
+					placeholder="Pesquisar aluno(a)"
+					onChange={(value) => setParams({ name: value })}
+				/>
+
+				{workoutsSummaryFilter?.length === 0 && value === "workouts" && (
+					<Text
+						variant="titleSmall"
+						style={{ marginTop: 16, textAlign: "center" }}
+					>
+						Nenhum dado encontrado
+					</Text>
+				)}
+
+				{value === "students" && (
+					<SelectStudent
+						teacherId={user?.id!}
+						onSelect={(student) => {
+							navigation.navigate("DetailsWorkout", {
+								studentId: student.studentId,
+							});
+						}}
+						filterName={params?.name}
+					/>
+				)}
+			</View>
 			<FlatList
 				data={value === "students" ? [] : workoutsSummaryFilter}
 				keyExtractor={(item) => `${item.studentName}-${item.id}`}
 				keyboardShouldPersistTaps="handled"
 				refreshing={isLoading || isFetching}
 				onRefresh={refetch}
+				inverted
 				ListEmptyComponent={
 					!isLoading && !isFetching && value === "workouts" ? (
 						<EmptyState message="Nenhum treino encontrado." onRetry={refetch} />
@@ -144,80 +220,6 @@ const Workouts = ({ navigation }: any) => {
 					) : (
 						<View />
 					)
-				}
-				ListHeaderComponent={
-					<View style={{ padding: 16 }}>
-						<SegmentedButtons
-							value={value}
-							onValueChange={setValue}
-							buttons={[
-								{ value: "workouts", label: "Treinos", icon: "dumbbell" },
-								{ value: "students", label: "Alunos", icon: "account-group" },
-							]}
-						/>
-
-						{value === "workouts" && (
-							<View
-								style={{
-									flexDirection: "row",
-									flexWrap: "wrap",
-									padding: 10,
-									gap: 10,
-								}}
-							>
-								<CustomChip
-									color="primary"
-									label="Expirado"
-									icon="alert-circle-outline"
-									onSelect={(selected) =>
-										setDateStatus(selected ? "PAST" : "INVALID_DATE")
-									}
-								/>
-								<CustomChip
-									color="error"
-									label="Prestes a Expirar"
-									icon="clock-alert-outline"
-									onSelect={(selected) =>
-										setDateStatus(selected ? "UPCOMING" : "INVALID_DATE")
-									}
-								/>
-								<CustomChip
-									color="tertiary"
-									label="Em dia"
-									icon="check-circle-outline"
-									onSelect={(selected) =>
-										setDateStatus(selected ? "FUTURE" : "INVALID_DATE")
-									}
-								/>
-							</View>
-						)}
-
-						<FilterInput
-							placeholder="Pesquisar aluno(a)"
-							onChange={(value) => setParams({ name: value })}
-						/>
-
-						{workoutsSummaryFilter?.length === 0 && value === "workouts" && (
-							<Text
-								variant="titleSmall"
-								style={{ marginTop: 16, textAlign: "center" }}
-							>
-								Nenhum dado encontrado
-							</Text>
-						)}
-
-						{value === "students" && (
-							<SelectStudent
-								teacherId={user?.id!}
-								onSelect={(student) => {
-									navigation.navigate("DetailsWorkout", {
-										studentId: student.studentId,
-									});
-								}}
-								filterName={params?.name}
-							/>
-						)}
-					</View>
 				}
 				renderItem={({ item }) => (
 					<>
