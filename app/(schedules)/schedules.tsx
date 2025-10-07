@@ -9,12 +9,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import React, { useState } from "react";
+import React from "react";
 import { FlatList, View } from "react-native";
 import { Appbar, Button, Card, Chip, Text } from "react-native-paper";
 
 const Schedules = ({ navigation }: any) => {
-	const [params, setParams] = useState<{ name: string }>();
 	const { user } = useUser();
 	const { theme } = useTheme();
 
@@ -24,8 +23,8 @@ const Schedules = ({ navigation }: any) => {
 		isFetching,
 		refetch,
 	} = useQuery({
-		queryKey: ["getSchedule", params],
-		queryFn: () => getSchedule(user?.id!, params),
+		queryKey: ["getSchedule"],
+		queryFn: () => getSchedule(user?.id!),
 		enabled: !!user?.id,
 	});
 
@@ -73,6 +72,7 @@ const Schedules = ({ navigation }: any) => {
 				data={schedule}
 				keyboardShouldPersistTaps="handled"
 				keyExtractor={(item) => `${item.createdAt}-${item.id}`}
+				inverted
 				ListEmptyComponent={
 					isLoading || isFetching ? (
 						<View>

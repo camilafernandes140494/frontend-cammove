@@ -58,14 +58,24 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 	}, [userById]);
 
 	useEffect(() => {
-		const loadUser = async () => {
+		const loadSession = async () => {
 			const storedUser = await AsyncStorage.getItem("@user_data");
+			const storedToken = await authService.loadToken();
+
 			if (storedUser) {
-				setUser(JSON.parse(storedUser));
+				const parsedUser = JSON.parse(storedUser);
+				// Se não tiver token no authService mas tiver no user, garante sincronização
+				if (!storedToken && parsedUser.token) {
+					await authService.setToken(parsedUser.token);
+				}
+				setUser(parsedUser);
+			} else if (storedToken) {
+				// Caso tenha token mas não user (situação rara, mas possível)
+				await AsyncStorage.setItem("@user_token", storedToken);
 			}
 		};
 
-		loadUser();
+		loadSession();
 	}, []);
 
 	const login = async (userData: Partial<UserType>) => {
