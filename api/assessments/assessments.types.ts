@@ -48,6 +48,27 @@ type MedicalHistory = {
 	chronicPain?: string;
 };
 
+type PhysicalActivityHistory = {
+	currentlyActive: string;
+	activities: string;
+	frequency: string;
+};
+
+// 🆕 Hábitos de vida
+type Lifestyle = {
+	smoking: string;
+	alcoholConsumption: string;
+	sleepQuality: string;
+	stressLevel: string;
+};
+
+type Nutrition = {
+	hasNutritionFollowUp: string;
+	mealsPerDay: string;
+	foodQuality: string;
+	dietaryRestrictions: string;
+};
+
 export type AssessmentData = {
 	// Medições Corporais
 	studentName?: string;
@@ -80,6 +101,15 @@ export type AssessmentData = {
 	// Data da avaliação
 	assessmentDate?: string;
 	createdAt: string;
+
+	// Histórico de Atividade Física
+	physicalActivityHistory?: PhysicalActivityHistory;
+
+	// Hábitos de Vida
+	lifestyle?: Lifestyle;
+
+	// 🆕 Nutrição
+	nutrition?: Nutrition;
 };
 
 export type BasicAssessmentItem = {
