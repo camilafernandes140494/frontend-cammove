@@ -64,14 +64,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 			if (storedUser) {
 				const parsedUser = JSON.parse(storedUser);
-				// Se não tiver token no authService mas tiver no user, garante sincronização
-				if (!storedToken && parsedUser.token) {
+
+				// se não tiver token salvo, tenta recuperar do user_data
+				if (!storedToken && parsedUser?.token) {
 					await authService.setToken(parsedUser.token);
 				}
-				setUser(parsedUser);
-			} else if (storedToken) {
-				// Caso tenha token mas não user (situação rara, mas possível)
-				await AsyncStorage.setItem("@user_token", storedToken);
+
+				setUser({
+					...parsedUser,
+					token: storedToken || parsedUser.token || null,
+				});
 			}
 		};
 
