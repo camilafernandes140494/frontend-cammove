@@ -96,9 +96,10 @@ const Assessments = ({ navigation }: any) => {
 				)}
 			</View>
 			<FlatList
-				data={value === "students" ? [] : assessmentsSummary}
+				data={
+					value === "students" ? [] : [...(assessmentsSummary ?? [])].reverse()
+				}
 				keyExtractor={(item) => `${item.studentName}-${item.id}`}
-				inverted
 				ListEmptyComponent={
 					isLoading ? (
 						<View>
